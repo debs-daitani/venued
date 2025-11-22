@@ -138,8 +138,8 @@ color: ['#FF1B8D', '#9D4EDD', '#39FF14', '#00D9FF'][(project.phases?.length ?? 0
     } else {
       // Create new task
       const newTask: Task = {
-        id: `task-${Date.now()}`,
-        ...taskData as Task,
+  ...taskData as Task,
+  id: taskData.id || `task-${Date.now()}`,
         phaseId: activePhaseId,
         dependencies: [],
         completed: false,
