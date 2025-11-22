@@ -101,8 +101,7 @@ export default function Setlist() {
       description: '',
       order: project.phases?.length || 0,
       tasks: [],
-      color: ['#FF1B8D', '#9D4EDD', '#39FF14', '#00D9FF'][project.phases?.length % 4 || 0],
-    };
+color: ['#FF1B8D', '#9D4EDD', '#39FF14', '#00D9FF'][(project.phases?.length ?? 0) % 4],    };
 
     setProject(prev => ({
       ...prev,
