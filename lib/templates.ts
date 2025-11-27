@@ -12,7 +12,7 @@ export const templates: ProjectTemplate[] = [
         name: 'Planning & Strategy',
         description: 'Define goals, audience, and strategy',
         order: 0,
-          color: '#FF1B8D',
+        color: '#FF1B8D',
       },
       {
         id: 'build',
