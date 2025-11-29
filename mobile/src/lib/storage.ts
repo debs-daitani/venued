@@ -11,7 +11,24 @@ const KEYS = {
   EXECUTIVE_FUNCTION: 'venued_executive_function',
   FOCUS_SESSIONS: 'venued_focus_sessions',
   TIME_TRACKING: 'venued_time_tracking',
+  POWER_MESSAGE_LAST_SHOWN: 'venued_power_message_last_shown',
+  POWER_MESSAGE_FAVOURITES: 'venued_power_message_favourites',
+  POWER_MESSAGE_DISABLED: 'venued_power_message_disabled',
+  FUCK_IT_DO_IT: 'venued_fuck_it_do_it',
 };
+
+// FUCK IT DO IT Types
+export interface FuckItDoItTask {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  deadline: string; // 48 hours from creation
+  completed: boolean;
+  completedAt?: string;
+  expired: boolean;
+  notes?: string; // Notes on why they didn't hit target
+}
 
 // Projects
 export const getProjects = async (): Promise<Project[]> => {
@@ -270,4 +287,204 @@ export const clearAllData = async (): Promise<void> => {
   } catch (error) {
     console.error('Error clearing data:', error);
   }
+};
+
+// Power Message Functions
+
+// Get the date string for today (YYYY-MM-DD format)
+const getTodayString = (): string => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+};
+
+// Check if we should show the daily power message
+export const shouldShowPowerMessage = async (): Promise<boolean> => {
+  try {
+    // Check if disabled
+    const disabled = await AsyncStorage.getItem(KEYS.POWER_MESSAGE_DISABLED);
+    if (disabled === 'true') return false;
+
+    // Check last shown date
+    const lastShown = await AsyncStorage.getItem(KEYS.POWER_MESSAGE_LAST_SHOWN);
+    const today = getTodayString();
+
+    return lastShown !== today;
+  } catch (error) {
+    console.error('Error checking power message:', error);
+    return true; // Default to showing if error
+  }
+};
+
+// Mark power message as shown today
+export const markPowerMessageShown = async (): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(KEYS.POWER_MESSAGE_LAST_SHOWN, getTodayString());
+  } catch (error) {
+    console.error('Error marking power message shown:', error);
+  }
+};
+
+// Get favourite message IDs
+export const getFavouriteMessages = async (): Promise<string[]> => {
+  try {
+    const data = await AsyncStorage.getItem(KEYS.POWER_MESSAGE_FAVOURITES);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error getting favourite messages:', error);
+    return [];
+  }
+};
+
+// Add a message to favourites
+export const addFavouriteMessage = async (messageId: string): Promise<void> => {
+  try {
+    const favourites = await getFavouriteMessages();
+    if (!favourites.includes(messageId)) {
+      favourites.push(messageId);
+      await AsyncStorage.setItem(KEYS.POWER_MESSAGE_FAVOURITES, JSON.stringify(favourites));
+    }
+  } catch (error) {
+    console.error('Error adding favourite message:', error);
+  }
+};
+
+// Remove a message from favourites
+export const removeFavouriteMessage = async (messageId: string): Promise<void> => {
+  try {
+    const favourites = await getFavouriteMessages();
+    const filtered = favourites.filter(id => id !== messageId);
+    await AsyncStorage.setItem(KEYS.POWER_MESSAGE_FAVOURITES, JSON.stringify(filtered));
+  } catch (error) {
+    console.error('Error removing favourite message:', error);
+  }
+};
+
+// Toggle favourite status
+export const toggleFavouriteMessage = async (messageId: string): Promise<boolean> => {
+  try {
+    const favourites = await getFavouriteMessages();
+    const isFavourite = favourites.includes(messageId);
+
+    if (isFavourite) {
+      await removeFavouriteMessage(messageId);
+      return false;
+    } else {
+      await addFavouriteMessage(messageId);
+      return true;
+    }
+  } catch (error) {
+    console.error('Error toggling favourite message:', error);
+    return false;
+  }
+};
+
+// Check if power messages are disabled
+export const isPowerMessageDisabled = async (): Promise<boolean> => {
+  try {
+    const disabled = await AsyncStorage.getItem(KEYS.POWER_MESSAGE_DISABLED);
+    return disabled === 'true';
+  } catch (error) {
+    return false;
+  }
+};
+
+// Set power message disabled state
+export const setPowerMessageDisabled = async (disabled: boolean): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(KEYS.POWER_MESSAGE_DISABLED, disabled ? 'true' : 'false');
+  } catch (error) {
+    console.error('Error setting power message disabled:', error);
+  }
+};
+
+// FUCK IT DO IT Functions
+
+// Get all FUCK IT DO IT tasks
+export const getFuckItDoItTasks = async (): Promise<FuckItDoItTask[]> => {
+  try {
+    const data = await AsyncStorage.getItem(KEYS.FUCK_IT_DO_IT);
+    return data ? JSON.parse(data) : [];
+  } catch (error) {
+    console.error('Error loading FUCK IT DO IT tasks:', error);
+    return [];
+  }
+};
+
+// Save all FUCK IT DO IT tasks
+export const saveFuckItDoItTasks = async (tasks: FuckItDoItTask[]): Promise<void> => {
+  try {
+    await AsyncStorage.setItem(KEYS.FUCK_IT_DO_IT, JSON.stringify(tasks));
+  } catch (error) {
+    console.error('Error saving FUCK IT DO IT tasks:', error);
+  }
+};
+
+// Create a new FUCK IT DO IT task (48hr deadline)
+export const createFuckItDoItTask = async (title: string, description: string): Promise<FuckItDoItTask> => {
+  const now = new Date();
+  const deadline = new Date(now.getTime() + 48 * 60 * 60 * 1000); // 48 hours from now
+
+  const newTask: FuckItDoItTask = {
+    id: `fidi-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    title,
+    description,
+    createdAt: now.toISOString(),
+    deadline: deadline.toISOString(),
+    completed: false,
+    expired: false,
+  };
+
+  const tasks = await getFuckItDoItTasks();
+  tasks.unshift(newTask); // Add to beginning
+  await saveFuckItDoItTasks(tasks);
+
+  return newTask;
+};
+
+// Complete a FUCK IT DO IT task
+export const completeFuckItDoItTask = async (taskId: string): Promise<void> => {
+  const tasks = await getFuckItDoItTasks();
+  const index = tasks.findIndex(t => t.id === taskId);
+  if (index !== -1) {
+    tasks[index].completed = true;
+    tasks[index].completedAt = new Date().toISOString();
+    await saveFuckItDoItTasks(tasks);
+  }
+};
+
+// Mark task as expired and add notes
+export const expireFuckItDoItTask = async (taskId: string, notes: string): Promise<void> => {
+  const tasks = await getFuckItDoItTasks();
+  const index = tasks.findIndex(t => t.id === taskId);
+  if (index !== -1) {
+    tasks[index].expired = true;
+    tasks[index].notes = notes;
+    await saveFuckItDoItTasks(tasks);
+  }
+};
+
+// Delete a FUCK IT DO IT task
+export const deleteFuckItDoItTask = async (taskId: string): Promise<void> => {
+  const tasks = await getFuckItDoItTasks();
+  const filtered = tasks.filter(t => t.id !== taskId);
+  await saveFuckItDoItTasks(filtered);
+};
+
+// Get active FUCK IT DO IT task (not completed, not expired)
+export const getActiveFuckItDoItTask = async (): Promise<FuckItDoItTask | null> => {
+  const tasks = await getFuckItDoItTasks();
+  const now = new Date();
+
+  // Find active task and check if any need to be expired
+  for (const task of tasks) {
+    if (!task.completed && !task.expired) {
+      const deadline = new Date(task.deadline);
+      if (now > deadline) {
+        // Task has expired - don't auto-expire, let UI handle it
+        return task;
+      }
+      return task;
+    }
+  }
+  return null;
 };
