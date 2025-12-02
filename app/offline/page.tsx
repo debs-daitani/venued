@@ -1,3 +1,5 @@
+'use client';
+
 import { WifiOff, RefreshCw } from 'lucide-react';
 
 export default function Offline() {
@@ -20,7 +22,7 @@ export default function Offline() {
             <li>• View all your projects and tasks</li>
             <li>• Add new tasks and projects</li>
             <li>• Update task status</li>
-            <li>• Use all ADHD tools</li>
+            <li>• Use all VARIANT tools</li>
             <li>• Everything syncs when you're back online</li>
           </ul>
         </div>
