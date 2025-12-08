@@ -14,6 +14,8 @@ import {
   Rocket,
   TrendingUp,
   Plus,
+  X,
+  Edit3,
 } from 'lucide-react';
 import { CrewTask, DayWorkload } from '@/lib/types';
 import { getCrewTasks, updateCrewTask } from '@/lib/crew';
@@ -47,6 +49,8 @@ export default function Tour() {
   const [tasks, setTasks] = useState<CrewTask[]>([]);
   const [showRealistic, setShowRealistic] = useState(true);
   const [showMonthView, setShowMonthView] = useState(false);
+  const [editingTask, setEditingTask] = useState<CrewTask | null>(null);
+  const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
 
   // Get Monday of the current week
   function getMonday(date: Date): Date {
@@ -109,6 +113,43 @@ export default function Tour() {
   const getDayColorInfo = (date: Date) => {
     const dayName = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
     return dayColors[dayName] || { color: '#3D3D3D', glowClass: '' };
+  };
+
+  // Get month calendar days
+  const getMonthDays = (date: Date): (Date | null)[] => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const days: (Date | null)[] = [];
+
+    // Get day of week for first day (0 = Sunday, adjust for Monday start)
+    let startDay = firstDay.getDay();
+    startDay = startDay === 0 ? 6 : startDay - 1;
+
+    // Add empty slots for days before the first
+    for (let i = 0; i < startDay; i++) {
+      days.push(null);
+    }
+
+    // Add all days of the month
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+      days.push(new Date(year, month, day));
+    }
+
+    return days;
+  };
+
+  const handleTaskEdit = (task: CrewTask) => {
+    setEditingTask(task);
+  };
+
+  const handleSaveTask = (updatedFields: Partial<CrewTask>) => {
+    if (editingTask) {
+      updateCrewTask(editingTask.id, updatedFields);
+      setTasks(getCrewTasks());
+      setEditingTask(null);
+    }
   };
 
   return (
@@ -361,8 +402,9 @@ export default function Tour() {
                         className={`p-3 rounded-lg ${
                           task.completed
                             ? 'bg-vivid-yellow-green/10 border border-vivid-yellow-green/30'
-                            : 'bg-gray-800/50 border border-white/10'
-                        }`}
+                            : 'bg-gray-800/50 border border-white/10 hover:border-magenta/50'
+                        } cursor-pointer transition-all group`}
+                        onClick={() => handleTaskEdit(task)}
                       >
                         <div className="flex items-center gap-2">
                           <EnergyIcon className={`w-4 h-4 ${
@@ -376,6 +418,7 @@ export default function Tour() {
                           <span className="ml-auto text-xs text-gray-500">
                             {task.estimatedHours}h
                           </span>
+                          <Edit3 className="w-4 h-4 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                       </div>
                     );
@@ -402,6 +445,193 @@ export default function Tour() {
           </div>
         </div>
       </div>
+
+      {/* Month View Modal */}
+      {showMonthView && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-4xl w-full max-h-[90vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setCurrentMonthDate(new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() - 1))}
+                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <ChevronLeft className="w-5 h-5 text-white" />
+                </button>
+                <h2 className="text-2xl font-supernova text-white">
+                  {currentMonthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </h2>
+                <button
+                  onClick={() => setCurrentMonthDate(new Date(currentMonthDate.getFullYear(), currentMonthDate.getMonth() + 1))}
+                  className="p-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                >
+                  <ChevronRight className="w-5 h-5 text-white" />
+                </button>
+              </div>
+              <button
+                onClick={() => setShowMonthView(false)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-400 hover:text-white" />
+              </button>
+            </div>
+
+            {/* Day headers */}
+            <div className="grid grid-cols-7 gap-1 mb-2">
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, i) => (
+                <div key={day} className="text-center text-sm font-semibold text-gray-400 py-2">
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar grid */}
+            <div className="grid grid-cols-7 gap-1">
+              {getMonthDays(currentMonthDate).map((day, index) => {
+                if (!day) {
+                  return <div key={`empty-${index}`} className="aspect-square" />;
+                }
+                const dateKey = formatDateKey(day);
+                const workload = calculateDayWorkload(dateKey);
+                const dayIsToday = isToday(day);
+                const colorInfo = getDayColorInfo(day);
+
+                return (
+                  <button
+                    key={dateKey}
+                    onClick={() => {
+                      setCurrentWeekStart(getMonday(day));
+                      setSelectedDay(dateKey);
+                      setShowMonthView(false);
+                    }}
+                    className={`aspect-square p-2 rounded-lg border transition-all ${
+                      dayIsToday
+                        ? 'border-magenta bg-magenta/20'
+                        : workload.totalHours > 0
+                        ? 'border-white/20 bg-white/5'
+                        : 'border-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="text-sm font-bold text-white">{day.getDate()}</div>
+                    {workload.totalHours > 0 && (
+                      <div className="text-xs text-vivid-cyan mt-1">
+                        {workload.totalHours.toFixed(1)}h
+                      </div>
+                    )}
+                    {workload.tasks.length > 0 && (
+                      <div className="text-xs text-gray-500">
+                        {workload.tasks.length} tasks
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              onClick={() => setShowMonthView(false)}
+              className="mt-6 w-full py-3 bg-magenta text-black font-bold rounded-xl hover:bg-neon-cyan transition-all"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Task Edit Modal */}
+      {editingTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">Edit Task</h2>
+              <button
+                onClick={() => setEditingTask(null)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400 hover:text-white" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Task Title</label>
+                <input
+                  type="text"
+                  value={editingTask.title}
+                  onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
+                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Scheduled Date</label>
+                <input
+                  type="date"
+                  value={editingTask.scheduledDate || ''}
+                  onChange={(e) => setEditingTask({ ...editingTask, scheduledDate: e.target.value })}
+                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Estimated Hours</label>
+                <input
+                  type="number"
+                  min="0.5"
+                  step="0.5"
+                  value={editingTask.estimatedHours}
+                  onChange={(e) => setEditingTask({ ...editingTask, estimatedHours: parseFloat(e.target.value) })}
+                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Energy Level</label>
+                <div className="flex gap-2">
+                  {(['high', 'medium', 'low'] as const).map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setEditingTask({ ...editingTask, energyLevel: level })}
+                      className={`flex-1 py-2 rounded-lg font-semibold capitalize transition-all ${
+                        editingTask.energyLevel === level
+                          ? level === 'high'
+                            ? 'bg-vivid-yellow-green text-black'
+                            : level === 'medium'
+                            ? 'bg-magenta text-white'
+                            : 'bg-vivid-cyan text-black'
+                          : 'bg-white/10 text-gray-400'
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setEditingTask(null)}
+                className="flex-1 py-3 rounded-lg border-2 border-white/10 text-white font-semibold hover:bg-white/5"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleSaveTask({
+                  title: editingTask.title,
+                  scheduledDate: editingTask.scheduledDate,
+                  estimatedHours: editingTask.estimatedHours,
+                  energyLevel: editingTask.energyLevel,
+                })}
+                className="flex-1 py-3 rounded-lg bg-magenta text-black font-bold hover:bg-neon-cyan transition-all"
+              >
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

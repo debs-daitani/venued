@@ -248,14 +248,23 @@ export default function Crew() {
           {/* Sidebar */}
           <div className="space-y-4">
             {/* FUCK IT - DO IT Button */}
-            <button
-              onClick={handleFuckItDoIt}
-              disabled={incompleteTasks.length === 0}
-              className="w-full btn-fuck-it text-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Rocket className="w-5 h-5 inline mr-2" />
-              FUCK IT - DO IT!
-            </button>
+            <div className="p-6 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/20 to-neon-cyan/20">
+              <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                <span className="text-2xl">🤘</span>
+                48-Hour Commitment Challenge
+              </h3>
+              <p className="text-sm text-gray-400 mb-4 font-josefin">
+                Pick a task and commit to just 48 hours of action. No overthinking.
+              </p>
+              <button
+                onClick={handleFuckItDoIt}
+                disabled={incompleteTasks.length === 0}
+                className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold text-xl hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <span className="text-2xl mr-2">🤘</span>
+                48 hours. Just action.
+              </button>
+            </div>
 
             {/* Focus Timer */}
             <FocusTimer

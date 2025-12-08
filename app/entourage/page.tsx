@@ -10,7 +10,7 @@ import {
   Users,
   TrendingUp,
   Trophy,
-  Sparkles,
+  Brain,
 } from 'lucide-react';
 import { generateSampleADHDData } from '@/lib/adhd';
 
@@ -150,13 +150,13 @@ export default function Entourage() {
         <div className="mb-6 sm:mb-8">
           <div className="header-gradient-entourage rounded-2xl p-6 sm:p-8">
             <div className="flex items-center gap-3">
-              <Sparkles className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+              <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               <div>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-supernova text-white tracking-tight">
                   ENTOURAGE
                 </h1>
                 <p className="text-base sm:text-lg font-arp-display text-white/80 mt-1">
-                  Rewrite, reset & review
+                  9 'groupies' who've always got your back!
                 </p>
               </div>
             </div>
@@ -173,8 +173,13 @@ export default function Entourage() {
                   <button
                     key={module.id}
                     onClick={() => setActiveModule(module.id)}
-                    className={`${module.gradient} p-4 sm:p-6 rounded-xl border border-white/10 hover:border-white/30 transition-all group text-left`}
+                    className="relative p-4 sm:p-6 rounded-xl border border-white/10 hover:border-white/30 transition-all group text-left bg-white/5 overflow-hidden"
                   >
+                    {/* Bottom gradient highlight */}
+                    <div
+                      className="absolute bottom-0 left-0 right-0 h-1 opacity-80"
+                      style={{ backgroundColor: module.letterColor }}
+                    />
                     <div className="flex items-center gap-2 mb-2">
                       <span
                         className="text-2xl sm:text-3xl font-supernova"
@@ -187,8 +192,8 @@ export default function Entourage() {
                     <h3 className="text-base sm:text-lg font-bold text-white mb-1">
                       {module.name}
                     </h3>
-                    <p className="text-xs sm:text-sm text-white/60">
-                      {module.description}
+                    <p className="text-xs sm:text-sm text-white/60 font-josefin">
+                      {module.subtitle}
                     </p>
                   </button>
                 );
@@ -515,7 +520,7 @@ function UnpluggedModule() {
     { name: 'JANIE', style: 'calm, steady, gentle', icon: '🌙' },
     { name: 'ANGIE', style: 'high energy, enthusiastic', icon: '⚡' },
     { name: 'IRIS', style: 'grounded, wise, patient', icon: '🌳' },
-    { name: 'LOLA', style: 'competitive, motivator, focused', icon: '🔥' },
+    { name: 'LOLA', style: 'competitive, motivator, focused', icon: '🤘' },
   ];
 
   const [selectedDouble, setSelectedDouble] = useState<string | null>(null);

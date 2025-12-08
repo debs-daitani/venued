@@ -118,7 +118,7 @@ export default function TaskFormModal({ isOpen, onClose, onSave, task, phaseId }
                 onChange={(e) => setFormData({ ...formData, energyLevel: e.target.value as EnergyLevel })}
                 className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-pink focus:outline-none"
               >
-                <option value="high">🔥 High Energy</option>
+                <option value="high">🤘 High Energy</option>
                 <option value="medium">⚡ Medium Energy</option>
                 <option value="low">⭐ Low Energy</option>
               </select>

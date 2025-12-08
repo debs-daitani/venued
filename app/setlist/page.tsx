@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Music, Zap, Sparkles, Flame, Star, ExternalLink, Hand } from 'lucide-react';
+import { Music, Zap, Sparkles, Flame, Star, ExternalLink, Plus, X, TrendingUp, Clock, Save } from 'lucide-react';
+import Link from 'next/link';
 
 // Energy messages that rotate on click
 const energyMessages = {
@@ -61,25 +62,134 @@ const actionSuggestions = {
   ],
 };
 
+// Types
+interface EnergyLog {
+  id: string;
+  level: 'low' | 'medium' | 'high';
+  timestamp: string;
+}
+
+interface SavedBoost {
+  id: string;
+  message: string;
+  savedAt: string;
+}
+
+interface UserPlaylist {
+  id: string;
+  name: string;
+  url: string;
+}
+
+// Storage helpers
+const getEnergyLogs = (): EnergyLog[] => {
+  if (typeof window === 'undefined') return [];
+  const data = localStorage.getItem('venued_energy_logs');
+  return data ? JSON.parse(data) : [];
+};
+
+const saveEnergyLog = (level: 'low' | 'medium' | 'high') => {
+  const logs = getEnergyLogs();
+  logs.unshift({
+    id: Date.now().toString(),
+    level,
+    timestamp: new Date().toISOString(),
+  });
+  // Keep last 50 entries
+  localStorage.setItem('venued_energy_logs', JSON.stringify(logs.slice(0, 50)));
+};
+
+const getSavedBoosts = (): SavedBoost[] => {
+  if (typeof window === 'undefined') return [];
+  const data = localStorage.getItem('venued_saved_boosts');
+  return data ? JSON.parse(data) : [];
+};
+
+const saveBoost = (message: string) => {
+  const boosts = getSavedBoosts();
+  boosts.unshift({
+    id: Date.now().toString(),
+    message,
+    savedAt: new Date().toISOString(),
+  });
+  localStorage.setItem('venued_saved_boosts', JSON.stringify(boosts.slice(0, 20)));
+};
+
+const getUserPlaylists = (): UserPlaylist[] => {
+  if (typeof window === 'undefined') return [];
+  const data = localStorage.getItem('venued_user_playlists');
+  return data ? JSON.parse(data) : [];
+};
+
+const saveUserPlaylist = (playlist: UserPlaylist) => {
+  const playlists = getUserPlaylists();
+  playlists.push(playlist);
+  localStorage.setItem('venued_user_playlists', JSON.stringify(playlists));
+};
+
+const deleteUserPlaylist = (id: string) => {
+  const playlists = getUserPlaylists().filter(p => p.id !== id);
+  localStorage.setItem('venued_user_playlists', JSON.stringify(playlists));
+};
+
 export default function Setlist() {
   const [currentEnergy, setCurrentEnergy] = useState<'low' | 'medium' | 'high'>('medium');
   const [energyMessageIndex, setEnergyMessageIndex] = useState(0);
   const [currentBoost, setCurrentBoost] = useState('');
   const [showActionSuggestion, setShowActionSuggestion] = useState(false);
   const [actionSuggestion, setActionSuggestion] = useState('');
+  const [energyLogs, setEnergyLogs] = useState<EnergyLog[]>([]);
+  const [savedBoosts, setSavedBoosts] = useState<SavedBoost[]>([]);
+  const [userPlaylists, setUserPlaylists] = useState<UserPlaylist[]>([]);
+  const [showAddPlaylist, setShowAddPlaylist] = useState(false);
+  const [newPlaylistName, setNewPlaylistName] = useState('');
+  const [newPlaylistUrl, setNewPlaylistUrl] = useState('');
 
-  // Playlist links (admin-controlled - placeholder for now)
-  const playlists = [
-    { name: 'Focus Flow', description: 'Deep concentration music', url: 'https://open.spotify.com/playlist/37i9dQZF1DX5trt9i14X7j' },
-    { name: 'Energy Boost', description: 'High-energy tracks', url: 'https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP' },
-    { name: 'Chill Vibes', description: 'Low-key productive beats', url: 'https://open.spotify.com/playlist/37i9dQZF1DX4WYpdgoIcn6' },
-  ];
+  useEffect(() => {
+    setEnergyLogs(getEnergyLogs());
+    setSavedBoosts(getSavedBoosts());
+    setUserPlaylists(getUserPlaylists());
+  }, []);
 
   const handleEnergyClick = (level: 'low' | 'medium' | 'high') => {
     setCurrentEnergy(level);
     setEnergyMessageIndex((prev) => (prev + 1) % energyMessages[level].length);
     setShowActionSuggestion(false);
+    saveEnergyLog(level);
+    setEnergyLogs(getEnergyLogs());
   };
+
+  const handleSaveBoost = () => {
+    if (currentBoost) {
+      saveBoost(currentBoost);
+      setSavedBoosts(getSavedBoosts());
+    }
+  };
+
+  const handleAddPlaylist = () => {
+    if (newPlaylistName && newPlaylistUrl) {
+      saveUserPlaylist({
+        id: Date.now().toString(),
+        name: newPlaylistName,
+        url: newPlaylistUrl,
+      });
+      setUserPlaylists(getUserPlaylists());
+      setNewPlaylistName('');
+      setNewPlaylistUrl('');
+      setShowAddPlaylist(false);
+    }
+  };
+
+  const handleDeletePlaylist = (id: string) => {
+    deleteUserPlaylist(id);
+    setUserPlaylists(getUserPlaylists());
+  };
+
+  // Get today's energy logs
+  const todayLogs = energyLogs.filter(log => {
+    const today = new Date().toISOString().split('T')[0];
+    return log.timestamp.startsWith(today);
+  });
 
   const handleLFG = () => {
     const randomBoost = badassBooosts[Math.floor(Math.random() * badassBooosts.length)];
@@ -115,32 +225,112 @@ export default function Setlist() {
         </div>
 
         <div className="space-y-6">
-          {/* Spotify Integration */}
+          {/* User Playlists */}
           <div className="p-6 rounded-xl border-2 border-azure/30 bg-azure/10">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <Music className="w-5 h-5 text-azure" />
-              Focus Playlists
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {playlists.map((playlist, index) => (
-                <a
-                  key={index}
-                  href={playlist.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-4 rounded-lg bg-black/30 border border-white/10 hover:border-azure/50 transition-all group"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-white group-hover:text-azure transition-colors">
-                      {playlist.name}
-                    </span>
-                    <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-azure transition-colors" />
-                  </div>
-                  <p className="text-sm text-gray-400">{playlist.description}</p>
-                </a>
-              ))}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Music className="w-5 h-5 text-azure" />
+                My Focus Playlists
+              </h2>
+              <button
+                onClick={() => setShowAddPlaylist(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-azure text-black font-semibold hover:bg-white transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                Add Playlist
+              </button>
             </div>
+
+            {userPlaylists.length === 0 ? (
+              <div className="text-center py-8">
+                <Music className="w-12 h-12 text-gray-500 mx-auto mb-3" />
+                <p className="text-gray-400 mb-2">No playlists added yet</p>
+                <p className="text-sm text-gray-500">Add your favorite Spotify playlists to access them quickly</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {userPlaylists.map((playlist) => (
+                  <div
+                    key={playlist.id}
+                    className="p-4 rounded-lg bg-black/30 border border-white/10 hover:border-azure/50 transition-all group relative"
+                  >
+                    <a
+                      href={playlist.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-semibold text-white group-hover:text-azure transition-colors">
+                          {playlist.name}
+                        </span>
+                        <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-azure transition-colors" />
+                      </div>
+                    </a>
+                    <button
+                      onClick={() => handleDeletePlaylist(playlist.id)}
+                      className="absolute top-2 right-2 p-1 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/50"
+                    >
+                      <X className="w-3 h-3 text-gray-400" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* Add Playlist Modal */}
+          {showAddPlaylist && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+              <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-md w-full p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-white">Add Playlist</h2>
+                  <button
+                    onClick={() => setShowAddPlaylist(false)}
+                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5 text-gray-400 hover:text-white" />
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">Playlist Name</label>
+                    <input
+                      type="text"
+                      value={newPlaylistName}
+                      onChange={(e) => setNewPlaylistName(e.target.value)}
+                      placeholder="My Focus Mix"
+                      className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-white mb-2">Spotify URL</label>
+                    <input
+                      type="text"
+                      value={newPlaylistUrl}
+                      onChange={(e) => setNewPlaylistUrl(e.target.value)}
+                      placeholder="https://open.spotify.com/playlist/..."
+                      className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-6">
+                  <button
+                    onClick={() => setShowAddPlaylist(false)}
+                    className="flex-1 py-3 rounded-lg border-2 border-white/10 text-white font-semibold hover:bg-white/5"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddPlaylist}
+                    className="flex-1 py-3 rounded-lg bg-azure text-black font-bold hover:bg-white transition-all"
+                  >
+                    Add Playlist
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Energy Tracker */}
           <div className="p-6 rounded-xl border-2 border-white/10 bg-white/5">
@@ -215,7 +405,14 @@ export default function Setlist() {
             {/* Boost Message */}
             {currentBoost && (
               <div className="mt-4 p-4 rounded-lg bg-black/30 border border-magenta/30 animate-fade-in">
-                <p className="text-white font-medium">{currentBoost}</p>
+                <p className="text-white font-medium mb-3">{currentBoost}</p>
+                <button
+                  onClick={handleSaveBoost}
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-magenta/20 text-magenta font-semibold hover:bg-magenta/30 transition-all"
+                >
+                  <Save className="w-4 h-4" />
+                  Save this boost
+                </button>
               </div>
             )}
 
@@ -227,6 +424,64 @@ export default function Setlist() {
               </div>
             )}
           </div>
+
+          {/* Today's Energy Log */}
+          {todayLogs.length > 0 && (
+            <div className="p-6 rounded-xl border-2 border-white/10 bg-white/5">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-vivid-cyan" />
+                Today's Energy Log
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {todayLogs.map((log) => {
+                  const time = new Date(log.timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                  return (
+                    <div
+                      key={log.id}
+                      className={`px-3 py-2 rounded-lg border ${
+                        log.level === 'high'
+                          ? 'bg-vivid-yellow-green/10 border-vivid-yellow-green/30 text-vivid-yellow-green'
+                          : log.level === 'medium'
+                          ? 'bg-magenta/10 border-magenta/30 text-magenta'
+                          : 'bg-vivid-cyan/10 border-vivid-cyan/30 text-vivid-cyan'
+                      }`}
+                    >
+                      <span className="font-semibold capitalize">{log.level}</span>
+                      <span className="text-xs text-gray-400 ml-2">{time}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <p className="text-sm text-gray-500 mt-4">
+                <Link href="/tour" className="text-vivid-cyan hover:text-white transition-colors">
+                  View Tour →
+                </Link> to schedule tasks based on your energy patterns
+              </p>
+            </div>
+          )}
+
+          {/* Saved Boosts */}
+          {savedBoosts.length > 0 && (
+            <div className="p-6 rounded-xl border-2 border-magenta/30 bg-magenta/5">
+              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-magenta" />
+                Your Saved Boosts
+              </h3>
+              <div className="space-y-3">
+                {savedBoosts.slice(0, 5).map((boost) => (
+                  <div
+                    key={boost.id}
+                    className="p-3 rounded-lg bg-black/30 border border-magenta/20"
+                  >
+                    <p className="text-white font-medium">{boost.message}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Saved {new Date(boost.savedAt).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Quick Tips */}
           <div className="p-6 rounded-xl border-2 border-white/10 bg-white/5">

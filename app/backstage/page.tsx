@@ -76,12 +76,12 @@ export default function Backstage() {
       <div className="max-w-7xl mx-auto py-6 sm:py-12">
         {/* Header */}
         <div className="mb-8 sm:mb-12">
-          <div className="header-gradient-backstage rounded-2xl p-6 sm:p-8 mb-6">
+          <div className="rounded-2xl p-6 sm:p-8 mb-6 bg-white/5 border border-white/10">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <Star className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                <Star className="w-8 h-8 sm:w-10 sm:h-10 text-magenta" />
                 <div>
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-supernova text-white tracking-tight title-glow">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-supernova tracking-tight bg-gradient-to-r from-magenta to-dark-grey-azure bg-clip-text text-transparent">
                     BACKSTAGE
                   </h1>
                   <p className="text-base sm:text-lg font-arp-display text-white/80 mt-1">
