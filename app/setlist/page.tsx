@@ -1,18 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Music, Zap, Sparkles, Flame, Star, ExternalLink, TrendingUp, Save } from 'lucide-react';
+import { Music, Zap, Sparkles, Flame, Star, ExternalLink, TrendingUp, Save, Settings } from 'lucide-react';
 import Link from 'next/link';
 
-// Curated Focus Playlists (admin-managed)
-const curatedPlaylists = [
-  { id: '1', name: 'VENUED Flow State', description: 'Epic instrumentals for deep work', url: 'https://open.spotify.com/playlist/37i9dQZF1DX8NTLI2TtZa6' },
-  { id: '2', name: 'Hyperfocus Mode', description: 'Electronic beats to lock in', url: 'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO' },
-  { id: '3', name: 'Low Energy Vibes', description: 'Chill ambient for gentle progress', url: 'https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ' },
-  { id: '4', name: 'High Energy Hustle', description: 'Pump-up tracks to crush it', url: 'https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP' },
-  { id: '5', name: 'VARIANT Brain Beats', description: 'Curated for neurodivergent focus', url: 'https://open.spotify.com/playlist/37i9dQZF1DX0SM0LYsmbMT' },
-  { id: '6', name: 'Creative Chaos', description: 'Eclectic mix for ideation sessions', url: 'https://open.spotify.com/playlist/37i9dQZF1DX56bqlsMxJYR' },
-];
+// Types for admin playlists
+interface AdminPlaylist {
+  id: string;
+  name: string;
+  description: string;
+  url: string;
+  createdAt: string;
+}
+
+// Get admin-managed playlists
+const getAdminPlaylists = (): AdminPlaylist[] => {
+  if (typeof window === 'undefined') return [];
+  const data = localStorage.getItem('venued_admin_playlists');
+  return data ? JSON.parse(data) : [];
+};
 
 // Energy messages that rotate on click
 const energyMessages = {
@@ -127,10 +133,12 @@ export default function Setlist() {
   const [actionSuggestion, setActionSuggestion] = useState('');
   const [energyLogs, setEnergyLogs] = useState<EnergyLog[]>([]);
   const [savedBoosts, setSavedBoosts] = useState<SavedBoost[]>([]);
+  const [playlists, setPlaylists] = useState<AdminPlaylist[]>([]);
 
   useEffect(() => {
     setEnergyLogs(getEnergyLogs());
     setSavedBoosts(getSavedBoosts());
+    setPlaylists(getAdminPlaylists());
   }, []);
 
   const handleEnergyClick = (level: 'low' | 'medium' | 'high') => {
@@ -188,33 +196,50 @@ export default function Setlist() {
         </div>
 
         <div className="space-y-6">
-          {/* Curated Focus Playlists */}
+          {/* Admin-Managed Focus Playlists */}
           <div className="p-6 rounded-xl border-2 border-azure/30 bg-azure/10">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <Music className="w-5 h-5 text-azure" />
-              Focus Playlists
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                <Music className="w-5 h-5 text-azure" />
+                Focus Playlists
+              </h2>
+              <Link
+                href="/admin/playlists"
+                className="flex items-center gap-1 px-3 py-1 rounded-lg bg-white/10 text-gray-400 hover:text-white hover:bg-white/20 transition-all text-sm"
+              >
+                <Settings className="w-4 h-4" />
+                Admin
+              </Link>
+            </div>
             <p className="text-gray-400 text-sm mb-4">Curated playlists to match your energy and boost your focus</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {curatedPlaylists.map((playlist) => (
-                <a
-                  key={playlist.id}
-                  href={playlist.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-4 rounded-lg bg-black/30 border border-white/10 hover:border-azure/50 hover:bg-black/50 transition-all group"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-white group-hover:text-azure transition-colors">
-                      {playlist.name}
-                    </span>
-                    <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-azure transition-colors" />
-                  </div>
-                  <p className="text-xs text-gray-500">{playlist.description}</p>
-                </a>
-              ))}
-            </div>
+            {playlists.length === 0 ? (
+              <div className="text-center py-8">
+                <Music className="w-12 h-12 text-gray-500 mx-auto mb-3" />
+                <p className="text-gray-400 mb-2">No playlists available yet</p>
+                <p className="text-sm text-gray-500">Admin can add playlists from the admin panel</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {playlists.map((playlist) => (
+                  <a
+                    key={playlist.id}
+                    href={playlist.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-4 rounded-lg bg-black/30 border border-white/10 hover:border-azure/50 hover:bg-black/50 transition-all group"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-semibold text-white group-hover:text-azure transition-colors">
+                        {playlist.name}
+                      </span>
+                      <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-azure transition-colors" />
+                    </div>
+                    <p className="text-xs text-gray-500">{playlist.description}</p>
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Energy Tracker */}
