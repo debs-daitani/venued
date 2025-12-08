@@ -30,13 +30,13 @@ interface OnboardingStep {
 const steps: OnboardingStep[] = [
   {
     title: 'Welcome to VENUED',
-    description: 'Strategic project planning for ADHD brains who build like rockstars',
+    description: 'Strategic project planning for VARIANT brains who build like rockstars',
     icon: Rocket,
     color: 'neon-pink',
     details: [
       'Plan your projects like a tour',
       'Execute like a headliner',
-      'Built specifically for ADHD brains',
+      'Built specifically for VARIANT brains',
       'All data stays local—nothing sent to servers',
     ],
   },
@@ -66,7 +66,7 @@ const steps: OnboardingStep[] = [
   },
   {
     title: 'CREW',
-    description: 'Your daily task manager with ADHD-friendly features',
+    description: 'Your daily task manager with VARIANT-friendly features',
     icon: Users,
     color: 'neon-green',
     details: [
@@ -78,7 +78,7 @@ const steps: OnboardingStep[] = [
   },
   {
     title: 'TOUR',
-    description: 'Strategic timeline view with ADHD reality checks',
+    description: 'Strategic timeline view with VARIANT reality checks',
     icon: Calendar,
     color: 'blue-400',
     details: [
@@ -90,7 +90,7 @@ const steps: OnboardingStep[] = [
   },
   {
     title: 'ENTOURAGE',
-    description: '17 specialized ADHD support tools to optimize your brain',
+    description: '9 specialized VARIANT support tools to optimize your brain',
     icon: Brain,
     color: 'yellow-400',
     details: [

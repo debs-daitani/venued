@@ -2,313 +2,197 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Zap, Rocket, Target, Calendar, Brain, Users, Star, Check, Play } from 'lucide-react';
+import Image from 'next/image';
+import { Play, Book, Sparkles } from 'lucide-react';
 import { generateDemoData, isDemoDataLoaded } from '@/lib/demoData';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const router = useRouter();
   const [demoLoaded, setDemoLoaded] = useState(false);
+  const [showUserGuide, setShowUserGuide] = useState(false);
 
   useEffect(() => {
     setDemoLoaded(isDemoDataLoaded());
   }, []);
 
-  const handleLoadDemo = () => {
+  const handleRehearsalStudio = () => {
     generateDemoData();
     setDemoLoaded(true);
     router.push('/backstage');
   };
 
-  const features = [
-    {
-      icon: Calendar,
-      title: 'BACKSTAGE',
-      subtitle: 'Project Dashboard',
-      description: 'Your command center. See all projects at a glance, track progress, manage priorities.',
-      color: 'neon-pink',
-    },
-    {
-      icon: Star,
-      title: 'SETLIST',
-      subtitle: 'Project Builder',
-      description: 'Build your project like a setlist. Drag-and-drop phases, add tasks, plan your show.',
-      color: 'electric-purple',
-    },
-    {
-      icon: Users,
-      title: 'CREW',
-      subtitle: 'Task Manager',
-      description: 'Your daily task crew. Energy matching, focus timer, quick wins for momentum.',
-      color: 'neon-green',
-    },
-    {
-      icon: Calendar,
-      title: 'TOUR',
-      subtitle: 'Timeline View',
-      description: 'Strategic week view with ADHD reality checks. See workload, avoid burnout, stay on track.',
-      color: 'blue-400',
-    },
-    {
-      icon: Brain,
-      title: 'ENTOURAGE',
-      subtitle: 'ADHD Support Tools',
-      description: '8 specialized tools: time blindness tracker, hyperfocus logger, energy tracker, and more.',
-      color: 'yellow-400',
-    },
-  ];
-
-  const benefits = [
-    'Time blindness? Track your actual vs estimated times',
-    'Hyperfocus tracking with trigger identification',
-    'Energy level matching for optimal task scheduling',
-    'Executive function helpers for decision paralysis',
-    'Brain dump space for clearing mental clutter',
-    'Dopamine menu with gamified rewards',
-    'Body doubling simulator for accountability',
-    'Pattern insights with personalized recommendations',
-  ];
+  const handleJamSession = () => {
+    // Clear any existing demo data and start fresh
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('venued_projects');
+      localStorage.removeItem('venued_crew_tasks');
+      localStorage.removeItem('venued_sample_data_loaded');
+    }
+    router.push('/backstage');
+  };
 
   return (
-    <div className="relative min-h-screen bg-black overflow-hidden">
-      {/* Gradient background effects */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/4 w-96 h-96 bg-neon-pink/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/3 -right-1/4 w-96 h-96 bg-electric-purple/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute bottom-0 left-1/2 w-96 h-96 bg-neon-green/10 rounded-full blur-3xl animate-pulse delay-2000" />
-      </div>
-
+    <div className="relative min-h-screen overflow-hidden">
       {/* Hero Section */}
-      <div className="relative pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Main Logo/Title */}
-          <div className="mb-8">
-            <h1 className="text-7xl sm:text-8xl md:text-9xl font-black tracking-tighter mb-4">
-              <span className="inline-block bg-gradient-to-r from-neon-pink via-electric-purple to-neon-pink bg-clip-text text-transparent animate-pulse">
-                VENUED
-              </span>
-            </h1>
-            <div className="h-1 w-48 mx-auto bg-gradient-to-r from-transparent via-neon-pink to-transparent" />
+      <div className="relative pt-24 pb-20 px-4 sm:px-6 lg:px-8 min-h-screen flex flex-col items-center justify-center">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Logo */}
+          <div className="mb-8 flex justify-center">
+            <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48">
+              <Image
+                src="/images/VENUED_Logo.png"
+                alt="VENUED"
+                fill
+                className="object-contain drop-shadow-[0_0_30px_rgba(255,0,142,0.5)]"
+                priority
+              />
+            </div>
           </div>
 
+          {/* Main Title */}
+          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-supernova tracking-tight mb-4 text-white title-glow">
+            VENUED
+          </h1>
+
           {/* Tagline */}
-          <p className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-4 tracking-wide">
-            Strategic project planning for ADHD brains who build like rockstars
+          <p className="text-xl sm:text-2xl md:text-3xl font-arp-display text-magenta mb-4 tracking-wide">
+            Get VENUED | Get it DONE!
           </p>
 
           {/* Sub-tagline */}
-          <p className="text-lg sm:text-xl text-gray-400 mb-12 font-medium">
-            Plan your projects like a tour. Execute like a headliner.
+          <p className="text-base sm:text-lg md:text-xl text-gray-300 mb-12 max-w-2xl mx-auto font-josefin">
+            Strategic project planning for VARIANT brains who build like rockstars
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            {!demoLoaded ? (
-              <button
-                onClick={handleLoadDemo}
-                className="group inline-flex items-center gap-3 px-10 py-5 text-xl font-bold text-black bg-neon-pink rounded-full hover:bg-white transition-all duration-300 transform hover:scale-105 shadow-[0_0_30px_rgba(255,27,141,0.5)] hover:shadow-[0_0_50px_rgba(255,27,141,0.8)]"
-              >
-                <Play className="w-6 h-6" />
-                Try Demo
-              </button>
-            ) : (
-              <Link
-                href="/backstage"
-                className="group inline-flex items-center gap-3 px-10 py-5 text-xl font-bold text-black bg-neon-pink rounded-full hover:bg-white transition-all duration-all duration-300 transform hover:scale-105 shadow-[0_0_30px_rgba(255,27,141,0.5)] hover:shadow-[0_0_50px_rgba(255,27,141,0.8)]"
-              >
-                Get VENUED
-                <Rocket className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            )}
-
-            <Link
-              href="/backstage"
-              className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold text-white bg-white/10 rounded-full hover:bg-white/20 transition-all border-2 border-white/20 hover:border-white/40"
+          <div className="flex flex-col gap-4 justify-center items-center max-w-md mx-auto">
+            {/* Rehearsal Studio Button */}
+            <button
+              onClick={handleRehearsalStudio}
+              className="w-full group flex flex-col items-center gap-1 px-8 py-5 text-lg font-bold text-black bg-magenta rounded-2xl hover:bg-white transition-all duration-300 transform hover:scale-105 shadow-[0_0_30px_rgba(255,0,142,0.5)] hover:shadow-[0_0_50px_rgba(255,0,142,0.8)]"
             >
-              Start Fresh
-            </Link>
+              <span className="flex items-center gap-2">
+                <Play className="w-5 h-5" />
+                REHEARSAL STUDIO
+              </span>
+              <span className="text-sm font-normal opacity-80">
+                Play with samples
+              </span>
+            </button>
+
+            {/* Jam Session Button */}
+            <button
+              onClick={handleJamSession}
+              className="w-full group flex flex-col items-center gap-1 px-8 py-5 text-lg font-bold text-white bg-white/10 rounded-2xl hover:bg-white/20 transition-all border-2 border-white/20 hover:border-magenta/40"
+            >
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                JAM SESSION
+              </span>
+              <span className="text-sm font-normal opacity-80">
+                Your lyrics - your way
+              </span>
+            </button>
           </div>
 
-          {/* SUPERNova AI Button */}
-          <div className="mt-12 p-6 rounded-2xl bg-gradient-to-br from-electric-purple/20 to-neon-pink/20 border border-neon-pink/30 backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="text-left">
-                <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-neon-pink to-electric-purple mb-2">
-                  Meet SUPERNova AI
-                </h3>
-                <p className="text-gray-300 font-semibold">
-                  Your bold, direct, anti-BS coaching assistant for Body, Brain & Business
-                </p>
-              </div>
-              <a
-                href="http://localhost:3001"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group inline-flex items-center gap-3 px-8 py-4 text-lg font-bold text-white bg-gradient-to-r from-neon-pink to-electric-purple rounded-full hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,27,141,0.5)] hover:shadow-[0_0_40px_rgba(255,27,141,0.8)]"
-              >
-                <Zap className="w-5 h-5 animate-pulse" />
-                Launch SUPERNova
-                <Rocket className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </a>
-            </div>
-          </div>
-
-          {/* Secondary text */}
-          <p className="mt-8 text-sm text-gray-500 uppercase tracking-widest font-semibold">
-            Get VENUED. Get it Done.
-          </p>
-        </div>
-      </div>
-
-      {/* Features Section */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-4xl md:text-5xl font-black text-center text-white mb-4">
-          Your Backstage Crew
-        </h2>
-        <p className="text-xl text-gray-400 text-center mb-16 max-w-2xl mx-auto">
-          Five powerful sections working together to help you ship your projects
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, i) => {
-            const Icon = feature.icon;
-            return (
-              <div
-                key={i}
-                className={`group p-8 rounded-2xl border-2 border-${feature.color}/20 bg-black/50 backdrop-blur-sm hover:border-${feature.color}/50 transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,27,141,0.2)]`}
-              >
-                <div className={`w-14 h-14 rounded-full bg-${feature.color}/20 flex items-center justify-center mb-4 group-hover:bg-${feature.color}/30 transition-colors`}>
-                  <Icon className={`w-7 h-7 text-${feature.color}`} />
-                </div>
-                <h3 className="text-2xl font-black text-white mb-1">{feature.title}</h3>
-                <p className={`text-sm text-${feature.color} font-semibold mb-3`}>{feature.subtitle}</p>
-                <p className="text-gray-400">{feature.description}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ADHD Benefits Section */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="p-12 rounded-3xl bg-gradient-to-br from-electric-purple/20 to-neon-pink/20 border-2 border-electric-purple/30">
-          <h2 className="text-4xl md:text-5xl font-black text-center text-white mb-4">
-            Built for ADHD Brains
-          </h2>
-          <p className="text-xl text-gray-300 text-center mb-12 max-w-2xl mx-auto">
-            Not just features—actual tools that understand how your brain works
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {benefits.map((benefit, i) => (
-              <div key={i} className="flex items-start gap-3 p-4 rounded-lg bg-white/5">
-                <Check className="w-6 h-6 text-neon-green flex-shrink-0 mt-1" />
-                <span className="text-white">{benefit}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* How It Works */}
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <h2 className="text-4xl md:text-5xl font-black text-center text-white mb-16">
-          How It Works
-        </h2>
-
-        <div className="space-y-12">
-          <div className="flex items-start gap-6">
-            <div className="w-12 h-12 rounded-full bg-neon-pink flex items-center justify-center text-black font-black text-xl flex-shrink-0">
-              1
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-2">Plan Your Show</h3>
-              <p className="text-gray-400">
-                Use Setlist to build your project. Break it into phases, add tasks, set energy levels. The builder makes it easy.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-6">
-            <div className="w-12 h-12 rounded-full bg-electric-purple flex items-center justify-center text-white font-black text-xl flex-shrink-0">
-              2
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-2">Schedule Your Crew</h3>
-              <p className="text-gray-400">
-                Move tasks to your daily schedule. Match them to your energy levels. Use the focus timer. Get stuff done.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-6">
-            <div className="w-12 h-12 rounded-full bg-neon-green flex items-center justify-center text-black font-black text-xl flex-shrink-0">
-              3
-            </div>
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-2">Track & Optimize</h3>
-              <p className="text-gray-400">
-                Use Entourage tools to understand your patterns. Time blindness tracker, hyperfocus logger, energy tracking. Learn what works for YOUR brain.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Final CTA */}
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <h2 className="text-5xl md:text-6xl font-black text-white mb-6">
-          Ready to Get VENUED?
-        </h2>
-        <p className="text-xl text-gray-400 mb-12">
-          Free. Offline-capable. Built for your brain.
-        </p>
-
-        {!demoLoaded ? (
+          {/* User Guide Link */}
           <button
-            onClick={handleLoadDemo}
-            className="group inline-flex items-center gap-3 px-12 py-6 text-2xl font-bold text-black bg-gradient-to-r from-neon-pink to-electric-purple rounded-full hover:shadow-[0_0_50px_rgba(255,27,141,0.8)] transition-all duration-300 transform hover:scale-105"
+            onClick={() => setShowUserGuide(true)}
+            className="mt-8 inline-flex items-center gap-2 text-neon-cyan hover:text-white transition-colors font-semibold"
           >
-            <Play className="w-7 h-7" />
-            Try Demo Now
+            <Book className="w-5 h-5" />
+            User Guide
           </button>
-        ) : (
-          <Link
-            href="/backstage"
-            className="group inline-flex items-center gap-3 px-12 py-6 text-2xl font-bold text-black bg-gradient-to-r from-neon-pink to-electric-purple rounded-full hover:shadow-[0_0_50px_rgba(255,27,141,0.8)] transition-all duration-300 transform hover:scale-105"
-          >
-            Open Backstage
-            <Rocket className="w-7 h-7 group-hover:translate-x-2 transition-transform" />
-          </Link>
-        )}
+
+          {/* SUPERNova Coming Soon */}
+          <div className="mt-12 p-6 rounded-2xl bg-gradient-to-br from-vivid-pink/20 to-magenta/20 border border-magenta/30 backdrop-blur-sm max-w-lg mx-auto">
+            <div className="text-center">
+              <h3 className="text-xl sm:text-2xl font-supernova text-transparent bg-clip-text bg-gradient-to-r from-magenta to-neon-cyan mb-2">
+                SUPERNova AI
+              </h3>
+              <p className="text-gray-300 font-josefin mb-3">
+                Your bold, direct, anti-BS coaching assistant
+              </p>
+              <div className="inline-flex items-center gap-2 px-6 py-3 bg-dark-grey-azure/80 rounded-full border border-neon-cyan/30">
+                <Sparkles className="w-4 h-4 text-neon-cyan animate-pulse" />
+                <span className="text-neon-cyan font-semibold">Coming Soon</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* User Guide Modal */}
+      {showUserGuide && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 sm:p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-supernova text-white">User Guide</h2>
+              <button
+                onClick={() => setShowUserGuide(false)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <span className="text-2xl text-gray-400 hover:text-white">&times;</span>
+              </button>
+            </div>
+
+            <div className="space-y-6 text-gray-300 font-josefin">
+              <section>
+                <h3 className="text-lg font-semibold text-magenta mb-2">What is VENUED?</h3>
+                <p>
+                  VENUED is a strategic project planning app designed specifically for VARIANT brains.
+                  We understand that your brain works differently - and that's not a flaw, it's an advantage!
+                </p>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-neon-cyan mb-2">The 5 Sections</h3>
+                <ul className="space-y-2">
+                  <li><strong className="text-white">Backstage</strong> - Your project command centre. See all your projects at a glance.</li>
+                  <li><strong className="text-white">Crew</strong> - Your daily task planning hub. Match tasks to your energy levels.</li>
+                  <li><strong className="text-white">Tour</strong> - Your strategic timeline. Plan your week with VARIANT reality buffers.</li>
+                  <li><strong className="text-white">Setlist</strong> - Your hype station. Music, energy tracking, and motivation boosts.</li>
+                  <li><strong className="text-white">Entourage</strong> - 9 support tools designed BY a VARIANT brain FOR VARIANT brains.</li>
+                </ul>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-vivid-yellow-green mb-2">Getting Started</h3>
+                <ol className="list-decimal list-inside space-y-2">
+                  <li><strong>Rehearsal Studio</strong> - Try the app with sample projects and tasks</li>
+                  <li><strong>Jam Session</strong> - Start fresh with your own projects</li>
+                  <li>Use the bottom navigation to move between sections</li>
+                  <li>Check out the Entourage for tools to help you stay focused and motivated</li>
+                </ol>
+              </section>
+
+              <section>
+                <h3 className="text-lg font-semibold text-vivid-pink mb-2">Pro Tips</h3>
+                <ul className="space-y-2">
+                  <li>Times shown include a 1.8x VARIANT reality buffer - trust them!</li>
+                  <li>Match tasks to your current energy level for better flow</li>
+                  <li>Use "FUCK IT - DO IT" mode when you're stuck in analysis paralysis</li>
+                  <li>Check the Entourage tools when you need support</li>
+                </ul>
+              </section>
+            </div>
+
+            <button
+              onClick={() => setShowUserGuide(false)}
+              className="mt-6 w-full py-3 bg-magenta text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
+            >
+              Got it!
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
-      <div className="relative border-t border-white/10 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-gray-500 text-sm">
-              © 2025 VENUED. Built for ADHD brains, by ADHD brains.
-            </div>
-            <div className="flex gap-6">
-              <Link href="/backstage" className="text-gray-500 hover:text-neon-pink transition-colors">
-                Backstage
-              </Link>
-              <Link href="/setlist" className="text-gray-500 hover:text-electric-purple transition-colors">
-                Setlist
-              </Link>
-              <Link href="/crew" className="text-gray-500 hover:text-neon-green transition-colors">
-                Crew
-              </Link>
-              <Link href="/tour" className="text-gray-500 hover:text-blue-400 transition-colors">
-                Tour
-              </Link>
-              <Link href="/entourage" className="text-gray-500 hover:text-yellow-400 transition-colors">
-                Entourage
-              </Link>
-            </div>
-          </div>
-        </div>
+      <div className="absolute bottom-0 left-0 right-0 py-4 text-center">
+        <p className="text-sm text-gray-500 font-josefin">
+          Built for VARIANT brains, by VARIANT brains.
+        </p>
       </div>
     </div>
   );

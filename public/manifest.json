@@ -1,7 +1,7 @@
 {
-  "name": "VENUED - Strategic ADHD Project Planner",
+  "name": "VENUED - Strategic VARIANT Project Planner",
   "short_name": "VENUED",
-  "description": "Strategic project planning for ADHD brains. Rockstar-themed task manager with energy matching, time blindness tools, and hyperfocus tracking.",
+  "description": "Strategic project planning for VARIANT brains. Rockstar-themed task manager with energy matching, time blindness tools, and hyperfocus tracking.",
   "theme_color": "#FF1B8D",
   "background_color": "#000000",
   "display": "standalone",
@@ -40,8 +40,8 @@
     },
     {
       "name": "Entourage",
-      "short_name": "ADHD Tools",
-      "description": "ADHD support tools",
+      "short_name": "VARIANT Tools",
+      "description": "VARIANT support tools",
       "url": "/entourage",
       "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }

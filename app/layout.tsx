@@ -1,33 +1,22 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import PWAInstall from "@/components/PWAInstall";
 import OnboardingFlow from "@/components/OnboardingFlow";
 import NotificationManager from "@/components/NotificationManager";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#FF008E",
+};
 
 export const metadata: Metadata = {
-  title: "VENUED - Strategic Project Planning for ADHD Brains",
-  description: "Get VENUED. Get it Done. Plan your projects like a tour. Execute like a headliner.",
+  title: "VENUED - Strategic Project Planning for VARIANT Brains",
+  description: "Get VENUED. Get it Done. Strategic project planning for VARIANT brains who build like rockstars.",
   manifest: "/manifest.json",
-  themeColor: "#FF1B8D",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -43,15 +32,15 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "VENUED - Strategic Project Planning for ADHD Brains",
-    description: "Get VENUED. Get it Done. Plan your projects like a tour. Execute like a headliner.",
+    title: "VENUED - Strategic Project Planning for VARIANT Brains",
+    description: "Get VENUED. Get it Done. Strategic project planning for VARIANT brains who build like rockstars.",
     type: "website",
     siteName: "VENUED",
   },
   twitter: {
     card: "summary_large_image",
-    title: "VENUED - Strategic Project Planning for ADHD Brains",
-    description: "Get VENUED. Get it Done. Plan your projects like a tour. Execute like a headliner.",
+    title: "VENUED - Strategic Project Planning for VARIANT Brains",
+    description: "Get VENUED. Get it Done. Strategic project planning for VARIANT brains who build like rockstars.",
   },
 };
 
@@ -62,13 +51,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className="antialiased font-josefin">
+        {/* Background Image */}
+        <div className="venued-background" aria-hidden="true" />
+
         <OnboardingFlow />
         <NotificationManager />
         <Navigation />
-        <main className="min-h-screen">
+        <main className="min-h-screen relative z-10">
           {children}
         </main>
         <PWAInstall />

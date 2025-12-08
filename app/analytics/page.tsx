@@ -189,7 +189,7 @@ export default function Analytics() {
             <h1 className="text-4xl sm:text-5xl font-black text-white">Analytics</h1>
           </div>
           <p className="text-lg sm:text-xl text-gray-400">
-            Deep insights into your productivity patterns and ADHD tracking
+            Deep insights into your productivity patterns and VARIANT tracking
           </p>
           <div className="h-1 w-32 bg-gradient-to-r from-electric-purple to-neon-pink mt-4" />
         </div>
@@ -336,7 +336,7 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* ADHD Insights */}
+        {/* VARIANT Insights */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           {/* Time Blindness */}
           <div className="p-6 rounded-xl bg-white/5 border-2 border-white/10">

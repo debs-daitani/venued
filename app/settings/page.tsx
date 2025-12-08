@@ -353,7 +353,7 @@ export default function Settings() {
               <div className="p-6 rounded-xl bg-white/5 border-2 border-white/10">
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-yellow-400" />
-                  ADHD Tracking
+                  VARIANT Tracking
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
@@ -558,11 +558,11 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* ADHD Preferences */}
+            {/* VARIANT Preferences */}
             <div className="p-8 rounded-xl bg-white/5 border-2 border-white/10">
               <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                 <Zap className="w-6 h-6 text-neon-green" />
-                ADHD Preferences
+                VARIANT Preferences
               </h2>
               <div className="space-y-6">
                 <div>
@@ -607,7 +607,7 @@ export default function Settings() {
                     <span>3.0x (realistic)</span>
                   </div>
                   <p className="text-xs text-gray-500 mt-2">
-                    Multiplies time estimates to account for ADHD time blindness
+                    Multiplies time estimates to account for VARIANT time blindness
                   </p>
                 </div>
               </div>
@@ -701,7 +701,7 @@ export default function Settings() {
                 Export Data
               </h2>
               <p className="text-gray-400 mb-4">
-                Download all your projects, tasks, and ADHD tracking data as a JSON file for backup.
+                Download all your projects, tasks, and VARIANT tracking data as a JSON file for backup.
               </p>
               <button
                 onClick={handleExport}
@@ -803,7 +803,7 @@ export default function Settings() {
                   <strong>Version:</strong> 1.0.0
                 </p>
                 <p>
-                  <strong>Built for:</strong> ADHD brains, by ADHD brains
+                  <strong>Built for:</strong> VARIANT brains, by VARIANT brains
                 </p>
                 <p className="text-sm text-gray-500 mt-4">
                   All data is stored locally in your browser. Nothing is sent to any server. Install

@@ -168,10 +168,10 @@ export default function TaskFormModal({ isOpen, onClose, onSave, task, phaseId }
             </div>
           </div>
 
-          {/* ADHD Flags */}
+          {/* VARIANT Flags */}
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-white mb-2">
-              ADHD Flags
+              VARIANT Flags
             </label>
 
             {/* Hyperfocus */}
