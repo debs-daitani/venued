@@ -1,14 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Star, Plus, CheckCircle2, Rocket, ListChecks, Clock } from 'lucide-react';
+import { Star, Plus, CheckCircle2, Rocket, ListChecks, Clock, FileEdit } from 'lucide-react';
 import Link from 'next/link';
 import { Project, ProjectStatus } from '@/lib/types';
 import { getProjects, calculateStats, initializeSampleData } from '@/lib/storage';
 import { getCrewTasks } from '@/lib/crew';
 import BackstageStats from '@/components/backstage/BackstageStats';
 import ProjectCard from '@/components/backstage/ProjectCard';
-import FilterTabs from '@/components/backstage/FilterTabs';
 import EmptyState from '@/components/backstage/EmptyState';
 
 export default function Backstage() {
@@ -91,8 +90,8 @@ export default function Backstage() {
                 </div>
               </div>
               <Link
-                href="/setlist"
-                className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-white text-black font-bold rounded-full hover:bg-magenta hover:text-white transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,0,142,0.6)]"
+                href="/crew"
+                className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-neon-cyan text-black font-bold rounded-full hover:bg-magenta transition-all duration-300 shadow-[0_0_20px_rgba(0,240,233,0.4)] hover:shadow-[0_0_30px_rgba(255,0,142,0.6)]"
               >
                 <Plus className="w-5 h-5" />
                 New Show
@@ -101,7 +100,7 @@ export default function Backstage() {
           </div>
         </div>
 
-        {/* Stats Grid - 2x2 on mobile */}
+        {/* Stats Grid - 2x2 on mobile, clickable status filters */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <button
             onClick={() => setActiveFilter('all')}
@@ -113,9 +112,24 @@ export default function Backstage() {
           >
             <div className="flex items-center gap-2 mb-2">
               <ListChecks className="w-5 h-5 text-magenta" />
-              <span className="text-sm font-semibold text-gray-400">Projects</span>
+              <span className="text-sm font-semibold text-gray-400">All Shows</span>
             </div>
             <p className="text-2xl sm:text-3xl font-bold text-white">{filterCounts.all}</p>
+          </button>
+
+          <button
+            onClick={() => setActiveFilter('planning')}
+            className={`p-4 sm:p-6 rounded-xl border-2 transition-all text-left ${
+              activeFilter === 'planning'
+                ? 'border-azure bg-azure/10'
+                : 'border-white/10 bg-white/5 hover:border-azure/40'
+            }`}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <FileEdit className="w-5 h-5 text-azure" />
+              <span className="text-sm font-semibold text-gray-400">Planning</span>
+            </div>
+            <p className="text-2xl sm:text-3xl font-bold text-white">{filterCounts.planning}</p>
           </button>
 
           <button
@@ -143,18 +157,10 @@ export default function Backstage() {
           >
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle2 className="w-5 h-5 text-vivid-yellow-green" />
-              <span className="text-sm font-semibold text-gray-400">Complete</span>
+              <span className="text-sm font-semibold text-gray-400">Completed</span>
             </div>
             <p className="text-2xl sm:text-3xl font-bold text-white">{filterCounts.complete}</p>
           </button>
-
-          <div className="p-4 sm:p-6 rounded-xl border-2 border-white/10 bg-white/5">
-            <div className="flex items-center gap-2 mb-2">
-              <CheckCircle2 className="w-5 h-5 text-vivid-yellow-green" />
-              <span className="text-sm font-semibold text-gray-400">Tasks Rocked</span>
-            </div>
-            <p className="text-2xl sm:text-3xl font-bold text-white">{stats.tasksCompleted}</p>
-          </div>
         </div>
 
         {/* Upcoming Tasks Section */}
@@ -206,15 +212,6 @@ export default function Backstage() {
             <p className="text-gray-400 font-josefin">All up to date - no upcoming tasks!</p>
           </div>
         )}
-
-        {/* Filter Tabs */}
-        <div className="mb-6 sm:mb-8">
-          <FilterTabs
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            counts={filterCounts}
-          />
-        </div>
 
         {/* Projects Grid or Empty State */}
         {filteredProjects.length === 0 ? (

@@ -103,9 +103,9 @@ export default function Navigation() {
           </div>
         </div>
 
-        {/* Mobile Menu Overlay */}
+        {/* Mobile Menu Overlay - solid dark background for readability */}
         {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 top-16 bg-black/95 backdrop-blur-lg z-40">
+          <div className="md:hidden fixed inset-0 top-16 bg-dark-grey-azure z-40">
             <div className="px-4 pt-4 pb-20 space-y-2">
               <Link
                 href="/"

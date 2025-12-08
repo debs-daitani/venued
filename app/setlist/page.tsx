@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Music, Zap, Sparkles, Flame, Star, ExternalLink } from 'lucide-react';
+import { Music, Zap, Sparkles, Flame, Star, ExternalLink, Hand } from 'lucide-react';
 
 // Energy messages that rotate on click
 const energyMessages = {
@@ -195,21 +195,21 @@ export default function Setlist() {
             </div>
           </div>
 
-          {/* Badass Boosts */}
+          {/* Badass Brain Boost */}
           <div className="p-6 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/10 to-vivid-pink/10">
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+            <h2 className="text-xl font-supernova text-white mb-4 flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-magenta" />
-              Badass Boosts
+              Badass Brain Boost
             </h2>
-            <p className="text-gray-400 mb-4">Need a quick motivation hit?</p>
+            <p className="text-gray-400 font-josefin mb-4">Need a quick motivation hit?</p>
 
-            {/* LFG Button */}
+            {/* LFG Button with rock fingers icon */}
             <button
               onClick={handleLFG}
-              className="w-full sm:w-auto px-8 py-4 rounded-full bg-magenta text-magenta font-bold text-lg hover:bg-white transition-all shadow-[0_0_30px_rgba(255,0,142,0.5)] hover:shadow-[0_0_40px_rgba(255,0,142,0.7)]"
-              style={{ backgroundColor: '#FF008E', color: '#000' }}
+              className="w-full sm:w-auto px-8 py-4 rounded-full bg-magenta text-black font-bold text-lg hover:bg-neon-cyan transition-all shadow-[0_0_30px_rgba(255,0,142,0.5)] hover:shadow-[0_0_40px_rgba(0,240,233,0.7)] flex items-center justify-center gap-2"
             >
-              <span className="text-magenta" style={{ color: '#FF008E' }}>LFG!</span>
+              <span className="text-2xl">🤘</span>
+              LFG!
             </button>
 
             {/* Boost Message */}

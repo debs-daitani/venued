@@ -37,26 +37,21 @@ export default function Home() {
       {/* Hero Section */}
       <div className="relative pt-24 pb-20 px-4 sm:px-6 lg:px-8 min-h-screen flex flex-col items-center justify-center">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Logo */}
-          <div className="mb-8 flex justify-center">
-            <div className="relative w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48">
+          {/* Logo - bigger size, no text below */}
+          <div className="mb-4 flex justify-center">
+            <div className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64">
               <Image
                 src="/images/VENUED_Logo.png"
                 alt="VENUED"
                 fill
-                className="object-contain drop-shadow-[0_0_30px_rgba(255,0,142,0.5)]"
+                className="object-contain drop-shadow-[0_0_40px_rgba(255,0,142,0.6)]"
                 priority
               />
             </div>
           </div>
 
-          {/* Main Title */}
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-supernova tracking-tight mb-4 text-white title-glow">
-            VENUED
-          </h1>
-
-          {/* Tagline */}
-          <p className="text-xl sm:text-2xl md:text-3xl font-arp-display text-magenta mb-4 tracking-wide">
+          {/* Tagline - single line on all screens */}
+          <p className="text-lg sm:text-xl md:text-2xl font-arp-display text-magenta mb-4 tracking-wide whitespace-nowrap">
             Get VENUED | Get it DONE!
           </p>
 
@@ -65,12 +60,26 @@ export default function Home() {
             Strategic project planning for VARIANT brains who build like rockstars
           </p>
 
-          {/* CTA Buttons */}
+          {/* CTA Buttons - Jam Session PRIMARY (top), Rehearsal Studio secondary */}
           <div className="flex flex-col gap-4 justify-center items-center max-w-md mx-auto">
-            {/* Rehearsal Studio Button */}
+            {/* Jam Session Button - PRIMARY */}
+            <button
+              onClick={handleJamSession}
+              className="w-full group flex flex-col items-center gap-1 px-8 py-5 text-lg font-bold text-black bg-magenta rounded-2xl hover:bg-neon-cyan transition-all duration-300 transform hover:scale-105 shadow-[0_0_30px_rgba(255,0,142,0.5)] hover:shadow-[0_0_50px_rgba(0,240,233,0.8)]"
+            >
+              <span className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5" />
+                JAM SESSION
+              </span>
+              <span className="text-sm font-normal opacity-80">
+                Your lyrics your way
+              </span>
+            </button>
+
+            {/* Rehearsal Studio Button - Secondary */}
             <button
               onClick={handleRehearsalStudio}
-              className="w-full group flex flex-col items-center gap-1 px-8 py-5 text-lg font-bold text-black bg-magenta rounded-2xl hover:bg-white transition-all duration-300 transform hover:scale-105 shadow-[0_0_30px_rgba(255,0,142,0.5)] hover:shadow-[0_0_50px_rgba(255,0,142,0.8)]"
+              className="w-full group flex flex-col items-center gap-1 px-8 py-5 text-lg font-bold text-white bg-white/10 rounded-2xl hover:bg-white/20 transition-all border-2 border-white/20 hover:border-magenta/40"
             >
               <span className="flex items-center gap-2">
                 <Play className="w-5 h-5" />
@@ -78,20 +87,6 @@ export default function Home() {
               </span>
               <span className="text-sm font-normal opacity-80">
                 Play with samples
-              </span>
-            </button>
-
-            {/* Jam Session Button */}
-            <button
-              onClick={handleJamSession}
-              className="w-full group flex flex-col items-center gap-1 px-8 py-5 text-lg font-bold text-white bg-white/10 rounded-2xl hover:bg-white/20 transition-all border-2 border-white/20 hover:border-magenta/40"
-            >
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
-                JAM SESSION
-              </span>
-              <span className="text-sm font-normal opacity-80">
-                Your lyrics - your way
               </span>
             </button>
           </div>
@@ -180,7 +175,7 @@ export default function Home() {
 
             <button
               onClick={() => setShowUserGuide(false)}
-              className="mt-6 w-full py-3 bg-magenta text-white font-bold rounded-lg hover:bg-white hover:text-black transition-all"
+              className="mt-6 w-full py-4 bg-magenta text-black font-bold rounded-xl hover:bg-neon-cyan transition-all shadow-[0_0_20px_rgba(255,0,142,0.5)] hover:shadow-[0_0_30px_rgba(0,240,233,0.6)]"
             >
               Got it!
             </button>

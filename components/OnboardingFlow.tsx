@@ -168,35 +168,33 @@ export default function OnboardingFlow() {
   const isLastStep = currentStep === steps.length - 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-lg px-4">
-      <div className="relative w-full max-w-3xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-lg px-4 py-4 overflow-hidden">
+      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col">
         {/* Close button */}
         <button
           onClick={handleSkip}
-          className="absolute -top-12 right-0 text-gray-400 hover:text-white transition-colors"
+          className="absolute -top-10 right-0 text-gray-400 hover:text-white transition-colors z-10"
           aria-label="Skip onboarding"
         >
           <X className="w-6 h-6" />
         </button>
 
         {/* Main card */}
-        <div className="rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 overflow-hidden">
+        <div className="rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border-2 border-white/20 overflow-hidden flex flex-col max-h-full">
           {/* Progress bar */}
-          <div className="h-2 bg-black/30">
+          <div className="h-2 bg-black/30 flex-shrink-0">
             <div
               className="h-full bg-gradient-to-r from-electric-purple to-neon-pink transition-all duration-500"
               style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
             />
           </div>
 
-          {/* Content */}
-          <div className="p-8 sm:p-12">
-            {/* Icon */}
+          {/* Content - scrollable */}
+          <div className="p-6 sm:p-8 overflow-y-auto flex-1">
+            {/* Icon - consistent magenta glow style */}
             <div className="flex justify-center mb-6">
-              <div
-                className={`w-20 h-20 rounded-full bg-gradient-to-br from-${step.color} to-${step.color}/50 flex items-center justify-center animate-pulse`}
-              >
-                <Icon className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 rounded-full bg-magenta/20 border-2 border-magenta/50 flex items-center justify-center shadow-[0_0_30px_rgba(255,0,142,0.4)]">
+                <Icon className="w-10 h-10 text-magenta drop-shadow-[0_0_8px_rgba(255,0,142,0.8)]" />
               </div>
             </div>
 
@@ -225,19 +223,20 @@ export default function OnboardingFlow() {
 
             {/* Final step actions */}
             {isLastStep && (
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <button
                   onClick={handleLoadDemo}
-                  className="flex-1 px-8 py-4 bg-gradient-to-r from-neon-pink to-electric-purple rounded-xl text-white font-bold hover:shadow-[0_0_30px_rgba(255,27,141,0.5)] transition-all text-center"
+                  className="flex-1 px-8 py-4 bg-white/10 border-2 border-white/20 rounded-xl text-white font-bold hover:bg-white/20 transition-all text-center"
                 >
                   <Sparkles className="w-5 h-5 inline-block mr-2" />
-                  Load Demo Data
+                  Rehearsal Studio: play with samples
                 </button>
                 <button
                   onClick={handleStartFresh}
-                  className="flex-1 px-8 py-4 bg-white/10 border-2 border-white/20 rounded-xl text-white font-bold hover:bg-white/20 transition-all text-center"
+                  className="flex-1 px-8 py-4 bg-magenta rounded-xl text-black font-bold hover:bg-neon-cyan transition-all text-center shadow-[0_0_20px_rgba(255,0,142,0.5)] hover:shadow-[0_0_30px_rgba(0,240,233,0.6)]"
                 >
-                  Start Fresh
+                  <Rocket className="w-5 h-5 inline-block mr-2" />
+                  Jam Session: your lyrics your way
                 </button>
               </div>
             )}
@@ -273,7 +272,7 @@ export default function OnboardingFlow() {
                 ))}
               </div>
 
-              {!isLastStep ? (
+              {!isLastStep && (
                 <button
                   onClick={handleNext}
                   className="flex items-center gap-2 px-6 py-3 rounded-lg bg-electric-purple text-white font-semibold hover:bg-neon-pink transition-all"
@@ -281,19 +280,12 @@ export default function OnboardingFlow() {
                   Next
                   <ChevronRight className="w-5 h-5" />
                 </button>
-              ) : (
-                <button
-                  onClick={handleStartFresh}
-                  className="flex items-center gap-2 px-6 py-3 rounded-lg bg-neon-green text-black font-semibold hover:bg-white transition-all"
-                >
-                  Get Started
-                  <Rocket className="w-5 h-5" />
-                </button>
               )}
+              {isLastStep && <div />}
             </div>
 
             {/* Skip link */}
-            <div className="text-center mt-6">
+            <div className="text-center mt-4">
               <button
                 onClick={handleSkip}
                 className="text-sm text-gray-400 hover:text-white transition-colors"
@@ -302,13 +294,6 @@ export default function OnboardingFlow() {
               </button>
             </div>
           </div>
-        </div>
-
-        {/* Keyboard hints */}
-        <div className="mt-4 text-center text-sm text-gray-500">
-          <span className="hidden sm:inline">
-            Use arrow keys or click buttons to navigate
-          </span>
         </div>
       </div>
     </div>
