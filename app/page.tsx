@@ -28,6 +28,9 @@ export default function Home() {
       localStorage.removeItem('venued_projects');
       localStorage.removeItem('venued_crew_tasks');
       localStorage.removeItem('venued_sample_data_loaded');
+      localStorage.removeItem('demo_data_loaded');
+      // Set flag to prevent auto-populating sample data
+      localStorage.setItem('venued_jam_session', 'true');
     }
     router.push('/backstage');
   };

@@ -1,8 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Music, Zap, Sparkles, Flame, Star, ExternalLink, Plus, X, TrendingUp, Clock, Save } from 'lucide-react';
+import { Music, Zap, Sparkles, Flame, Star, ExternalLink, TrendingUp, Save } from 'lucide-react';
 import Link from 'next/link';
+
+// Curated Focus Playlists (admin-managed)
+const curatedPlaylists = [
+  { id: '1', name: 'VENUED Flow State', description: 'Epic instrumentals for deep work', url: 'https://open.spotify.com/playlist/37i9dQZF1DX8NTLI2TtZa6' },
+  { id: '2', name: 'Hyperfocus Mode', description: 'Electronic beats to lock in', url: 'https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO' },
+  { id: '3', name: 'Low Energy Vibes', description: 'Chill ambient for gentle progress', url: 'https://open.spotify.com/playlist/37i9dQZF1DWZeKCadgRdKQ' },
+  { id: '4', name: 'High Energy Hustle', description: 'Pump-up tracks to crush it', url: 'https://open.spotify.com/playlist/37i9dQZF1DX76Wlfdnj7AP' },
+  { id: '5', name: 'VARIANT Brain Beats', description: 'Curated for neurodivergent focus', url: 'https://open.spotify.com/playlist/37i9dQZF1DX0SM0LYsmbMT' },
+  { id: '6', name: 'Creative Chaos', description: 'Eclectic mix for ideation sessions', url: 'https://open.spotify.com/playlist/37i9dQZF1DX56bqlsMxJYR' },
+];
 
 // Energy messages that rotate on click
 const energyMessages = {
@@ -75,12 +85,6 @@ interface SavedBoost {
   savedAt: string;
 }
 
-interface UserPlaylist {
-  id: string;
-  name: string;
-  url: string;
-}
-
 // Storage helpers
 const getEnergyLogs = (): EnergyLog[] => {
   if (typeof window === 'undefined') return [];
@@ -115,23 +119,6 @@ const saveBoost = (message: string) => {
   localStorage.setItem('venued_saved_boosts', JSON.stringify(boosts.slice(0, 20)));
 };
 
-const getUserPlaylists = (): UserPlaylist[] => {
-  if (typeof window === 'undefined') return [];
-  const data = localStorage.getItem('venued_user_playlists');
-  return data ? JSON.parse(data) : [];
-};
-
-const saveUserPlaylist = (playlist: UserPlaylist) => {
-  const playlists = getUserPlaylists();
-  playlists.push(playlist);
-  localStorage.setItem('venued_user_playlists', JSON.stringify(playlists));
-};
-
-const deleteUserPlaylist = (id: string) => {
-  const playlists = getUserPlaylists().filter(p => p.id !== id);
-  localStorage.setItem('venued_user_playlists', JSON.stringify(playlists));
-};
-
 export default function Setlist() {
   const [currentEnergy, setCurrentEnergy] = useState<'low' | 'medium' | 'high'>('medium');
   const [energyMessageIndex, setEnergyMessageIndex] = useState(0);
@@ -140,15 +127,10 @@ export default function Setlist() {
   const [actionSuggestion, setActionSuggestion] = useState('');
   const [energyLogs, setEnergyLogs] = useState<EnergyLog[]>([]);
   const [savedBoosts, setSavedBoosts] = useState<SavedBoost[]>([]);
-  const [userPlaylists, setUserPlaylists] = useState<UserPlaylist[]>([]);
-  const [showAddPlaylist, setShowAddPlaylist] = useState(false);
-  const [newPlaylistName, setNewPlaylistName] = useState('');
-  const [newPlaylistUrl, setNewPlaylistUrl] = useState('');
 
   useEffect(() => {
     setEnergyLogs(getEnergyLogs());
     setSavedBoosts(getSavedBoosts());
-    setUserPlaylists(getUserPlaylists());
   }, []);
 
   const handleEnergyClick = (level: 'low' | 'medium' | 'high') => {
@@ -164,25 +146,6 @@ export default function Setlist() {
       saveBoost(currentBoost);
       setSavedBoosts(getSavedBoosts());
     }
-  };
-
-  const handleAddPlaylist = () => {
-    if (newPlaylistName && newPlaylistUrl) {
-      saveUserPlaylist({
-        id: Date.now().toString(),
-        name: newPlaylistName,
-        url: newPlaylistUrl,
-      });
-      setUserPlaylists(getUserPlaylists());
-      setNewPlaylistName('');
-      setNewPlaylistUrl('');
-      setShowAddPlaylist(false);
-    }
-  };
-
-  const handleDeletePlaylist = (id: string) => {
-    deleteUserPlaylist(id);
-    setUserPlaylists(getUserPlaylists());
   };
 
   // Get today's energy logs
@@ -225,112 +188,34 @@ export default function Setlist() {
         </div>
 
         <div className="space-y-6">
-          {/* User Playlists */}
+          {/* Curated Focus Playlists */}
           <div className="p-6 rounded-xl border-2 border-azure/30 bg-azure/10">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Music className="w-5 h-5 text-azure" />
-                My Focus Playlists
-              </h2>
-              <button
-                onClick={() => setShowAddPlaylist(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-azure text-black font-semibold hover:bg-white transition-all"
-              >
-                <Plus className="w-4 h-4" />
-                Add Playlist
-              </button>
-            </div>
+            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <Music className="w-5 h-5 text-azure" />
+              Focus Playlists
+            </h2>
+            <p className="text-gray-400 text-sm mb-4">Curated playlists to match your energy and boost your focus</p>
 
-            {userPlaylists.length === 0 ? (
-              <div className="text-center py-8">
-                <Music className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-                <p className="text-gray-400 mb-2">No playlists added yet</p>
-                <p className="text-sm text-gray-500">Add your favorite Spotify playlists to access them quickly</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {userPlaylists.map((playlist) => (
-                  <div
-                    key={playlist.id}
-                    className="p-4 rounded-lg bg-black/30 border border-white/10 hover:border-azure/50 transition-all group relative"
-                  >
-                    <a
-                      href={playlist.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-white group-hover:text-azure transition-colors">
-                          {playlist.name}
-                        </span>
-                        <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-azure transition-colors" />
-                      </div>
-                    </a>
-                    <button
-                      onClick={() => handleDeletePlaylist(playlist.id)}
-                      className="absolute top-2 right-2 p-1 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/50"
-                    >
-                      <X className="w-3 h-3 text-gray-400" />
-                    </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {curatedPlaylists.map((playlist) => (
+                <a
+                  key={playlist.id}
+                  href={playlist.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 rounded-lg bg-black/30 border border-white/10 hover:border-azure/50 hover:bg-black/50 transition-all group"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-semibold text-white group-hover:text-azure transition-colors">
+                      {playlist.name}
+                    </span>
+                    <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-azure transition-colors" />
                   </div>
-                ))}
-              </div>
-            )}
+                  <p className="text-xs text-gray-500">{playlist.description}</p>
+                </a>
+              ))}
+            </div>
           </div>
-
-          {/* Add Playlist Modal */}
-          {showAddPlaylist && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-              <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-md w-full p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-white">Add Playlist</h2>
-                  <button
-                    onClick={() => setShowAddPlaylist(false)}
-                    className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-                  >
-                    <X className="w-5 h-5 text-gray-400 hover:text-white" />
-                  </button>
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-white mb-2">Playlist Name</label>
-                    <input
-                      type="text"
-                      value={newPlaylistName}
-                      onChange={(e) => setNewPlaylistName(e.target.value)}
-                      placeholder="My Focus Mix"
-                      className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-white mb-2">Spotify URL</label>
-                    <input
-                      type="text"
-                      value={newPlaylistUrl}
-                      onChange={(e) => setNewPlaylistUrl(e.target.value)}
-                      placeholder="https://open.spotify.com/playlist/..."
-                      className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
-                    />
-                  </div>
-                </div>
-                <div className="flex gap-3 mt-6">
-                  <button
-                    onClick={() => setShowAddPlaylist(false)}
-                    className="flex-1 py-3 rounded-lg border-2 border-white/10 text-white font-semibold hover:bg-white/5"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleAddPlaylist}
-                    className="flex-1 py-3 rounded-lg bg-azure text-black font-bold hover:bg-white transition-all"
-                  >
-                    Add Playlist
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Energy Tracker */}
           <div className="p-6 rounded-xl border-2 border-white/10 bg-white/5">

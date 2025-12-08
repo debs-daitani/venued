@@ -210,17 +210,54 @@ export default function Entourage() {
         )}
 
         {/* Active Module */}
-        {activeModule && (
-          <div>
-            <button
-              onClick={() => setActiveModule(null)}
-              className="mb-4 text-magenta hover:text-white transition-colors font-semibold"
-            >
-              &larr; Back to Entourage
-            </button>
-            {renderModuleContent(activeModule)}
-          </div>
-        )}
+        {activeModule && (() => {
+          const module = modules.find(m => m.id === activeModule);
+          const Icon = module?.icon || Brain;
+          return (
+            <div>
+              <button
+                onClick={() => setActiveModule(null)}
+                className="mb-4 text-magenta hover:text-white transition-colors font-semibold"
+              >
+                &larr; Back to Entourage
+              </button>
+
+              {/* Module-specific header */}
+              <div
+                className="rounded-2xl p-6 sm:p-8 mb-6"
+                style={{
+                  background: `linear-gradient(135deg, ${module?.letterColor}30 0%, transparent 100%)`,
+                  borderColor: `${module?.letterColor}50`,
+                  borderWidth: '2px',
+                  borderStyle: 'solid'
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <span
+                    className="text-4xl sm:text-5xl font-supernova"
+                    style={{ color: module?.letterColor }}
+                  >
+                    {module?.letter}
+                  </span>
+                  <Icon className="w-8 h-8 sm:w-10 sm:h-10" style={{ color: module?.letterColor }} />
+                  <div>
+                    <h2
+                      className="text-2xl sm:text-3xl font-supernova tracking-tight"
+                      style={{ color: module?.letterColor }}
+                    >
+                      {module?.name}
+                    </h2>
+                    <p className="text-base font-arp-display text-white/80 mt-1">
+                      {module?.subtitle}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {renderModuleContent(activeModule)}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
@@ -229,6 +266,7 @@ export default function Entourage() {
 // Module Components
 function ElectrifyModule() {
   const [task, setTask] = useState('');
+  const [whyStuck, setWhyStuck] = useState('');
   const [microSteps, setMicroSteps] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -236,25 +274,71 @@ function ElectrifyModule() {
     if (!task.trim()) return;
     setIsLoading(true);
 
-    // Simulate AI breakdown
+    // Intelligent AI breakdown based on task and why stuck
     setTimeout(() => {
-      const steps = [
-        `Open/prepare what you need for "${task}"`,
-        `Set a 5-minute timer to just start`,
-        `Do the smallest first step you can think of`,
-        `Take a breath, then do the next tiny step`,
-        `Celebrate the progress - you've started!`,
-      ];
+      let steps: string[] = [];
+
+      // Customize steps based on why they're stuck
+      const lowerWhyStuck = whyStuck.toLowerCase();
+
+      if (lowerWhyStuck.includes('overwhelm') || lowerWhyStuck.includes('too big') || lowerWhyStuck.includes('too much')) {
+        steps = [
+          `Take a deep breath. "${task}" feels huge but we're gonna chunk it.`,
+          `Write down just 3 parts of this task on paper - nothing more`,
+          `Pick the TINIEST part. Like, embarrassingly tiny.`,
+          `Set a 5-minute timer. Only work on that tiny part.`,
+          `Done? Celebrate! If not, that's OK - you STARTED. That's the win.`,
+        ];
+      } else if (lowerWhyStuck.includes('boring') || lowerWhyStuck.includes('don\'t want') || lowerWhyStuck.includes('hate')) {
+        steps = [
+          `Put on your favorite pump-up song - seriously, do it now!`,
+          `Set a 10-minute timer. You can do ANYTHING for 10 minutes.`,
+          `Start "${task}" with the most interesting part first`,
+          `Reward yourself after - what treat are you earning?`,
+          `Remind yourself: boring tasks don't define you, completing them does! 🤘`,
+        ];
+      } else if (lowerWhyStuck.includes('perfect') || lowerWhyStuck.includes('scared') || lowerWhyStuck.includes('afraid') || lowerWhyStuck.includes('fail')) {
+        steps = [
+          `Permission granted: Your first attempt can be TERRIBLE. Seriously.`,
+          `Write "DRAFT" or "V1" on top - this removes perfectionism pressure`,
+          `Set a timer for 15 mins. Whatever you produce is the goal.`,
+          `Start in the middle if the beginning feels scary`,
+          `Remember: Done > Perfect. Ship the damn thing! 🚀`,
+        ];
+      } else if (lowerWhyStuck.includes('distract') || lowerWhyStuck.includes('focus') || lowerWhyStuck.includes('phone')) {
+        steps = [
+          `Put your phone in another room. Yes, really. Go do it.`,
+          `Close all browser tabs except what you need for "${task}"`,
+          `Write your intention on a sticky note: "I am doing ${task}"`,
+          `Set a 25-minute Pomodoro timer - head to Tune Up module!`,
+          `When distracted, look at the sticky note. Return to task.`,
+        ];
+      } else {
+        steps = [
+          `Open/prepare what you need for "${task}"`,
+          `Set a 5-minute timer - commit to just starting`,
+          `What's the FIRST physical action? Do that one thing.`,
+          `Take a breath. Now do the next tiny step.`,
+          `You've started! The hardest part is over. Keep that momentum! 🤘`,
+        ];
+      }
+
       setMicroSteps(steps);
       setIsLoading(false);
     }, 1500);
   };
 
+  const handleCancel = () => {
+    setTask('');
+    setWhyStuck('');
+    setMicroSteps([]);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="p-6 rounded-xl bg-vivid-yellow-green/10 border border-vivid-yellow-green/30">
-        <p className="text-vivid-yellow-green font-semibold">
-          Stuck on a task? Let's break it into tiny, dopamine-friendly micro-steps!
+      <div className="p-6 rounded-xl bg-magenta/10 border border-magenta/30">
+        <p className="text-magenta font-semibold">
+          🤘 Stuck on a task? Let's break it into tiny, dopamine-friendly micro-steps!
         </p>
       </div>
 
@@ -264,21 +348,41 @@ function ElectrifyModule() {
           type="text"
           value={task}
           onChange={(e) => setTask(e.target.value)}
-          placeholder="e.g., Clean the kitchen, Write that email..."
-          className="w-full input-base mb-4"
+          placeholder="e.g., Clean the kitchen, Write that email, Start the presentation..."
+          className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none mb-4"
         />
-        <button
-          onClick={handleBreakdown}
-          disabled={!task.trim() || isLoading}
-          className="btn-primary w-full sm:w-auto disabled:opacity-50"
-        >
-          {isLoading ? 'Breaking it down...' : 'Badass Bitesize It'}
-        </button>
+
+        <h3 className="text-lg font-bold text-white mb-4">Why are you stuck? (optional but helps!)</h3>
+        <input
+          type="text"
+          value={whyStuck}
+          onChange={(e) => setWhyStuck(e.target.value)}
+          placeholder="e.g., It's too big, I'm scared of failing, It's boring, I keep getting distracted..."
+          className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none mb-4"
+        />
+
+        <div className="flex gap-3">
+          <button
+            onClick={handleBreakdown}
+            disabled={!task.trim() || isLoading}
+            className="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold hover:shadow-[0_0_30px_rgba(255,0,142,0.5)] transition-all disabled:opacity-50"
+          >
+            {isLoading ? 'Breaking it down...' : '🤘 LFG!'}
+          </button>
+          {(task || whyStuck || microSteps.length > 0) && (
+            <button
+              onClick={handleCancel}
+              className="px-6 py-3 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10 transition-all"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
 
       {microSteps.length > 0 && (
         <div className="p-6 rounded-xl border-2 border-magenta/30 bg-magenta/10">
-          <h3 className="text-lg font-bold text-white mb-4">Your Micro-Steps:</h3>
+          <h3 className="text-lg font-bold text-white mb-4">Your Badass Micro-Steps:</h3>
           <ol className="space-y-3">
             {microSteps.map((step, index) => (
               <li key={index} className="flex items-start gap-3">
@@ -300,10 +404,22 @@ function NewReleasesModule() {
   const [dumpText, setDumpText] = useState('');
   const [timeLeft, setTimeLeft] = useState(300);
   const [isTimerActive, setIsTimerActive] = useState(false);
+  const [dumpSaved, setDumpSaved] = useState(false);
+  const [aiInsight, setAiInsight] = useState('');
+  const [ideaName, setIdeaName] = useState('');
+  const [ideaProblem, setIdeaProblem] = useState('');
+  const [ideaAudience, setIdeaAudience] = useState('');
+  const [ideaSaved, setIdeaSaved] = useState(false);
+  const [pivotLeaving, setPivotLeaving] = useState('');
+  const [pivotHeading, setPivotHeading] = useState('');
+  const [pivotWhy, setPivotWhy] = useState('');
+  const [pivotSaved, setPivotSaved] = useState(false);
 
   const startTimer = (seconds: number) => {
     setTimeLeft(seconds);
     setIsTimerActive(true);
+    setDumpSaved(false);
+    setAiInsight('');
   };
 
   useEffect(() => {
@@ -321,24 +437,102 @@ function NewReleasesModule() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handleSaveDump = () => {
+    if (!dumpText.trim()) return;
+
+    // Save to localStorage
+    const dumps = JSON.parse(localStorage.getItem('venued_brain_dumps') || '[]');
+    dumps.unshift({
+      id: Date.now().toString(),
+      content: dumpText,
+      timestamp: new Date().toISOString(),
+    });
+    localStorage.setItem('venued_brain_dumps', JSON.stringify(dumps.slice(0, 50)));
+    setDumpSaved(true);
+
+    // Generate AI insight based on dump content
+    setTimeout(() => {
+      const wordCount = dumpText.split(/\s+/).length;
+      const hasQuestions = dumpText.includes('?');
+      const mentionsWork = dumpText.toLowerCase().includes('work') || dumpText.toLowerCase().includes('project');
+      const mentionsStress = dumpText.toLowerCase().includes('stress') || dumpText.toLowerCase().includes('overwhelm') || dumpText.toLowerCase().includes('anxious');
+
+      let insight = '';
+      if (wordCount > 100) {
+        insight = "🧠 Wow, you had a LOT on your mind! That's the beauty of brain dumps - getting it OUT of your head creates space for clarity. Notice any patterns in what came out?";
+      } else if (hasQuestions) {
+        insight = "💡 I noticed some questions in there. Those questions are often your subconscious pointing you toward what matters. Which question feels most urgent to answer?";
+      } else if (mentionsStress) {
+        insight = "🤘 Sounds like you're carrying some weight. Remember: acknowledging stress is the first step to releasing it. What's ONE small thing you could let go of today?";
+      } else if (mentionsWork) {
+        insight = "📋 Looks like work is on your mind. Consider: which ONE thing from this dump, if completed, would make everything else easier or unnecessary?";
+      } else {
+        insight = "✨ Great job getting that out of your head! Now your brain has more bandwidth. What's the ONE action you want to take based on this dump?";
+      }
+      setAiInsight(insight);
+    }, 500);
+  };
+
+  const handleSaveIdea = () => {
+    if (!ideaName.trim()) return;
+
+    const ideas = JSON.parse(localStorage.getItem('venued_ideas') || '[]');
+    ideas.unshift({
+      id: Date.now().toString(),
+      name: ideaName,
+      problem: ideaProblem,
+      audience: ideaAudience,
+      timestamp: new Date().toISOString(),
+    });
+    localStorage.setItem('venued_ideas', JSON.stringify(ideas.slice(0, 50)));
+    setIdeaSaved(true);
+    setTimeout(() => {
+      setIdeaName('');
+      setIdeaProblem('');
+      setIdeaAudience('');
+      setIdeaSaved(false);
+    }, 2000);
+  };
+
+  const handleSavePivot = () => {
+    if (!pivotLeaving.trim() && !pivotHeading.trim()) return;
+
+    const pivots = JSON.parse(localStorage.getItem('venued_pivots') || '[]');
+    pivots.unshift({
+      id: Date.now().toString(),
+      leaving: pivotLeaving,
+      heading: pivotHeading,
+      why: pivotWhy,
+      timestamp: new Date().toISOString(),
+    });
+    localStorage.setItem('venued_pivots', JSON.stringify(pivots.slice(0, 50)));
+    setPivotSaved(true);
+    setTimeout(() => {
+      setPivotLeaving('');
+      setPivotHeading('');
+      setPivotWhy('');
+      setPivotSaved(false);
+    }, 2000);
+  };
+
   return (
     <div className="space-y-6">
       {/* Tabs */}
       <div className="flex gap-2">
         {[
-          { id: 'dump', label: 'DUMP', color: 'neon-cyan' },
-          { id: 'ideas', label: 'IDEAS', color: 'magenta' },
-          { id: 'pivots', label: 'PIVOTS', color: 'dark-grey-azure' },
+          { id: 'dump', label: 'DUMP', color: '#00F0E9' },
+          { id: 'ideas', label: 'IDEAS', color: '#FF008E' },
+          { id: 'pivots', label: 'PIVOTS', color: '#37454E' },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             className={`px-4 py-2 rounded-lg font-semibold transition-all ${
               activeTab === tab.id
-                ? `bg-${tab.color} text-black`
+                ? 'text-black'
                 : 'bg-white/5 text-gray-400 hover:bg-white/10'
             }`}
-            style={activeTab === tab.id ? { backgroundColor: tab.color === 'neon-cyan' ? '#00F0E9' : tab.color === 'magenta' ? '#FF008E' : '#37454E' } : {}}
+            style={activeTab === tab.id ? { backgroundColor: tab.color } : {}}
           >
             {tab.label}
           </button>
@@ -372,8 +566,23 @@ function NewReleasesModule() {
             value={dumpText}
             onChange={(e) => setDumpText(e.target.value)}
             placeholder="Just start typing. Don't think, just dump everything out of your brain..."
-            className="w-full h-48 input-base resize-none"
+            className="w-full h-48 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none resize-none mb-4"
           />
+
+          <button
+            onClick={handleSaveDump}
+            disabled={!dumpText.trim()}
+            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-neon-cyan text-black font-bold hover:bg-white transition-all disabled:opacity-50"
+          >
+            {dumpSaved ? '✓ Saved!' : '💾 Save Dump'}
+          </button>
+
+          {aiInsight && (
+            <div className="mt-4 p-4 rounded-lg bg-black/30 border border-neon-cyan/30">
+              <p className="text-sm font-semibold text-neon-cyan mb-2">AI Insight:</p>
+              <p className="text-white">{aiInsight}</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -381,20 +590,66 @@ function NewReleasesModule() {
         <div className="p-6 rounded-xl border-2 border-magenta/30 bg-magenta/10">
           <h3 className="text-lg font-bold text-white mb-4">Capture an Idea</h3>
           <div className="space-y-4">
-            <input type="text" placeholder="Idea name" className="w-full input-base" />
-            <textarea placeholder="What problem does it solve?" className="w-full h-24 input-base resize-none" />
-            <input type="text" placeholder="Who's it for?" className="w-full input-base" />
+            <input
+              type="text"
+              value={ideaName}
+              onChange={(e) => setIdeaName(e.target.value)}
+              placeholder="Idea name"
+              className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+            />
+            <textarea
+              value={ideaProblem}
+              onChange={(e) => setIdeaProblem(e.target.value)}
+              placeholder="What problem does it solve?"
+              className="w-full h-24 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none resize-none"
+            />
+            <input
+              type="text"
+              value={ideaAudience}
+              onChange={(e) => setIdeaAudience(e.target.value)}
+              placeholder="Who's it for?"
+              className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+            />
+            <button
+              onClick={handleSaveIdea}
+              disabled={!ideaName.trim()}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-magenta text-black font-bold hover:bg-white transition-all disabled:opacity-50"
+            >
+              {ideaSaved ? '✓ Saved!' : '💾 Save Idea'}
+            </button>
           </div>
         </div>
       )}
 
       {activeTab === 'pivots' && (
-        <div className="p-6 rounded-xl border-2 border-dark-grey-azure/50 bg-dark-grey-azure/30">
+        <div className="p-6 rounded-xl border-2 border-white/30 bg-dark-grey-azure/30">
           <h3 className="text-lg font-bold text-white mb-4">Reflect on a Pivot</h3>
           <div className="space-y-4">
-            <textarea placeholder="What I'm leaving behind..." className="w-full h-20 input-base resize-none" />
-            <textarea placeholder="Where I'm heading..." className="w-full h-20 input-base resize-none" />
-            <textarea placeholder="Why this is important..." className="w-full h-20 input-base resize-none" />
+            <textarea
+              value={pivotLeaving}
+              onChange={(e) => setPivotLeaving(e.target.value)}
+              placeholder="What I'm leaving behind..."
+              className="w-full h-20 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/50 focus:outline-none resize-none"
+            />
+            <textarea
+              value={pivotHeading}
+              onChange={(e) => setPivotHeading(e.target.value)}
+              placeholder="Where I'm heading..."
+              className="w-full h-20 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/50 focus:outline-none resize-none"
+            />
+            <textarea
+              value={pivotWhy}
+              onChange={(e) => setPivotWhy(e.target.value)}
+              placeholder="Why this is important..."
+              className="w-full h-20 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/50 focus:outline-none resize-none"
+            />
+            <button
+              onClick={handleSavePivot}
+              disabled={!pivotLeaving.trim() && !pivotHeading.trim()}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white text-black font-bold hover:bg-gray-200 transition-all disabled:opacity-50"
+            >
+              {pivotSaved ? '✓ Saved!' : '💾 Save Pivot'}
+            </button>
           </div>
         </div>
       )}
@@ -408,6 +663,22 @@ function TuneUpModule() {
   const [isRunning, setIsRunning] = useState(false);
   const [totalSessions, setTotalSessions] = useState(0);
   const [todayMinutes, setTodayMinutes] = useState(0);
+  const [selectedDuration, setSelectedDuration] = useState(25);
+  const [taskName, setTaskName] = useState('');
+  const [sessionComplete, setSessionComplete] = useState(false);
+  const [recentSessions, setRecentSessions] = useState<any[]>([]);
+
+  // Load saved data
+  useEffect(() => {
+    const sessions = JSON.parse(localStorage.getItem('venued_focus_sessions') || '[]');
+    setRecentSessions(sessions.slice(0, 5));
+
+    // Calculate today's stats
+    const today = new Date().toISOString().split('T')[0];
+    const todaySessions = sessions.filter((s: any) => s.date === today);
+    setTodayMinutes(todaySessions.reduce((sum: number, s: any) => sum + s.duration, 0));
+    setTotalSessions(sessions.length);
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -419,58 +690,157 @@ function TuneUpModule() {
           setMinutes(minutes - 1);
           setSeconds(59);
         } else {
+          // Session complete!
           setIsRunning(false);
+          setSessionComplete(true);
+
+          // Log the session
+          const sessions = JSON.parse(localStorage.getItem('venued_focus_sessions') || '[]');
+          sessions.unshift({
+            id: Date.now().toString(),
+            taskName: taskName || 'Focus Session',
+            duration: selectedDuration,
+            date: new Date().toISOString().split('T')[0],
+            timestamp: new Date().toISOString(),
+          });
+          localStorage.setItem('venued_focus_sessions', JSON.stringify(sessions.slice(0, 100)));
+
           setTotalSessions(prev => prev + 1);
-          setTodayMinutes(prev => prev + 25);
+          setTodayMinutes(prev => prev + selectedDuration);
+          setRecentSessions(sessions.slice(0, 5));
         }
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isRunning, minutes, seconds]);
+  }, [isRunning, minutes, seconds, selectedDuration, taskName]);
+
+  const handleStart = () => {
+    setSessionComplete(false);
+    setIsRunning(true);
+  };
+
+  const handleReset = () => {
+    setIsRunning(false);
+    setMinutes(selectedDuration);
+    setSeconds(0);
+    setSessionComplete(false);
+  };
+
+  const handleDurationChange = (mins: number) => {
+    setSelectedDuration(mins);
+    if (!isRunning) {
+      setMinutes(mins);
+      setSeconds(0);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="p-4 rounded-xl border border-neon-cyan bg-neon-cyan/10 text-center">
-          <p className="text-sm text-gray-400">Today's Minutes</p>
-          <p className="text-2xl font-bold text-neon-cyan">{todayMinutes}</p>
+      {/* Stats Row */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className="p-4 rounded-xl border border-magenta bg-magenta/10 text-center">
+          <p className="text-xs text-gray-400">Today</p>
+          <p className="text-xl font-bold text-magenta">{todayMinutes}m</p>
         </div>
-        <div className="p-4 rounded-xl border border-vivid-cyan bg-vivid-cyan/10 text-center">
-          <p className="text-sm text-gray-400">Total Sessions</p>
-          <p className="text-2xl font-bold text-vivid-cyan">{totalSessions}</p>
+        <div className="p-4 rounded-xl border border-neon-cyan bg-neon-cyan/10 text-center">
+          <p className="text-xs text-gray-400">Sessions</p>
+          <p className="text-xl font-bold text-neon-cyan">{totalSessions}</p>
+        </div>
+        <div className="p-4 rounded-xl border border-vivid-yellow-green bg-vivid-yellow-green/10 text-center">
+          <p className="text-xs text-gray-400">Streak</p>
+          <p className="text-xl font-bold text-vivid-yellow-green">🤘</p>
         </div>
       </div>
 
-      {/* Timer */}
-      <div className="p-8 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/10 to-vivid-pink/10 text-center">
-        <div className={`text-6xl font-bold text-neon-cyan mb-6 ${isRunning ? 'focus-ring-pulse' : ''}`}>
+      {/* Task Input */}
+      <div className="p-4 rounded-xl border-2 border-white/10 bg-white/5">
+        <input
+          type="text"
+          value={taskName}
+          onChange={(e) => setTaskName(e.target.value)}
+          placeholder="What are you focusing on? (optional)"
+          className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+          disabled={isRunning}
+        />
+      </div>
+
+      {/* Duration Presets */}
+      <div className="flex justify-center gap-2 flex-wrap">
+        {[5, 15, 25, 45, 60].map((mins) => (
+          <button
+            key={mins}
+            onClick={() => handleDurationChange(mins)}
+            disabled={isRunning}
+            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+              selectedDuration === mins
+                ? 'bg-magenta text-black'
+                : 'bg-white/5 text-gray-400 hover:bg-white/10'
+            } disabled:opacity-50`}
+          >
+            {mins}m
+          </button>
+        ))}
+      </div>
+
+      {/* Timer Display */}
+      <div className="p-8 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/10 to-neon-cyan/10 text-center">
+        <div className={`text-7xl font-supernova text-white mb-6 ${isRunning ? 'animate-pulse' : ''}`}>
           {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
         </div>
 
+        {sessionComplete && (
+          <div className="mb-6 p-4 rounded-lg bg-vivid-yellow-green/20 border border-vivid-yellow-green/50">
+            <p className="text-vivid-yellow-green font-bold text-lg">🤘 Session Complete!</p>
+            <p className="text-white text-sm">You focused for {selectedDuration} minutes. Great work!</p>
+          </div>
+        )}
+
         <div className="flex justify-center gap-4">
-          <button
-            onClick={() => setIsRunning(!isRunning)}
-            className={`px-8 py-3 rounded-full font-bold transition-all ${
-              isRunning
-                ? 'bg-vivid-cyan text-black'
-                : 'bg-magenta text-white'
-            }`}
-          >
-            {isRunning ? 'Pause' : 'Start'}
-          </button>
-          <button
-            onClick={() => {
-              setIsRunning(false);
-              setMinutes(25);
-              setSeconds(0);
-            }}
-            className="px-8 py-3 rounded-full font-bold bg-vivid-pink text-white"
-          >
-            Stop
-          </button>
+          {!isRunning ? (
+            <button
+              onClick={handleStart}
+              className="px-10 py-4 rounded-full font-bold text-lg bg-gradient-to-r from-magenta to-neon-cyan text-black hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all"
+            >
+              {sessionComplete ? '🤘 Go Again!' : '▶ Start Focus'}
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => setIsRunning(false)}
+                className="px-8 py-4 rounded-full font-bold bg-neon-cyan text-black hover:bg-white transition-all"
+              >
+                ⏸ Pause
+              </button>
+              <button
+                onClick={handleReset}
+                className="px-8 py-4 rounded-full font-bold bg-white/10 text-white border-2 border-white/20 hover:bg-white/20 transition-all"
+              >
+                ⏹ Stop
+              </button>
+            </>
+          )}
         </div>
       </div>
+
+      {/* Recent Sessions */}
+      {recentSessions.length > 0 && (
+        <div className="p-4 rounded-xl border-2 border-white/10 bg-white/5">
+          <h3 className="text-sm font-semibold text-gray-400 mb-3">Recent Sessions</h3>
+          <div className="space-y-2">
+            {recentSessions.map((session: any) => (
+              <div key={session.id} className="flex items-center justify-between p-2 rounded-lg bg-black/30">
+                <span className="text-white text-sm">{session.taskName}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-magenta font-semibold">{session.duration}m</span>
+                  <span className="text-xs text-gray-500">
+                    {new Date(session.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -639,7 +1009,7 @@ function ExciteModule() {
 
       {/* Achievement Categories */}
       <div className="flex flex-wrap gap-2">
-        {['All', 'Unlocked', 'Focus', 'Fire'].map((filter) => (
+        {['All', 'Unlocked', 'Focus', 'Rock'].map((filter) => (
           <button
             key={filter}
             className="px-4 py-2 rounded-lg bg-white/5 text-gray-400 hover:bg-white/10"
