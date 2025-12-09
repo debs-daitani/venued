@@ -83,16 +83,16 @@ export default function QuickCaptureButton() {
         onClick={() => setIsOpen(true)}
         className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40 w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 group"
         style={{
-          backgroundColor: '#FF008E',
-          boxShadow: '0 0 20px rgba(211, 255, 44, 0.4), 0 4px 15px rgba(0, 0, 0, 0.3)'
+          backgroundColor: '#00F0E9',
+          boxShadow: '0 0 20px rgba(255, 0, 142, 0.6), 0 4px 15px rgba(0, 0, 0, 0.3)'
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#00F0E9';
-          e.currentTarget.style.boxShadow = '0 0 30px rgba(211, 255, 44, 0.6), 0 4px 20px rgba(0, 0, 0, 0.4)';
+          e.currentTarget.style.backgroundColor = '#D3FF2C';
+          e.currentTarget.style.boxShadow = '0 0 30px rgba(255, 0, 142, 0.8), 0 4px 20px rgba(0, 0, 0, 0.4)';
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = '#FF008E';
-          e.currentTarget.style.boxShadow = '0 0 20px rgba(211, 255, 44, 0.4), 0 4px 15px rgba(0, 0, 0, 0.3)';
+          e.currentTarget.style.backgroundColor = '#00F0E9';
+          e.currentTarget.style.boxShadow = '0 0 20px rgba(255, 0, 142, 0.6), 0 4px 15px rgba(0, 0, 0, 0.3)';
         }}
         aria-label="Quick Capture"
       >
