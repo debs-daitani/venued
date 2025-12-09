@@ -4,6 +4,7 @@ import Navigation from "@/components/Navigation";
 import PWAInstall from "@/components/PWAInstall";
 import OnboardingFlow from "@/components/OnboardingFlow";
 import NotificationManager from "@/components/NotificationManager";
+import QuickCaptureButton from "@/components/QuickCaptureButton";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -60,6 +61,7 @@ export default function RootLayout({
         <main className="min-h-screen relative z-10">
           {children}
         </main>
+        <QuickCaptureButton />
         <PWAInstall />
       </body>
     </html>
