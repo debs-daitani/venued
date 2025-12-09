@@ -246,7 +246,7 @@ export default function Setlist() {
                     href={playlist.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-4 rounded-lg bg-black/30 border border-white/10 hover:border-azure/50 hover:bg-black/50 transition-all group"
+                    className="p-4 rounded-lg bg-[#3d3d3d]/60 border border-white/10 hover:border-azure/50 hover:bg-[#3d3d3d]/80 transition-all group"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold text-white group-hover:text-azure transition-colors">
@@ -307,7 +307,7 @@ export default function Setlist() {
             </div>
 
             {/* Energy Message */}
-            <div className="p-4 rounded-lg bg-black/30 border border-white/10">
+            <div className="p-4 rounded-lg bg-[#3d3d3d]/60 border border-white/10">
               <p className="text-white font-medium">
                 {energyMessages[currentEnergy][energyMessageIndex]}
               </p>
@@ -318,7 +318,7 @@ export default function Setlist() {
               <p className="text-magenta font-bold text-sm mb-3">🤖 AI SUGGESTS FOR YOUR {currentEnergy.toUpperCase()} ENERGY:</p>
               <div className="space-y-2">
                 {actionSuggestionsWithLinks[currentEnergy].map((suggestion, idx) => (
-                  <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-black/30 hover:bg-black/50 transition-all">
+                  <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-[#3d3d3d]/60 hover:bg-[#3d3d3d]/80 transition-all">
                     <span className="text-white text-sm">{suggestion.text}</span>
                     <Link
                       href={suggestion.link}
@@ -351,7 +351,7 @@ export default function Setlist() {
 
             {/* Boost Message */}
             {currentBoost && (
-              <div className="mt-4 p-4 rounded-lg bg-black/30 border border-magenta/30 animate-fade-in">
+              <div className="mt-4 p-4 rounded-lg bg-[#3d3d3d]/60 border border-magenta/30 animate-fade-in">
                 <p className="text-white font-medium mb-3">{currentBoost}</p>
                 <button
                   onClick={handleSaveBoost}
@@ -418,7 +418,7 @@ export default function Setlist() {
                 {savedBoosts.slice(0, 5).map((boost) => (
                   <div
                     key={boost.id}
-                    className="p-3 rounded-lg bg-black/30 border border-magenta/20"
+                    className="p-3 rounded-lg bg-[#3d3d3d]/60 border border-magenta/20"
                   >
                     <p className="text-white font-medium">{boost.message}</p>
                     <p className="text-xs text-gray-500 mt-1">

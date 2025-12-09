@@ -369,7 +369,7 @@ function ElectrifyModule() {
           value={task}
           onChange={(e) => setTask(e.target.value)}
           placeholder="e.g., Clean the kitchen, Write that email, Start the presentation..."
-          className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none mb-4"
+          className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none mb-4"
         />
 
         <h3 className="text-lg font-bold text-white mb-4">Why are you stuck? (optional but helps!)</h3>
@@ -378,7 +378,7 @@ function ElectrifyModule() {
           value={whyStuck}
           onChange={(e) => setWhyStuck(e.target.value)}
           placeholder="e.g., It's too big, I'm scared of failing, It's boring, I keep getting distracted..."
-          className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none mb-4"
+          className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none mb-4"
         />
 
         <div className="flex gap-3">
@@ -864,7 +864,7 @@ function NewReleasesModule() {
             value={dumpText}
             onChange={(e) => setDumpText(e.target.value)}
             placeholder="Just start typing. Don't think, just dump everything out of your brain..."
-            className="w-full h-48 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none resize-none mb-4"
+            className="w-full h-48 px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none resize-none mb-4"
           />
 
           <button
@@ -876,7 +876,7 @@ function NewReleasesModule() {
           </button>
 
           {aiInsight && (
-            <div className="mt-4 p-4 rounded-lg bg-black/30 border border-neon-cyan/30">
+            <div className="mt-4 p-4 rounded-lg bg-[#3d3d3d]/60 border border-neon-cyan/30">
               <p className="text-sm font-semibold text-neon-cyan mb-2">🧠 AI Insight:</p>
               <p className="text-white text-sm whitespace-pre-line mb-4">{aiInsight}</p>
 
@@ -906,7 +906,7 @@ function NewReleasesModule() {
                   onChange={(e) => setDumpUserInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleDumpFollowUp()}
                   placeholder="Reply to AI... (your action, or ask a question)"
-                  className="flex-1 px-3 py-2 bg-black border border-neon-cyan/30 rounded-lg text-white text-sm placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
+                  className="flex-1 px-3 py-2 bg-[#3d3d3d]/80 border border-neon-cyan/30 rounded-lg text-white text-sm placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
                 />
                 <button
                   onClick={handleDumpFollowUp}
@@ -930,20 +930,20 @@ function NewReleasesModule() {
               value={ideaName}
               onChange={(e) => setIdeaName(e.target.value)}
               placeholder="Idea name"
-              className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+              className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
             />
             <textarea
               value={ideaProblem}
               onChange={(e) => setIdeaProblem(e.target.value)}
               placeholder="What problem does it solve?"
-              className="w-full h-24 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none resize-none"
+              className="w-full h-24 px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none resize-none"
             />
             <input
               type="text"
               value={ideaAudience}
               onChange={(e) => setIdeaAudience(e.target.value)}
               placeholder="Who's it for?"
-              className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+              className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
             />
             <button
               onClick={handleSaveIdea}
@@ -954,7 +954,7 @@ function NewReleasesModule() {
             </button>
           </div>
           {ideaAiSuggestion && (
-            <div className="mt-4 p-4 rounded-lg bg-black/30 border border-magenta/30">
+            <div className="mt-4 p-4 rounded-lg bg-[#3d3d3d]/60 border border-magenta/30">
               <p className="text-sm font-semibold text-magenta mb-2">🧠 AI Suggestion:</p>
               <p className="text-white text-sm whitespace-pre-line">{ideaAiSuggestion}</p>
 
@@ -984,7 +984,7 @@ function NewReleasesModule() {
                   onChange={(e) => setIdeaUserInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleIdeaFollowUp()}
                   placeholder="Reply to AI... (yes, no, or ask a question)"
-                  className="flex-1 px-3 py-2 bg-black border border-magenta/30 rounded-lg text-white text-sm placeholder-gray-500 focus:border-magenta focus:outline-none"
+                  className="flex-1 px-3 py-2 bg-[#3d3d3d]/80 border border-magenta/30 rounded-lg text-white text-sm placeholder-gray-500 focus:border-magenta focus:outline-none"
                 />
                 <button
                   onClick={handleIdeaFollowUp}
@@ -1007,19 +1007,19 @@ function NewReleasesModule() {
               value={pivotLeaving}
               onChange={(e) => setPivotLeaving(e.target.value)}
               placeholder="What I'm leaving behind..."
-              className="w-full h-20 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/50 focus:outline-none resize-none"
+              className="w-full h-20 px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/50 focus:outline-none resize-none"
             />
             <textarea
               value={pivotHeading}
               onChange={(e) => setPivotHeading(e.target.value)}
               placeholder="Where I'm heading..."
-              className="w-full h-20 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/50 focus:outline-none resize-none"
+              className="w-full h-20 px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/50 focus:outline-none resize-none"
             />
             <textarea
               value={pivotWhy}
               onChange={(e) => setPivotWhy(e.target.value)}
               placeholder="Why this is important..."
-              className="w-full h-20 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/50 focus:outline-none resize-none"
+              className="w-full h-20 px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-white/50 focus:outline-none resize-none"
             />
             <button
               onClick={handleSavePivot}
@@ -1030,7 +1030,7 @@ function NewReleasesModule() {
             </button>
           </div>
           {pivotAiSuggestion && (
-            <div className="mt-4 p-4 rounded-lg bg-black/30 border border-white/30">
+            <div className="mt-4 p-4 rounded-lg bg-[#3d3d3d]/60 border border-white/30">
               <p className="text-sm font-semibold text-white mb-2">🧠 AI Suggestion:</p>
               <p className="text-white text-sm whitespace-pre-line">{pivotAiSuggestion}</p>
 
@@ -1060,7 +1060,7 @@ function NewReleasesModule() {
                   onChange={(e) => setPivotUserInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handlePivotFollowUp()}
                   placeholder="Reply to AI... (yes, no, or ask a question)"
-                  className="flex-1 px-3 py-2 bg-black border border-white/30 rounded-lg text-white text-sm placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
+                  className="flex-1 px-3 py-2 bg-[#3d3d3d]/80 border border-white/30 rounded-lg text-white text-sm placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
                 />
                 <button
                   onClick={handlePivotFollowUp}
@@ -1229,7 +1229,7 @@ function NewReleasesModule() {
                     value={editingDump.content}
                     onChange={(e) => setEditingDump({...editingDump, content: e.target.value})}
                     rows={5}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
                   />
                 </div>
 
@@ -1309,7 +1309,7 @@ function NewReleasesModule() {
                     type="text"
                     value={editingIdea.name}
                     onChange={(e) => setEditingIdea({...editingIdea, name: e.target.value})}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                   />
                 </div>
                 <div>
@@ -1318,7 +1318,7 @@ function NewReleasesModule() {
                     value={editingIdea.problem || ''}
                     onChange={(e) => setEditingIdea({...editingIdea, problem: e.target.value})}
                     rows={3}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none resize-none"
                   />
                 </div>
                 <div>
@@ -1327,7 +1327,7 @@ function NewReleasesModule() {
                     type="text"
                     value={editingIdea.audience || ''}
                     onChange={(e) => setEditingIdea({...editingIdea, audience: e.target.value})}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                   />
                 </div>
 
@@ -1394,7 +1394,7 @@ function NewReleasesModule() {
                     value={editingPivot.leaving || ''}
                     onChange={(e) => setEditingPivot({...editingPivot, leaving: e.target.value})}
                     rows={3}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
                   />
                 </div>
                 <div>
@@ -1403,7 +1403,7 @@ function NewReleasesModule() {
                     value={editingPivot.heading || ''}
                     onChange={(e) => setEditingPivot({...editingPivot, heading: e.target.value})}
                     rows={3}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
                   />
                 </div>
                 <div>
@@ -1412,7 +1412,7 @@ function NewReleasesModule() {
                     value={editingPivot.why || ''}
                     onChange={(e) => setEditingPivot({...editingPivot, why: e.target.value})}
                     rows={3}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
                   />
                 </div>
 
@@ -1692,7 +1692,7 @@ function TuneUpModule() {
           value={taskName}
           onChange={(e) => setTaskName(e.target.value)}
           placeholder="What are you focusing on? (optional)"
-          className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+          className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
           disabled={isRunning}
         />
       </div>
@@ -1761,7 +1761,7 @@ function TuneUpModule() {
           <h3 className="text-sm font-semibold text-gray-400 mb-3">Recent Sessions</h3>
           <div className="space-y-2">
             {recentSessions.map((session: any) => (
-              <div key={session.id} className="flex items-center justify-between p-2 rounded-lg bg-black/30">
+              <div key={session.id} className="flex items-center justify-between p-2 rounded-lg bg-[#3d3d3d]/60">
                 <span className="text-white text-sm">{session.taskName}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-magenta font-semibold">{session.duration}m</span>
@@ -1790,7 +1790,7 @@ function TuneUpModule() {
 
         {/* Hyperfocus Form */}
         {showHyperfocusForm && (
-          <div className="space-y-3 mb-4 p-4 rounded-lg bg-black/30">
+          <div className="space-y-3 mb-4 p-4 rounded-lg bg-[#3d3d3d]/60">
             <div>
               <label className="block text-xs font-semibold text-white mb-1">What did you focus on? *</label>
               <input
@@ -1798,7 +1798,7 @@ function TuneUpModule() {
                 value={hyperfocusActivity}
                 onChange={(e) => setHyperfocusActivity(e.target.value)}
                 placeholder="e.g., Coding, Research, Creative project..."
-                className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+                className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
               />
             </div>
             <div>
@@ -1808,7 +1808,7 @@ function TuneUpModule() {
                 value={hyperfocusTrigger}
                 onChange={(e) => setHyperfocusTrigger(e.target.value)}
                 placeholder="e.g., Deadline pressure, New idea, Interesting problem..."
-                className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+                className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
               />
             </div>
             <div>
@@ -1818,7 +1818,7 @@ function TuneUpModule() {
                 value={hyperfocusDuration}
                 onChange={(e) => setHyperfocusDuration(e.target.value)}
                 placeholder="e.g., 3 hours, All afternoon..."
-                className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+                className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
               />
             </div>
             <div>
@@ -1828,7 +1828,7 @@ function TuneUpModule() {
                 onChange={(e) => setHyperfocusNotes(e.target.value)}
                 placeholder="What did you notice? How did you feel? What interrupted you?"
                 rows={2}
-                className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none resize-none"
+                className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none resize-none"
               />
             </div>
             <button
@@ -1848,7 +1848,7 @@ function TuneUpModule() {
               <button
                 key={log.id}
                 onClick={() => setEditingHyperfocus({...log})}
-                className="w-full text-left p-3 rounded-lg bg-black/30 hover:bg-black/50 transition-all"
+                className="w-full text-left p-3 rounded-lg bg-[#3d3d3d]/60 hover:bg-[#3d3d3d]/80 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -1882,7 +1882,7 @@ function TuneUpModule() {
                     type="text"
                     value={editingHyperfocus.activity}
                     onChange={(e) => setEditingHyperfocus({...editingHyperfocus, activity: e.target.value})}
-                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+                    className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
                   />
                 </div>
                 <div>
@@ -1891,7 +1891,7 @@ function TuneUpModule() {
                     type="text"
                     value={editingHyperfocus.trigger || ''}
                     onChange={(e) => setEditingHyperfocus({...editingHyperfocus, trigger: e.target.value})}
-                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+                    className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
                   />
                 </div>
                 <div>
@@ -1900,7 +1900,7 @@ function TuneUpModule() {
                     type="text"
                     value={editingHyperfocus.duration || ''}
                     onChange={(e) => setEditingHyperfocus({...editingHyperfocus, duration: e.target.value})}
-                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+                    className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
                   />
                 </div>
                 <div>
@@ -1909,7 +1909,7 @@ function TuneUpModule() {
                     value={editingHyperfocus.notes || ''}
                     onChange={(e) => setEditingHyperfocus({...editingHyperfocus, notes: e.target.value})}
                     rows={3}
-                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none resize-none"
+                    className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none resize-none"
                   />
                 </div>
               </div>
@@ -1945,7 +1945,7 @@ function TuneUpModule() {
         <p className="text-sm text-gray-400 mb-4">Improve time estimation by tracking estimated vs actual time</p>
 
         {/* Estimator Interface */}
-        <div className="p-4 rounded-lg bg-black/30 mb-4">
+        <div className="p-4 rounded-lg bg-[#3d3d3d]/60 mb-4">
           {!estimatorRunning && actualTime === null ? (
             // Setup Phase
             <div className="space-y-3">
@@ -1956,7 +1956,7 @@ function TuneUpModule() {
                   value={estimatorTask}
                   onChange={(e) => setEstimatorTask(e.target.value)}
                   placeholder="e.g., Write email, Complete form, Read article..."
-                  className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                  className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
                 />
               </div>
               <div>
@@ -1967,7 +1967,7 @@ function TuneUpModule() {
                   onChange={(e) => setEstimatedTime(e.target.value)}
                   placeholder="e.g., 15"
                   min="1"
-                  className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                  className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
                 />
               </div>
               <button
@@ -2033,7 +2033,7 @@ function TuneUpModule() {
               <button
                 key={est.id}
                 onClick={() => setEditingEstimate({...est})}
-                className="w-full text-left p-3 rounded-lg bg-black/30 hover:bg-black/50 transition-all"
+                className="w-full text-left p-3 rounded-lg bg-[#3d3d3d]/60 hover:bg-[#3d3d3d]/80 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -2072,7 +2072,7 @@ function TuneUpModule() {
                     type="text"
                     value={editingEstimate.task}
                     onChange={(e) => setEditingEstimate({...editingEstimate, task: e.target.value})}
-                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                    className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -2082,7 +2082,7 @@ function TuneUpModule() {
                       type="number"
                       value={editingEstimate.estimated}
                       onChange={(e) => setEditingEstimate({...editingEstimate, estimated: parseInt(e.target.value) || 0})}
-                      className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                      className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
                     />
                   </div>
                   <div>
@@ -2091,7 +2091,7 @@ function TuneUpModule() {
                       type="number"
                       value={editingEstimate.actual}
                       onChange={(e) => setEditingEstimate({...editingEstimate, actual: parseInt(e.target.value) || 0})}
-                      className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                      className="w-full px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
                     />
                   </div>
                 </div>
@@ -2203,7 +2203,7 @@ function OutroModule() {
           value={thought}
           onChange={(e) => setThought(e.target.value)}
           placeholder="e.g., I'll never finish this project on time, I'm not good enough, Everyone else has it together..."
-          className="w-full h-24 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none resize-none mb-4"
+          className="w-full h-24 px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none resize-none mb-4"
         />
 
         <h3 className="text-lg font-bold text-white mb-4">Where does this thought come from? (optional)</h3>
@@ -2212,7 +2212,7 @@ function OutroModule() {
           value={thoughtSource}
           onChange={(e) => setThoughtSource(e.target.value)}
           placeholder="e.g., Past failure, comparison to others, fear of judgment..."
-          className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none mb-4"
+          className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none mb-4"
         />
 
         <h3 className="text-lg font-bold text-white mb-4">How would YOU reframe it? (try first!)</h3>
@@ -2220,7 +2220,7 @@ function OutroModule() {
           value={userReframe}
           onChange={(e) => setUserReframe(e.target.value)}
           placeholder="Challenge yourself - what would you tell a friend who had this thought?"
-          className="w-full h-20 px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none resize-none mb-4"
+          className="w-full h-20 px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none resize-none mb-4"
         />
 
         <button
@@ -2262,7 +2262,7 @@ function OutroModule() {
           <h3 className="text-sm font-semibold text-gray-400 mb-3">Recent Reframes</h3>
           <div className="space-y-2">
             {savedLogs.map((log: any) => (
-              <div key={log.id} className="p-3 rounded-lg bg-black/30 border border-white/10">
+              <div key={log.id} className="p-3 rounded-lg bg-[#3d3d3d]/60 border border-white/10">
                 <p className="text-gray-400 text-sm italic">"{log.thought}"</p>
                 <p className="text-xs text-gray-500 mt-1">
                   {new Date(log.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -2532,7 +2532,7 @@ function UnpluggedModule() {
       {isSessionActive && currentDouble && (
         <div className="space-y-4">
           {/* Timer */}
-          <div className="p-6 rounded-xl border-2 border-white/20 bg-black/50 text-center">
+          <div className="p-6 rounded-xl border-2 border-white/20 bg-[#3d3d3d]/80 text-center">
             <div className="text-5xl font-supernova text-white mb-2 animate-pulse">
               {formatTime(timeLeft)}
             </div>
@@ -2546,7 +2546,7 @@ function UnpluggedModule() {
           </div>
 
           {/* Chat Box */}
-          <div className="rounded-xl border-2 border-white/20 bg-black/50 overflow-hidden">
+          <div className="rounded-xl border-2 border-white/20 bg-[#3d3d3d]/80 overflow-hidden">
             <div className="h-64 overflow-y-auto p-4 space-y-3">
               {chatMessages.map((msg, idx) => (
                 <div
@@ -2580,7 +2580,7 @@ function UnpluggedModule() {
                 onChange={(e) => setUserMessage(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Say something to your double..."
-                className="flex-1 px-4 py-2 bg-black border border-white/20 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                className="flex-1 px-4 py-2 bg-[#3d3d3d]/80 border border-white/20 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
               />
               <button
                 onClick={handleSendMessage}
@@ -2643,21 +2643,21 @@ function UnpluggedModule() {
                   value={newDoubleName}
                   onChange={(e) => setNewDoubleName(e.target.value)}
                   placeholder="Double name (e.g., ALEX)"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
                 />
                 <input
                   type="text"
                   value={newDoubleStyle}
                   onChange={(e) => setNewDoubleStyle(e.target.value)}
                   placeholder="Their vibe (e.g., chill but focused)"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
                 />
                 <input
                   type="text"
                   value={newDoubleIcon}
                   onChange={(e) => setNewDoubleIcon(e.target.value)}
                   placeholder="Pick an emoji (e.g., 🎸)"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
                 />
                 <div className="flex gap-3">
                   <button
@@ -2896,7 +2896,7 @@ function RetuneModule() {
       {activeProtocol && currentProtocol && (
         <div className="fixed inset-0 bg-black/95 z-[100] overflow-y-auto">
           <div className="min-h-full pt-20 pb-8 px-4 flex items-start justify-center">
-            <div className="max-w-lg w-full rounded-2xl border-2 bg-black p-6" style={{ borderColor: currentProtocol.color }}>
+            <div className="max-w-lg w-full rounded-2xl border-2 bg-[#1a1a1a] p-6" style={{ borderColor: currentProtocol.color }}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -3185,21 +3185,21 @@ function AmplifyModule() {
                   value={newEntry.source}
                   onChange={(e) => setNewEntry({ ...newEntry, source: e.target.value })}
                   placeholder="Source (e.g., Client Project, Coaching, Course Sales)"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-vivid-yellow-green focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-vivid-yellow-green focus:outline-none"
                 />
                 <input
                   type="number"
                   value={newEntry.amount}
                   onChange={(e) => setNewEntry({ ...newEntry, amount: e.target.value })}
                   placeholder="Amount (£)"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-vivid-yellow-green focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-vivid-yellow-green focus:outline-none"
                 />
                 <input
                   type="text"
                   value={newEntry.notes}
                   onChange={(e) => setNewEntry({ ...newEntry, notes: e.target.value })}
                   placeholder="Notes (optional)"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-vivid-yellow-green focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-vivid-yellow-green focus:outline-none"
                 />
                 <div className="flex gap-2">
                   <button
@@ -3497,19 +3497,19 @@ function GigHighlightsModule() {
       <div className="p-6 rounded-xl border border-white/10 bg-white/5">
         <h3 className="font-bold text-white mb-4">📊 Activity Breakdown</h3>
         <div className="grid grid-cols-2 gap-3">
-          <div className="flex items-center justify-between p-3 rounded-lg bg-black/30">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-[#3d3d3d]/60">
             <span className="text-gray-400">Brain Dumps</span>
             <span className="text-white font-bold">{stats.brainDumps}</span>
           </div>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-black/30">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-[#3d3d3d]/60">
             <span className="text-gray-400">Ideas Captured</span>
             <span className="text-white font-bold">{stats.ideasCapture}</span>
           </div>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-black/30">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-[#3d3d3d]/60">
             <span className="text-gray-400">Reframes</span>
             <span className="text-white font-bold">{stats.reframes}</span>
           </div>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-black/30">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-[#3d3d3d]/60">
             <span className="text-gray-400">Resets</span>
             <span className="text-white font-bold">{stats.retuneResets}</span>
           </div>
@@ -3673,7 +3673,7 @@ function ExciteModule() {
           </div>
           <div className="text-6xl">{unlockedCount >= 10 ? '🏆' : unlockedCount >= 5 ? '🥈' : unlockedCount >= 1 ? '🥉' : '🎯'}</div>
         </div>
-        <div className="mt-4 h-3 bg-black/50 rounded-full overflow-hidden">
+        <div className="mt-4 h-3 bg-[#3d3d3d]/80 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-magenta to-neon-cyan transition-all duration-500"
             style={{ width: `${(unlockedCount / achievements.length) * 100}%` }}
@@ -3751,7 +3751,7 @@ function ExciteModule() {
 
                   {!unlocked && (
                     <div className="mt-2">
-                      <div className="h-1.5 bg-black/50 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-[#3d3d3d]/80 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-white/30 transition-all"
                           style={{ width: `${progress}%` }}

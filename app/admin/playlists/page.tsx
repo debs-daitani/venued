@@ -95,7 +95,7 @@ export default function AdminPlaylists() {
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
                 placeholder="Enter admin password"
-                className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
                 autoFocus
               />
               {passwordError && (
@@ -226,21 +226,21 @@ export default function AdminPlaylists() {
                   value={newPlaylist.name}
                   onChange={(e) => setNewPlaylist({ ...newPlaylist, name: e.target.value })}
                   placeholder="Playlist Name"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
                 />
                 <input
                   type="text"
                   value={newPlaylist.description}
                   onChange={(e) => setNewPlaylist({ ...newPlaylist, description: e.target.value })}
                   placeholder="Description (optional)"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
                 />
                 <input
                   type="text"
                   value={newPlaylist.url}
                   onChange={(e) => setNewPlaylist({ ...newPlaylist, url: e.target.value })}
                   placeholder="Spotify URL (https://open.spotify.com/playlist/...)"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
                 />
                 <div className="flex gap-3">
                   <button
@@ -292,19 +292,19 @@ export default function AdminPlaylists() {
                         type="text"
                         value={editPlaylist.name}
                         onChange={(e) => setEditPlaylist({ ...editPlaylist, name: e.target.value })}
-                        className="w-full px-4 py-2 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                        className="w-full px-4 py-2 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                       />
                       <input
                         type="text"
                         value={editPlaylist.description}
                         onChange={(e) => setEditPlaylist({ ...editPlaylist, description: e.target.value })}
-                        className="w-full px-4 py-2 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                        className="w-full px-4 py-2 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                       />
                       <input
                         type="text"
                         value={editPlaylist.url}
                         onChange={(e) => setEditPlaylist({ ...editPlaylist, url: e.target.value })}
-                        className="w-full px-4 py-2 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                        className="w-full px-4 py-2 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                       />
                       <div className="flex gap-2">
                         <button

@@ -77,25 +77,28 @@ export default function Backstage() {
       <div className="max-w-7xl mx-auto py-6 sm:py-12">
         {/* Header */}
         <div className="mb-8 sm:mb-12">
-          <div className="rounded-2xl p-6 sm:p-8 mb-6 bg-white/5 border border-white/10">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="rounded-2xl p-6 sm:p-8 mb-6 bg-gradient-to-r from-magenta/20 to-neon-cyan/20 border border-magenta/30 relative overflow-hidden">
+            {/* Animated glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-magenta/30 via-transparent to-neon-cyan/30 animate-pulse" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-magenta to-neon-cyan opacity-20 blur-xl animate-pulse" />
+            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <Star className="w-8 h-8 sm:w-10 sm:h-10 text-magenta" />
+                <Star className="w-8 h-8 sm:w-10 sm:h-10 text-magenta drop-shadow-[0_0_10px_rgba(255,0,142,0.8)]" />
                 <div>
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-supernova tracking-tight bg-gradient-to-r from-magenta to-dark-grey-azure bg-clip-text text-transparent">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-supernova tracking-tight bg-gradient-to-r from-magenta to-neon-cyan bg-clip-text text-transparent drop-shadow-[0_0_20px_rgba(255,0,142,0.5)]">
                     BACKSTAGE
                   </h1>
                   <p className="text-base sm:text-lg font-arp-display text-white/80 mt-1">
-                    Your project command centre
+                    Your gig strategy hub
                   </p>
                 </div>
               </div>
               <Link
                 href="/crew"
-                className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-neon-cyan text-black font-bold rounded-full hover:bg-magenta transition-all duration-300 shadow-[0_0_20px_rgba(0,240,233,0.4)] hover:shadow-[0_0_30px_rgba(255,0,142,0.6)]"
+                className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold rounded-full hover:shadow-[0_0_30px_rgba(255,0,142,0.6)] transition-all duration-300"
               >
-                <Plus className="w-5 h-5" />
-                New Show
+                <span className="text-xl">🤘</span>
+                LFG!
               </Link>
             </div>
           </div>
@@ -190,7 +193,7 @@ export default function Backstage() {
               {upcomingTasks.map((task) => (
                 <div
                   key={task.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-white/10"
+                  className="flex items-center justify-between p-3 rounded-lg bg-[#3d3d3d]/60 border border-white/10"
                 >
                   <div>
                     <p className="font-semibold text-white">{task.title}</p>

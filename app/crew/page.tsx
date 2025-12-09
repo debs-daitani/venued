@@ -27,6 +27,7 @@ export default function Crew() {
   const [showAddTask, setShowAddTask] = useState(false);
   const [newTask, setNewTask] = useState({
     title: '',
+    description: '',
     energyLevel: 'medium' as EnergyLevel,
     difficulty: 'medium' as 'easy' | 'medium' | 'hard',
     estimatedHours: 1,
@@ -146,7 +147,7 @@ export default function Crew() {
     addCrewTask({
       id: `task-${Date.now()}`,
       title: newTask.title,
-      description: '',
+      description: newTask.description,
       phaseId: 'general',
       energyLevel: newTask.energyLevel,
       difficulty: newTask.difficulty,
@@ -164,6 +165,7 @@ export default function Crew() {
     setTasks(getCrewTasks());
     setNewTask({
       title: '',
+      description: '',
       energyLevel: 'medium',
       difficulty: 'medium',
       estimatedHours: 1,
@@ -234,7 +236,18 @@ export default function Crew() {
                     value={newTask.title}
                     onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                     placeholder="What do you need to do?"
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">The Lyrics</label>
+                  <textarea
+                    value={newTask.description}
+                    onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    placeholder="Notes, details, links..."
+                    rows={3}
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none resize-none"
                   />
                 </div>
 
@@ -290,7 +303,7 @@ export default function Crew() {
                     step="0.5"
                     value={newTask.estimatedHours}
                     onChange={(e) => setNewTask({ ...newTask, estimatedHours: parseFloat(e.target.value) || 1 })}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                   />
                 </div>
 
@@ -300,7 +313,7 @@ export default function Crew() {
                     type="date"
                     value={newTask.scheduledDate}
                     onChange={(e) => setNewTask({ ...newTask, scheduledDate: e.target.value })}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                   />
                 </div>
               </div>
@@ -514,7 +527,7 @@ export default function Crew() {
                     value={fuckItTask.title}
                     onChange={(e) => setFuckItTask({ ...fuckItTask, title: e.target.value })}
                     placeholder="e.g., Launch the website, Finish the pitch deck"
-                    className="w-full px-4 py-3 bg-black border-2 border-magenta/30 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-magenta/30 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
                     autoFocus
                   />
                 </div>
@@ -526,7 +539,7 @@ export default function Crew() {
                     onChange={(e) => setFuckItTask({ ...fuckItTask, description: e.target.value })}
                     placeholder="Your motivation for getting this done..."
                     rows={3}
-                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none resize-none"
+                    className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none resize-none"
                   />
                 </div>
               </div>

@@ -135,11 +135,6 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
     }
   };
 
-  // Don't render if no items
-  if (items.length === 0) {
-    return null;
-  }
-
   const visibleItems = showAll ? items : items.slice(0, 5);
   const hasMore = items.length > 5;
 
@@ -157,6 +152,14 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
           </div>
         </div>
 
+        {/* Empty State */}
+        {items.length === 0 && (
+          <div className="text-center py-6">
+            <InboxIcon className="w-10 h-10 text-gray-500 mx-auto mb-3" />
+            <p className="text-gray-400 font-josefin">All clear! Use the + button to capture ideas on the fly.</p>
+          </div>
+        )}
+
         {/* Items List */}
         <div className="space-y-3">
           {visibleItems.map((item) => {
@@ -168,7 +171,7 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
             return (
               <div
                 key={item.id}
-                className="p-4 rounded-lg bg-black/30 border border-white/10"
+                className="p-4 rounded-lg bg-[#3d3d3d]/60 border border-white/10"
               >
                 {/* Top row: badge and timestamp */}
                 <div className="flex items-center justify-between mb-2">
@@ -269,7 +272,7 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
                   type="text"
                   value={taskForm.title}
                   onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-                  className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-magenta/50"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-magenta/50"
                   autoFocus
                 />
               </div>
@@ -305,7 +308,7 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
                   step="0.25"
                   value={taskForm.estimatedHours}
                   onChange={(e) => setTaskForm({ ...taskForm, estimatedHours: parseFloat(e.target.value) || 1 })}
-                  className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-lg text-white focus:outline-none focus:border-magenta/50"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white focus:outline-none focus:border-magenta/50"
                 />
               </div>
 
@@ -316,7 +319,7 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
                   type="date"
                   value={taskForm.scheduledDate}
                   onChange={(e) => setTaskForm({ ...taskForm, scheduledDate: e.target.value })}
-                  className="w-full px-4 py-3 bg-black/30 border border-white/10 rounded-lg text-white focus:outline-none focus:border-magenta/50"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-white focus:outline-none focus:border-magenta/50"
                 />
               </div>
             </div>

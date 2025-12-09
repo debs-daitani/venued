@@ -137,7 +137,7 @@ export default function QuickCaptureButton() {
                 onChange={(e) => setText(e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder="Capture your thought..."
-                className="w-full h-32 p-4 bg-black/30 border border-white/10 rounded-xl text-white placeholder-gray-500 resize-none focus:outline-none focus:border-magenta/50 focus:ring-1 focus:ring-magenta/30 font-josefin"
+                className="w-full h-32 p-4 bg-[#3d3d3d]/80 border border-white/10 rounded-xl text-white placeholder-gray-500 resize-none focus:outline-none focus:border-magenta/50 focus:ring-1 focus:ring-magenta/30 font-josefin"
               />
 
               {/* Tag Selector */}

@@ -170,7 +170,7 @@ export default function Analytics() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black pt-20 flex items-center justify-center">
+      <div className="min-h-screen bg-[#1a1a1a] pt-20 flex items-center justify-center">
         <div className="text-center">
           <Activity className="w-16 h-16 text-electric-purple animate-pulse mx-auto mb-4" />
           <p className="text-gray-400">Analyzing your data...</p>
@@ -180,7 +180,7 @@ export default function Analytics() {
   }
 
   return (
-    <div className="min-h-screen bg-black pt-20 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#1a1a1a] pt-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto py-8">
         {/* Header */}
         <div className="mb-8">
@@ -222,7 +222,7 @@ export default function Analytics() {
               <Target className="w-5 h-5 text-neon-pink" />
             </div>
             <div className="text-4xl font-black text-white mb-1">{productivityScore}</div>
-            <div className="w-full h-2 bg-black/30 rounded-full overflow-hidden">
+            <div className="w-full h-2 bg-[#3d3d3d]/60 rounded-full overflow-hidden">
               <div
                 className="h-full bg-neon-pink rounded-full transition-all duration-500"
                 style={{ width: `${productivityScore}%` }}
@@ -314,7 +314,7 @@ export default function Analytics() {
                         <span className="text-gray-400">{formattedDate}</span>
                         <span className="text-white font-bold">{count} tasks</span>
                       </div>
-                      <div className="h-6 bg-black/30 rounded-full overflow-hidden">
+                      <div className="h-6 bg-[#3d3d3d]/60 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-gradient-to-r from-electric-purple to-neon-pink rounded-full transition-all duration-500 flex items-center justify-end px-2"
                           style={{ width: `${percentage}%` }}
@@ -463,7 +463,7 @@ export default function Analytics() {
                       <span className="text-gray-400">High Energy</span>
                       <span className="text-neon-green font-bold">{energyDistribution.high}%</span>
                     </div>
-                    <div className="h-4 bg-black/30 rounded-full overflow-hidden">
+                    <div className="h-4 bg-[#3d3d3d]/60 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-neon-green rounded-full transition-all duration-500"
                         style={{ width: `${energyDistribution.high}%` }}
@@ -476,7 +476,7 @@ export default function Analytics() {
                       <span className="text-gray-400">Medium Energy</span>
                       <span className="text-yellow-400 font-bold">{energyDistribution.medium}%</span>
                     </div>
-                    <div className="h-4 bg-black/30 rounded-full overflow-hidden">
+                    <div className="h-4 bg-[#3d3d3d]/60 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-yellow-400 rounded-full transition-all duration-500"
                         style={{ width: `${energyDistribution.medium}%` }}
@@ -489,7 +489,7 @@ export default function Analytics() {
                       <span className="text-gray-400">Low Energy</span>
                       <span className="text-red-400 font-bold">{energyDistribution.low}%</span>
                     </div>
-                    <div className="h-4 bg-black/30 rounded-full overflow-hidden">
+                    <div className="h-4 bg-[#3d3d3d]/60 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-red-400 rounded-full transition-all duration-500"
                         style={{ width: `${energyDistribution.low}%` }}

@@ -602,7 +602,7 @@ export default function Tour() {
                   type="text"
                   value={editingTask.title}
                   onChange={(e) => setEditingTask({ ...editingTask, title: e.target.value })}
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                 />
               </div>
 
@@ -612,7 +612,7 @@ export default function Tour() {
                   type="date"
                   value={editingTask.scheduledDate || ''}
                   onChange={(e) => setEditingTask({ ...editingTask, scheduledDate: e.target.value })}
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                 />
               </div>
 
@@ -624,7 +624,7 @@ export default function Tour() {
                   step="0.5"
                   value={editingTask.estimatedHours}
                   onChange={(e) => setEditingTask({ ...editingTask, estimatedHours: parseFloat(e.target.value) })}
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                 />
               </div>
 
@@ -698,7 +698,7 @@ export default function Tour() {
                   value={newTask.title}
                   onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                   placeholder="What do you need to do?"
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
                 />
               </div>
 
@@ -734,7 +734,7 @@ export default function Tour() {
                   step="0.5"
                   value={newTask.estimatedHours}
                   onChange={(e) => setNewTask({ ...newTask, estimatedHours: parseFloat(e.target.value) || 1 })}
-                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                  className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                 />
               </div>
             </div>
