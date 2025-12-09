@@ -172,10 +172,6 @@ export default function Crew() {
     setShowAddTask(false);
   };
 
-  const handleFuckItClick = () => {
-    setShowFuckItMode(true);
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center">
@@ -439,10 +435,11 @@ export default function Crew() {
           {/* Sidebar */}
           <div className="space-y-4">
             {/* FUCK IT - DO IT Button */}
-            <div className="p-6 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/20 to-neon-cyan/20">
+            <div className="p-6 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/20 to-neon-cyan/20 relative z-10">
               <button
-                onClick={handleFuckItClick}
-                className="w-full py-5 px-6 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold text-2xl hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all mb-3"
+                type="button"
+                onClick={() => setShowFuckItMode(true)}
+                className="w-full py-5 px-6 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold text-2xl hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all mb-3 cursor-pointer"
               >
                 <span className="text-2xl mr-2">🤘</span>
                 FUCK IT - DO IT!
