@@ -56,7 +56,26 @@ const badassBooosts = [
   "You've survived 100% of your worst days. You're stronger than you think.",
 ];
 
-// AI action suggestions based on energy level
+// AI action suggestions based on energy level - with links
+const actionSuggestionsWithLinks = {
+  low: [
+    { text: "Review your task list in Crew", link: "/crew", linkText: "Open Crew →" },
+    { text: "Clear your head with a brain dump", link: "/entourage", linkText: "New Releases →" },
+    { text: "Do a quick reset protocol", link: "/entourage", linkText: "Retune →" },
+  ],
+  medium: [
+    { text: "Tackle a medium-priority task", link: "/crew", linkText: "Open Crew →" },
+    { text: "Update your project progress", link: "/backstage", linkText: "Backstage →" },
+    { text: "Plan your week ahead", link: "/tour", linkText: "Open Tour →" },
+  ],
+  high: [
+    { text: "Attack your most challenging task NOW", link: "/crew", linkText: "Open Crew →" },
+    { text: "Start that project you've been avoiding", link: "/backstage", linkText: "New Show →" },
+    { text: "Deep focus session time!", link: "/entourage", linkText: "Tune Up →" },
+  ],
+};
+
+// Legacy simple action suggestions for LFG button
 const actionSuggestions = {
   low: [
     "Review your task list and cross off anything already done",
@@ -196,12 +215,12 @@ export default function Setlist() {
         </div>
 
         <div className="space-y-6">
-          {/* Admin-Managed Focus Playlists */}
+          {/* Admin-Managed Backing Tracks */}
           <div className="p-6 rounded-xl border-2 border-azure/30 bg-azure/10">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <Music className="w-5 h-5 text-azure" />
-                Focus Playlists
+                Backing Tracks
               </h2>
               <Link
                 href="/admin/playlists"
@@ -211,7 +230,7 @@ export default function Setlist() {
                 Admin
               </Link>
             </div>
-            <p className="text-gray-400 text-sm mb-4">Curated playlists to match your energy and boost your focus</p>
+            <p className="text-gray-400 text-sm mb-4">Curated tracks to match your energy and keep you in the zone</p>
 
             {playlists.length === 0 ? (
               <div className="text-center py-8">
@@ -292,6 +311,24 @@ export default function Setlist() {
               <p className="text-white font-medium">
                 {energyMessages[currentEnergy][energyMessageIndex]}
               </p>
+            </div>
+
+            {/* AI Action Suggestions */}
+            <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-magenta/10 to-neon-cyan/10 border border-magenta/30">
+              <p className="text-magenta font-bold text-sm mb-3">🤖 AI SUGGESTS FOR YOUR {currentEnergy.toUpperCase()} ENERGY:</p>
+              <div className="space-y-2">
+                {actionSuggestionsWithLinks[currentEnergy].map((suggestion, idx) => (
+                  <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-black/30 hover:bg-black/50 transition-all">
+                    <span className="text-white text-sm">{suggestion.text}</span>
+                    <Link
+                      href={suggestion.link}
+                      className="px-3 py-1 rounded-full bg-magenta/20 text-magenta text-xs font-semibold hover:bg-magenta hover:text-black transition-all whitespace-nowrap"
+                    >
+                      {suggestion.linkText}
+                    </Link>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 

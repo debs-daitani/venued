@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
@@ -10,9 +9,6 @@ import {
   Calendar,
   Sparkles,
   Music,
-  Menu,
-  X,
-  Home,
 } from 'lucide-react';
 
 const navItems = [
@@ -25,7 +21,6 @@ const navItems = [
 
 export default function Navigation() {
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Check if we're on home page
   const isHomePage = pathname === '/';
@@ -86,66 +81,8 @@ export default function Navigation() {
               })}
             </div>
 
-            {/* Mobile menu button - only show hamburger on tablet+ */}
-            <div className="md:hidden">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="text-white hover:text-magenta transition-colors p-2 mobile-touch-target"
-                aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
-              </button>
-            </div>
           </div>
         </div>
-
-        {/* Mobile Menu Overlay - solid dark background for readability */}
-        {mobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 top-16 bg-dark-grey-azure z-40">
-            <div className="px-4 pt-4 pb-20 space-y-2">
-              <Link
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`
-                  flex items-center gap-3 px-4 py-4 rounded-lg text-lg font-semibold transition-all mobile-nav-item
-                  ${isHomePage
-                    ? 'text-magenta bg-magenta/10 border-2 border-magenta/30'
-                    : 'text-white hover:text-magenta hover:bg-magenta/5 border-2 border-transparent'
-                  }
-                `}
-              >
-                <Home className="w-6 h-6" />
-                Home
-              </Link>
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
-
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`
-                      flex items-center gap-3 px-4 py-4 rounded-lg text-lg font-semibold transition-all mobile-nav-item
-                      ${isActive
-                        ? 'text-magenta bg-magenta/10 border-2 border-magenta/30'
-                        : 'text-white hover:text-magenta hover:bg-magenta/5 border-2 border-transparent'
-                      }
-                    `}
-                  >
-                    <Icon className="w-6 h-6" />
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* Mobile Bottom Navigation Bar - Only show on pages, not home */}

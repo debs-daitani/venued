@@ -400,20 +400,31 @@ function ElectrifyModule() {
 }
 
 function NewReleasesModule() {
-  const [activeTab, setActiveTab] = useState<'dump' | 'ideas' | 'pivots'>('dump');
+  const [activeTab, setActiveTab] = useState<'dump' | 'ideas' | 'pivots' | 'saved-ideas' | 'saved-pivots'>('dump');
   const [dumpText, setDumpText] = useState('');
   const [timeLeft, setTimeLeft] = useState(300);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [dumpSaved, setDumpSaved] = useState(false);
   const [aiInsight, setAiInsight] = useState('');
+  const [dumpAction, setDumpAction] = useState('');
   const [ideaName, setIdeaName] = useState('');
   const [ideaProblem, setIdeaProblem] = useState('');
   const [ideaAudience, setIdeaAudience] = useState('');
   const [ideaSaved, setIdeaSaved] = useState(false);
+  const [ideaAiSuggestion, setIdeaAiSuggestion] = useState('');
   const [pivotLeaving, setPivotLeaving] = useState('');
   const [pivotHeading, setPivotHeading] = useState('');
   const [pivotWhy, setPivotWhy] = useState('');
   const [pivotSaved, setPivotSaved] = useState(false);
+  const [pivotAiSuggestion, setPivotAiSuggestion] = useState('');
+  const [savedIdeas, setSavedIdeas] = useState<any[]>([]);
+  const [savedPivots, setSavedPivots] = useState<any[]>([]);
+
+  // Load saved items
+  useEffect(() => {
+    setSavedIdeas(JSON.parse(localStorage.getItem('venued_ideas') || '[]'));
+    setSavedPivots(JSON.parse(localStorage.getItem('venued_pivots') || '[]'));
+  }, [activeTab]);
 
   const startTimer = (seconds: number) => {
     setTimeLeft(seconds);
@@ -486,12 +497,27 @@ function NewReleasesModule() {
     });
     localStorage.setItem('venued_ideas', JSON.stringify(ideas.slice(0, 50)));
     setIdeaSaved(true);
+    setSavedIdeas(ideas.slice(0, 50));
+
+    // Generate AI suggestion
+    setTimeout(() => {
+      let suggestion = '';
+      if (ideaProblem && ideaAudience) {
+        suggestion = `Great idea! Next steps: 1) Validate the problem with 3-5 people from your target audience (${ideaAudience}). 2) Create a simple one-page outline. 3) Set a deadline to make a go/no-go decision. Want me to help break this down further?`;
+      } else if (ideaProblem) {
+        suggestion = `Interesting problem to solve! Consider: Who specifically experiences this problem most? That's your first customer. Research 3 competitors solving similar problems - what can you do differently?`;
+      } else {
+        suggestion = `Idea captured! To turn this into action: 1) Write down 3 reasons why this matters. 2) List 3 obstacles you'd face. 3) Define your first tiny experiment to test it.`;
+      }
+      setIdeaAiSuggestion(suggestion);
+    }, 500);
+
     setTimeout(() => {
       setIdeaName('');
       setIdeaProblem('');
       setIdeaAudience('');
       setIdeaSaved(false);
-    }, 2000);
+    }, 5000);
   };
 
   const handleSavePivot = () => {
@@ -507,27 +533,56 @@ function NewReleasesModule() {
     });
     localStorage.setItem('venued_pivots', JSON.stringify(pivots.slice(0, 50)));
     setPivotSaved(true);
+    setSavedPivots(pivots.slice(0, 50));
+
+    // Generate AI suggestion for pivot
+    setTimeout(() => {
+      let suggestion = '';
+      if (pivotWhy) {
+        suggestion = `Pivots take courage! Your 'why' is clear - that's your anchor. Next: 1) Tell 3 trusted people about this pivot. 2) Set a 90-day checkpoint to evaluate. 3) Define what "success" looks like in 6 months.`;
+      } else if (pivotHeading) {
+        suggestion = `Exciting new direction! Questions to consider: What skills do you need to develop? Who's already successful where you're heading - can you learn from them? What's your first 30-day goal?`;
+      } else {
+        suggestion = `Letting go is powerful. What you're leaving behind has taught you something valuable. Take a moment to acknowledge that growth before fully committing to the new path.`;
+      }
+      setPivotAiSuggestion(suggestion);
+    }, 500);
+
     setTimeout(() => {
       setPivotLeaving('');
       setPivotHeading('');
       setPivotWhy('');
       setPivotSaved(false);
-    }, 2000);
+    }, 5000);
+  };
+
+  const handleDeleteIdea = (id: string) => {
+    const ideas = savedIdeas.filter(i => i.id !== id);
+    localStorage.setItem('venued_ideas', JSON.stringify(ideas));
+    setSavedIdeas(ideas);
+  };
+
+  const handleDeletePivot = (id: string) => {
+    const pivots = savedPivots.filter(p => p.id !== id);
+    localStorage.setItem('venued_pivots', JSON.stringify(pivots));
+    setSavedPivots(pivots);
   };
 
   return (
     <div className="space-y-6">
       {/* Tabs */}
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         {[
           { id: 'dump', label: 'DUMP', color: '#00F0E9' },
           { id: 'ideas', label: 'IDEAS', color: '#FF008E' },
           { id: 'pivots', label: 'PIVOTS', color: '#37454E' },
+          { id: 'saved-ideas', label: `SAVED IDEAS (${savedIdeas.length})`, color: '#C9005C' },
+          { id: 'saved-pivots', label: `SAVED PIVOTS (${savedPivots.length})`, color: '#00A29D' },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
-            className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+            className={`px-4 py-2 rounded-lg font-semibold transition-all text-sm ${
               activeTab === tab.id
                 ? 'text-black'
                 : 'bg-white/5 text-gray-400 hover:bg-white/10'
@@ -580,7 +635,17 @@ function NewReleasesModule() {
           {aiInsight && (
             <div className="mt-4 p-4 rounded-lg bg-black/30 border border-neon-cyan/30">
               <p className="text-sm font-semibold text-neon-cyan mb-2">AI Insight:</p>
-              <p className="text-white">{aiInsight}</p>
+              <p className="text-white mb-4">{aiInsight}</p>
+              <div>
+                <label className="text-sm font-semibold text-neon-cyan block mb-2">Your action based on this dump:</label>
+                <input
+                  type="text"
+                  value={dumpAction}
+                  onChange={(e) => setDumpAction(e.target.value)}
+                  placeholder="What's one thing you'll do next?"
+                  className="w-full px-4 py-3 bg-black border-2 border-neon-cyan/30 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
+                />
+              </div>
             </div>
           )}
         </div>
@@ -618,6 +683,12 @@ function NewReleasesModule() {
               {ideaSaved ? '✓ Saved!' : '💾 Save Idea'}
             </button>
           </div>
+          {ideaAiSuggestion && (
+            <div className="mt-4 p-4 rounded-lg bg-black/30 border border-magenta/30">
+              <p className="text-sm font-semibold text-magenta mb-2">🧠 AI Suggestion:</p>
+              <p className="text-white text-sm">{ideaAiSuggestion}</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -651,6 +722,97 @@ function NewReleasesModule() {
               {pivotSaved ? '✓ Saved!' : '💾 Save Pivot'}
             </button>
           </div>
+          {pivotAiSuggestion && (
+            <div className="mt-4 p-4 rounded-lg bg-black/30 border border-white/30">
+              <p className="text-sm font-semibold text-white mb-2">🧠 AI Suggestion:</p>
+              <p className="text-white text-sm">{pivotAiSuggestion}</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'saved-ideas' && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-white">Saved Ideas</h3>
+          {savedIdeas.length === 0 ? (
+            <div className="p-6 rounded-xl border border-white/10 bg-white/5 text-center">
+              <p className="text-gray-400">No saved ideas yet</p>
+              <p className="text-sm text-gray-500">Go to IDEAS tab to capture your first idea!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {savedIdeas.map((idea: any) => (
+                <div key={idea.id} className="p-4 rounded-xl border border-magenta/30 bg-magenta/10">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-bold text-white">{idea.name}</h4>
+                      {idea.problem && <p className="text-sm text-gray-300 mt-1">{idea.problem}</p>}
+                      {idea.audience && <p className="text-xs text-gray-400 mt-1">For: {idea.audience}</p>}
+                      <p className="text-xs text-gray-500 mt-2">
+                        {new Date(idea.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteIdea(idea.id)}
+                      className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'saved-pivots' && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-white">Saved Pivots</h3>
+          {savedPivots.length === 0 ? (
+            <div className="p-6 rounded-xl border border-white/10 bg-white/5 text-center">
+              <p className="text-gray-400">No saved pivots yet</p>
+              <p className="text-sm text-gray-500">Go to PIVOTS tab to record your first pivot!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {savedPivots.map((pivot: any) => (
+                <div key={pivot.id} className="p-4 rounded-xl border border-white/30 bg-dark-grey-azure/30">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      {pivot.leaving && (
+                        <div className="mb-2">
+                          <p className="text-xs text-gray-500 uppercase">Leaving Behind:</p>
+                          <p className="text-sm text-gray-300">{pivot.leaving}</p>
+                        </div>
+                      )}
+                      {pivot.heading && (
+                        <div className="mb-2">
+                          <p className="text-xs text-gray-500 uppercase">Heading Toward:</p>
+                          <p className="text-sm text-white">{pivot.heading}</p>
+                        </div>
+                      )}
+                      {pivot.why && (
+                        <div className="mb-2">
+                          <p className="text-xs text-gray-500 uppercase">Why:</p>
+                          <p className="text-sm text-gray-300">{pivot.why}</p>
+                        </div>
+                      )}
+                      <p className="text-xs text-gray-500 mt-2">
+                        {new Date(pivot.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleDeletePivot(pivot.id)}
+                      className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1044,7 +1206,7 @@ function UnpluggedModule() {
     {
       name: 'IRIS',
       style: 'grounded, wise, patient',
-      icon: '🦉',
+      icon: '🎚️',
       color: '#00A29D',
       personality: 'wise',
       greetings: [
@@ -1543,7 +1705,6 @@ function RetuneModule() {
   const [activeProtocol, setActiveProtocol] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(0);
-  const [showWatchMe, setShowWatchMe] = useState(false);
   const [todayResets, setTodayResets] = useState(0);
   const [totalResets, setTotalResets] = useState(0);
 
@@ -1581,18 +1742,20 @@ function RetuneModule() {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const startProtocol = (protocol: typeof resets[0]) => {
+  const openProtocol = (protocol: typeof resets[0]) => {
     setActiveProtocol(protocol.name);
     setTimeLeft(protocol.duration);
+    setIsRunning(false); // Don't auto-start
+  };
+
+  const startProtocol = () => {
     setIsRunning(true);
-    setShowWatchMe(false);
   };
 
   const cancelProtocol = () => {
     setIsRunning(false);
     setTimeLeft(0);
     setActiveProtocol(null);
-    setShowWatchMe(false);
   };
 
   const currentProtocol = resets.find(r => r.name === activeProtocol);
@@ -1669,20 +1832,14 @@ function RetuneModule() {
               </ol>
             </div>
 
-            {/* Watch Me Toggle */}
-            <button
-              onClick={() => setShowWatchMe(!showWatchMe)}
-              className="w-full p-3 rounded-xl border border-white/20 bg-white/5 text-white font-semibold mb-4 hover:bg-white/10 transition-all"
-            >
-              👁️ {showWatchMe ? 'Hide' : 'Show'} Watch Me Demo
-            </button>
-
-            {showWatchMe && (
-              <div className="p-4 rounded-xl bg-neon-cyan/10 border border-neon-cyan/30 mb-4">
-                <p className="text-sm text-neon-cyan font-semibold mb-2">SUPERNova Demo:</p>
-                <p className="text-white text-sm">{currentProtocol.watchMe}</p>
+            {/* Watch Me - Coming Soon */}
+            <div className="w-full p-3 rounded-xl border border-neon-cyan/30 bg-neon-cyan/10 mb-4">
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-lg">👁️</span>
+                <span className="text-neon-cyan font-semibold">Watch Me Demo</span>
+                <span className="px-2 py-0.5 rounded-full bg-neon-cyan/30 text-neon-cyan text-xs font-bold">COMING SOON</span>
               </div>
-            )}
+            </div>
 
             {/* Science Section */}
             <div className="p-4 rounded-xl bg-magenta/10 border border-magenta/30 mb-6">
@@ -1692,9 +1849,20 @@ function RetuneModule() {
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              {!isRunning && timeLeft === 0 ? (
+              {!isRunning && timeLeft === currentProtocol.duration ? (
                 <button
-                  onClick={() => startProtocol(currentProtocol)}
+                  onClick={startProtocol}
+                  className="flex-1 p-4 rounded-xl font-bold text-black"
+                  style={{ backgroundColor: currentProtocol.color }}
+                >
+                  ▶ Start
+                </button>
+              ) : !isRunning && timeLeft === 0 ? (
+                <button
+                  onClick={() => {
+                    setTimeLeft(currentProtocol.duration);
+                    setIsRunning(true);
+                  }}
                   className="flex-1 p-4 rounded-xl font-bold text-black"
                   style={{ backgroundColor: currentProtocol.color }}
                 >
@@ -1732,7 +1900,7 @@ function RetuneModule() {
         {resets.map((reset) => (
           <button
             key={reset.name}
-            onClick={() => startProtocol(reset)}
+            onClick={() => openProtocol(reset)}
             className="w-full p-4 rounded-xl border-2 border-white/10 bg-white/5 hover:border-white/30 transition-all text-left flex items-center justify-between group"
           >
             <div className="flex items-center gap-4">

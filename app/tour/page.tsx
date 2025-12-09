@@ -18,7 +18,7 @@ import {
   Edit3,
 } from 'lucide-react';
 import { CrewTask, DayWorkload } from '@/lib/types';
-import { getCrewTasks, updateCrewTask } from '@/lib/crew';
+import { getCrewTasks, updateCrewTask, addCrewTask } from '@/lib/crew';
 import {
   getWeekDays,
   formatDate,
@@ -51,6 +51,12 @@ export default function Tour() {
   const [showMonthView, setShowMonthView] = useState(false);
   const [editingTask, setEditingTask] = useState<CrewTask | null>(null);
   const [currentMonthDate, setCurrentMonthDate] = useState<Date>(new Date());
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [newTask, setNewTask] = useState({
+    title: '',
+    energyLevel: 'medium' as 'high' | 'medium' | 'low',
+    estimatedHours: 1,
+  });
 
   // Get Monday of the current week
   function getMonday(date: Date): Date {
@@ -150,6 +156,40 @@ export default function Tour() {
       setTasks(getCrewTasks());
       setEditingTask(null);
     }
+  };
+
+  const handleAddNewTask = () => {
+    if (!newTask.title.trim() || !selectedDay) return;
+
+    addCrewTask({
+      id: `task-${Date.now()}`,
+      title: newTask.title,
+      description: '',
+      phaseId: 'general',
+      energyLevel: newTask.energyLevel,
+      difficulty: 'medium',
+      estimatedHours: newTask.estimatedHours,
+      isHyperfocus: false,
+      isQuickWin: false,
+      dependencies: [],
+      completed: false,
+      order: 0,
+      createdAt: new Date().toISOString(),
+      scheduledDate: selectedDay,
+      timeSpent: 0,
+    });
+
+    setTasks(getCrewTasks());
+    setNewTask({
+      title: '',
+      energyLevel: 'medium',
+      estimatedHours: 1,
+    });
+    setShowAddTask(false);
+  };
+
+  const openAddTaskModal = () => {
+    setShowAddTask(true);
   };
 
   return (
@@ -381,7 +421,10 @@ export default function Tour() {
               </div>
 
               {/* Add Task Button */}
-              <button className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-magenta text-white font-bold hover:bg-white hover:text-black transition-all">
+              <button
+                onClick={openAddTaskModal}
+                className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-magenta text-white font-bold hover:bg-white hover:text-black transition-all"
+              >
                 <Plus className="w-5 h-5" />
                 Add Task to This Day
               </button>
@@ -627,6 +670,88 @@ export default function Tour() {
                 className="flex-1 py-3 rounded-lg bg-magenta text-black font-bold hover:bg-neon-cyan transition-all"
               >
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Task Modal */}
+      {showAddTask && selectedDay && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-white">Add Task for {new Date(selectedDay).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</h2>
+              <button
+                onClick={() => setShowAddTask(false)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400 hover:text-white" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Task Name *</label>
+                <input
+                  type="text"
+                  value={newTask.title}
+                  onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                  placeholder="What do you need to do?"
+                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Energy Level</label>
+                <div className="flex gap-2">
+                  {(['high', 'medium', 'low'] as const).map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setNewTask({ ...newTask, energyLevel: level })}
+                      className={`flex-1 py-2 rounded-lg font-semibold capitalize transition-all ${
+                        newTask.energyLevel === level
+                          ? level === 'high'
+                            ? 'bg-vivid-yellow-green text-black'
+                            : level === 'medium'
+                            ? 'bg-magenta text-white'
+                            : 'bg-vivid-cyan text-black'
+                          : 'bg-white/10 text-gray-400'
+                      }`}
+                    >
+                      {level}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Estimated Hours</label>
+                <input
+                  type="number"
+                  min="0.5"
+                  step="0.5"
+                  value={newTask.estimatedHours}
+                  onChange={(e) => setNewTask({ ...newTask, estimatedHours: parseFloat(e.target.value) || 1 })}
+                  className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowAddTask(false)}
+                className="flex-1 py-3 rounded-lg border-2 border-white/10 text-white font-semibold hover:bg-white/5"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddNewTask}
+                disabled={!newTask.title.trim()}
+                className="flex-1 py-3 rounded-lg bg-magenta text-black font-bold hover:bg-neon-cyan transition-all disabled:opacity-50"
+              >
+                Add Task
               </button>
             </div>
           </div>

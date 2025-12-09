@@ -9,7 +9,8 @@ import {
   updateCrewTask,
   calculateCrewStats,
   initializeSampleCrewTasks,
-  celebrateAllComplete
+  celebrateAllComplete,
+  addCrewTask
 } from '@/lib/crew';
 import CrewTaskCard from '@/components/crew/CrewTaskCard';
 import FocusTimer from '@/components/crew/FocusTimer';
@@ -23,6 +24,14 @@ export default function Crew() {
   const [focusTask, setFocusTask] = useState<CrewTask | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showFuckItMode, setShowFuckItMode] = useState(false);
+  const [showAddTask, setShowAddTask] = useState(false);
+  const [newTask, setNewTask] = useState({
+    title: '',
+    energyLevel: 'medium' as EnergyLevel,
+    difficulty: 'medium' as 'easy' | 'medium' | 'hard',
+    estimatedHours: 1,
+    scheduledDate: new Date().toISOString().split('T')[0],
+  });
 
   useEffect(() => {
     initializeSampleCrewTasks();
@@ -106,6 +115,46 @@ export default function Crew() {
     }, 100);
   };
 
+  const handleAddNewTask = () => {
+    if (!newTask.title.trim()) return;
+
+    addCrewTask({
+      id: `task-${Date.now()}`,
+      title: newTask.title,
+      description: '',
+      phaseId: 'general',
+      energyLevel: newTask.energyLevel,
+      difficulty: newTask.difficulty,
+      estimatedHours: newTask.estimatedHours,
+      isHyperfocus: false,
+      isQuickWin: newTask.difficulty === 'easy',
+      dependencies: [],
+      completed: false,
+      order: 0,
+      createdAt: new Date().toISOString(),
+      scheduledDate: newTask.scheduledDate,
+      timeSpent: 0,
+    });
+
+    setTasks(getCrewTasks());
+    setNewTask({
+      title: '',
+      energyLevel: 'medium',
+      difficulty: 'medium',
+      estimatedHours: 1,
+      scheduledDate: new Date().toISOString().split('T')[0],
+    });
+    setShowAddTask(false);
+  };
+
+  const handleFuckItClick = () => {
+    setShowFuckItMode(true);
+  };
+
+  const handleFuckItConfirm = () => {
+    handleFuckItDoIt();
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen pt-20 flex items-center justify-center">
@@ -123,19 +172,140 @@ export default function Crew() {
         {/* Header */}
         <div className="mb-6 sm:mb-8">
           <div className="header-gradient-crew rounded-2xl p-6 sm:p-8">
-            <div className="flex items-center gap-3">
-              <Users className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              <div>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-supernova text-white tracking-tight">
-                  CREW
-                </h1>
-                <p className="text-base sm:text-lg font-arp-display text-white/80 mt-1">
-                  Your project planning hub
-                </p>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <Users className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                <div>
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-supernova text-white tracking-tight">
+                    CREW
+                  </h1>
+                  <p className="text-base sm:text-lg font-arp-display text-white/80 mt-1">
+                    Your project planning hub
+                  </p>
+                </div>
               </div>
+              <button
+                onClick={() => setShowAddTask(true)}
+                className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-neon-cyan text-black font-bold rounded-full hover:bg-magenta transition-all duration-300 shadow-[0_0_20px_rgba(0,240,233,0.4)] hover:shadow-[0_0_30px_rgba(255,0,142,0.6)]"
+              >
+                <Plus className="w-5 h-5" />
+                Add Task
+              </button>
             </div>
           </div>
         </div>
+
+        {/* Add Task Modal */}
+        {showAddTask && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-md w-full p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-supernova text-white">Add New Task</h2>
+                <button
+                  onClick={() => setShowAddTask(false)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <span className="text-2xl text-gray-400 hover:text-white">&times;</span>
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Task Name *</label>
+                  <input
+                    type="text"
+                    value={newTask.title}
+                    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                    placeholder="What do you need to do?"
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Energy Level</label>
+                  <div className="flex gap-2">
+                    {(['high', 'medium', 'low'] as const).map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => setNewTask({ ...newTask, energyLevel: level })}
+                        className={`flex-1 py-2 rounded-lg font-semibold capitalize transition-all ${
+                          newTask.energyLevel === level
+                            ? level === 'high'
+                              ? 'bg-vivid-yellow-green text-black'
+                              : level === 'medium'
+                              ? 'bg-magenta text-white'
+                              : 'bg-vivid-cyan text-black'
+                            : 'bg-white/10 text-gray-400'
+                        }`}
+                      >
+                        {level}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Difficulty</label>
+                  <div className="flex gap-2">
+                    {(['easy', 'medium', 'hard'] as const).map((diff) => (
+                      <button
+                        key={diff}
+                        type="button"
+                        onClick={() => setNewTask({ ...newTask, difficulty: diff })}
+                        className={`flex-1 py-2 rounded-lg font-semibold capitalize transition-all ${
+                          newTask.difficulty === diff
+                            ? 'bg-magenta text-white'
+                            : 'bg-white/10 text-gray-400'
+                        }`}
+                      >
+                        {diff}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Estimated Hours</label>
+                  <input
+                    type="number"
+                    min="0.5"
+                    step="0.5"
+                    value={newTask.estimatedHours}
+                    onChange={(e) => setNewTask({ ...newTask, estimatedHours: parseFloat(e.target.value) || 1 })}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Scheduled Date</label>
+                  <input
+                    type="date"
+                    value={newTask.scheduledDate}
+                    onChange={(e) => setNewTask({ ...newTask, scheduledDate: e.target.value })}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setShowAddTask(false)}
+                  className="flex-1 py-3 rounded-lg border-2 border-white/10 text-white font-semibold hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddNewTask}
+                  disabled={!newTask.title.trim()}
+                  className="flex-1 py-3 rounded-lg bg-magenta text-black font-bold hover:bg-neon-cyan transition-all disabled:opacity-50"
+                >
+                  Add Task
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Date Filter Tabs */}
         <div className="flex flex-wrap gap-2 mb-4">
@@ -249,22 +419,47 @@ export default function Crew() {
           <div className="space-y-4">
             {/* FUCK IT - DO IT Button */}
             <div className="p-6 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/20 to-neon-cyan/20">
-              <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-                <span className="text-2xl">🤘</span>
-                48-Hour Commitment Challenge
-              </h3>
-              <p className="text-sm text-gray-400 mb-4 font-josefin">
-                Pick a task and commit to just 48 hours of action. No overthinking.
-              </p>
               <button
-                onClick={handleFuckItDoIt}
+                onClick={handleFuckItClick}
                 disabled={incompleteTasks.length === 0}
-                className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold text-xl hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-5 px-6 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold text-2xl hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all disabled:opacity-50 disabled:cursor-not-allowed mb-3"
               >
                 <span className="text-2xl mr-2">🤘</span>
-                48 hours. Just action.
+                FUCK IT - DO IT!
               </button>
+              <p className="text-sm text-gray-400 text-center font-josefin">
+                48-hour commitment challenge
+              </p>
             </div>
+
+            {/* FUCK IT Modal */}
+            {showFuckItMode && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                <div className="bg-dark-grey-azure rounded-2xl border-2 border-magenta/50 max-w-md w-full p-6">
+                  <div className="text-center">
+                    <span className="text-6xl mb-4 block">🤘</span>
+                    <h2 className="text-3xl font-supernova text-magenta mb-4">FUCK IT - DO IT!</h2>
+                    <p className="text-white font-josefin mb-6">
+                      Ready to commit? We'll pick a random task and you'll focus on it for 48 hours. No overthinking. No excuses. Just action.
+                    </p>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowFuckItMode(false)}
+                        className="flex-1 py-3 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10"
+                      >
+                        Not yet
+                      </button>
+                      <button
+                        onClick={handleFuckItConfirm}
+                        className="flex-1 py-3 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold hover:shadow-[0_0_30px_rgba(255,0,142,0.6)] transition-all"
+                      >
+                        LET'S GO! 🤘
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Focus Timer */}
             <FocusTimer
@@ -296,40 +491,7 @@ export default function Crew() {
               </div>
             </div>
 
-            {/* Energy Selector */}
-            <div className="p-4 sm:p-6 rounded-xl border-2 border-white/10 bg-white/5">
-              <h3 className="text-lg font-bold text-white mb-4">Current Energy</h3>
-              <div className="space-y-2">
-                {(['high', 'medium', 'low'] as EnergyLevel[]).map(level => {
-                  const config = {
-                    high: { icon: Flame, color: 'vivid-yellow-green', label: 'High', bgColor: 'bg-vivid-yellow-green' },
-                    medium: { icon: Zap, color: 'magenta', label: 'Medium', bgColor: 'bg-magenta' },
-                    low: { icon: Star, color: 'vivid-cyan', label: 'Low', bgColor: 'bg-vivid-cyan' },
-                  };
-                  const { icon: Icon, color, label, bgColor } = config[level];
-                  const matchingTasks = incompleteTasks.filter(t => t.energyLevel === level).length;
-
-                  return (
-                    <button
-                      key={level}
-                      onClick={() => setCurrentEnergy(level)}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-lg font-semibold transition-all ${
-                        currentEnergy === level
-                          ? `${bgColor} text-black`
-                          : `bg-white/5 text-gray-400 border border-white/10 hover:bg-white/10`
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4" />
-                        <span>{label}</span>
-                      </div>
-                      <span className="text-xs">{matchingTasks} tasks</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
+            
             {/* Pick One For Me */}
             <button
               onClick={handlePickOne}
