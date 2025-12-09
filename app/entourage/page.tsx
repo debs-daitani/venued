@@ -1206,7 +1206,7 @@ function UnpluggedModule() {
     {
       name: 'IRIS',
       style: 'grounded, wise, patient',
-      icon: '🎚️',
+      icon: '⏳',
       color: '#00A29D',
       personality: 'wise',
       greetings: [
