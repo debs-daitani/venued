@@ -408,13 +408,19 @@ function NewReleasesModule() {
   const [ideaAudience, setIdeaAudience] = useState('');
   const [ideaSaved, setIdeaSaved] = useState(false);
   const [ideaAiSuggestion, setIdeaAiSuggestion] = useState('');
+  const [ideaConversation, setIdeaConversation] = useState<{role: 'ai' | 'user', text: string}[]>([]);
+  const [ideaUserInput, setIdeaUserInput] = useState('');
   const [pivotLeaving, setPivotLeaving] = useState('');
   const [pivotHeading, setPivotHeading] = useState('');
   const [pivotWhy, setPivotWhy] = useState('');
   const [pivotSaved, setPivotSaved] = useState(false);
   const [pivotAiSuggestion, setPivotAiSuggestion] = useState('');
+  const [pivotConversation, setPivotConversation] = useState<{role: 'ai' | 'user', text: string}[]>([]);
+  const [pivotUserInput, setPivotUserInput] = useState('');
   const [savedIdeas, setSavedIdeas] = useState<any[]>([]);
   const [savedPivots, setSavedPivots] = useState<any[]>([]);
+  const [editingIdea, setEditingIdea] = useState<any>(null);
+  const [editingPivot, setEditingPivot] = useState<any>(null);
 
   // Load saved items
   useEffect(() => {
@@ -564,6 +570,82 @@ function NewReleasesModule() {
     setSavedPivots(pivots);
   };
 
+  const handleIdeaFollowUp = () => {
+    if (!ideaUserInput.trim()) return;
+
+    // Add user message to conversation
+    const newConversation = [...ideaConversation, { role: 'user' as const, text: ideaUserInput }];
+    setIdeaConversation(newConversation);
+    setIdeaUserInput('');
+
+    // Generate AI response based on context
+    setTimeout(() => {
+      const userMsg = ideaUserInput.toLowerCase();
+      let response = '';
+
+      if (userMsg.includes('yes') || userMsg.includes('break') || userMsg.includes('help')) {
+        response = "Here's your action plan:\n\n1️⃣ VALIDATE (Week 1): Talk to 3 people who might use this. Ask what they struggle with.\n\n2️⃣ PROTOTYPE (Week 2): Create a simple version - could be a landing page, mockup, or even a document.\n\n3️⃣ TEST (Week 3): Get feedback on your prototype. What works? What doesn't?\n\n4️⃣ DECIDE (Week 4): Based on feedback, commit or pivot.\n\nWant me to help you with any of these steps?";
+      } else if (userMsg.includes('competitor') || userMsg.includes('market')) {
+        response = "Smart to research the competition! Here's how:\n\n🔍 Search for similar products/services\n📊 Check their reviews - what do customers complain about?\n💰 Note their pricing - can you position differently?\n🎯 Find the gap they're NOT serving\n\nYour unique advantage often lies in what others overlook. What makes YOUR approach different?";
+      } else if (userMsg.includes('no') || userMsg.includes('later') || userMsg.includes('not now')) {
+        response = "No worries! Your idea is safely saved. When you're ready to revisit, check the SAVED IDEAS tab. Sometimes the best ideas need time to marinate. 🤘";
+      } else {
+        response = `Great question! Based on what you've shared about "${ideaName}", I'd suggest focusing on the core problem first. What's the #1 pain point you're solving? When you can articulate that clearly, everything else falls into place. What would you like to explore next?`;
+      }
+
+      setIdeaConversation([...newConversation, { role: 'ai' as const, text: response }]);
+    }, 800);
+  };
+
+  const handlePivotFollowUp = () => {
+    if (!pivotUserInput.trim()) return;
+
+    // Add user message to conversation
+    const newConversation = [...pivotConversation, { role: 'user' as const, text: pivotUserInput }];
+    setPivotConversation(newConversation);
+    setPivotUserInput('');
+
+    // Generate AI response
+    setTimeout(() => {
+      const userMsg = pivotUserInput.toLowerCase();
+      let response = '';
+
+      if (userMsg.includes('yes') || userMsg.includes('help') || userMsg.includes('plan')) {
+        response = "Here's your pivot action plan:\n\n🎯 WEEK 1: Announce your pivot to 3 key people. Accountability matters.\n\n📋 WEEK 2: List 5 skills you need for the new direction. Start learning ONE.\n\n🔗 WEEK 3: Connect with someone already successful in your new direction. Ask for advice.\n\n⏱️ DAY 90: Check-in. Are you closer to where you want to be?\n\nWhat's your biggest concern about this pivot?";
+      } else if (userMsg.includes('scared') || userMsg.includes('afraid') || userMsg.includes('uncertain')) {
+        response = "Pivots are scary - that's normal! Here's the truth: staying stuck is scarier than changing. You've already done the hard part by acknowledging you need to pivot.\n\n💪 Remember: Every successful person has pivoted multiple times. You're in good company.\n\nWhat would you tell a friend in your situation?";
+      } else if (userMsg.includes('no') || userMsg.includes('later')) {
+        response = "Totally fine. Your pivot reflection is saved whenever you need it. Sometimes we need time to process big changes. Trust your timing. 🤘";
+      } else {
+        response = `That's a thoughtful response! Pivoting from "${pivotLeaving}" to "${pivotHeading}" is a significant move. The fact that you're being intentional about it shows maturity. What's the ONE thing that would make this pivot feel more manageable?`;
+      }
+
+      setPivotConversation([...newConversation, { role: 'ai' as const, text: response }]);
+    }, 800);
+  };
+
+  const handleUpdateIdea = () => {
+    if (!editingIdea) return;
+
+    const ideas = savedIdeas.map(i =>
+      i.id === editingIdea.id ? editingIdea : i
+    );
+    localStorage.setItem('venued_ideas', JSON.stringify(ideas));
+    setSavedIdeas(ideas);
+    setEditingIdea(null);
+  };
+
+  const handleUpdatePivot = () => {
+    if (!editingPivot) return;
+
+    const pivots = savedPivots.map(p =>
+      p.id === editingPivot.id ? editingPivot : p
+    );
+    localStorage.setItem('venued_pivots', JSON.stringify(pivots));
+    setSavedPivots(pivots);
+    setEditingPivot(null);
+  };
+
   return (
     <div className="space-y-6">
       {/* Tabs */}
@@ -682,7 +764,44 @@ function NewReleasesModule() {
           {ideaAiSuggestion && (
             <div className="mt-4 p-4 rounded-lg bg-black/30 border border-magenta/30">
               <p className="text-sm font-semibold text-magenta mb-2">🧠 AI Suggestion:</p>
-              <p className="text-white text-sm">{ideaAiSuggestion}</p>
+              <p className="text-white text-sm whitespace-pre-line">{ideaAiSuggestion}</p>
+
+              {/* Conversation history */}
+              {ideaConversation.length > 0 && (
+                <div className="mt-4 space-y-3 border-t border-magenta/20 pt-4">
+                  {ideaConversation.map((msg, idx) => (
+                    <div key={idx} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
+                      <span className={`inline-block px-3 py-2 rounded-lg ${
+                        msg.role === 'user'
+                          ? 'bg-magenta/20 text-magenta'
+                          : 'bg-white/10 text-white'
+                      }`}>
+                        {msg.role === 'ai' && <span className="text-magenta font-semibold">🧠 </span>}
+                        <span className="whitespace-pre-line">{msg.text}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Follow-up input */}
+              <div className="mt-4 flex gap-2">
+                <input
+                  type="text"
+                  value={ideaUserInput}
+                  onChange={(e) => setIdeaUserInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleIdeaFollowUp()}
+                  placeholder="Reply to AI... (yes, no, or ask a question)"
+                  className="flex-1 px-3 py-2 bg-black border border-magenta/30 rounded-lg text-white text-sm placeholder-gray-500 focus:border-magenta focus:outline-none"
+                />
+                <button
+                  onClick={handleIdeaFollowUp}
+                  disabled={!ideaUserInput.trim()}
+                  className="px-4 py-2 bg-magenta text-black font-semibold rounded-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Send
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -721,7 +840,44 @@ function NewReleasesModule() {
           {pivotAiSuggestion && (
             <div className="mt-4 p-4 rounded-lg bg-black/30 border border-white/30">
               <p className="text-sm font-semibold text-white mb-2">🧠 AI Suggestion:</p>
-              <p className="text-white text-sm">{pivotAiSuggestion}</p>
+              <p className="text-white text-sm whitespace-pre-line">{pivotAiSuggestion}</p>
+
+              {/* Conversation history */}
+              {pivotConversation.length > 0 && (
+                <div className="mt-4 space-y-3 border-t border-white/20 pt-4">
+                  {pivotConversation.map((msg, idx) => (
+                    <div key={idx} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
+                      <span className={`inline-block px-3 py-2 rounded-lg ${
+                        msg.role === 'user'
+                          ? 'bg-neon-cyan/20 text-neon-cyan'
+                          : 'bg-white/10 text-white'
+                      }`}>
+                        {msg.role === 'ai' && <span className="text-neon-cyan font-semibold">🧠 </span>}
+                        <span className="whitespace-pre-line">{msg.text}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Follow-up input */}
+              <div className="mt-4 flex gap-2">
+                <input
+                  type="text"
+                  value={pivotUserInput}
+                  onChange={(e) => setPivotUserInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handlePivotFollowUp()}
+                  placeholder="Reply to AI... (yes, no, or ask a question)"
+                  className="flex-1 px-3 py-2 bg-black border border-white/30 rounded-lg text-white text-sm placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
+                />
+                <button
+                  onClick={handlePivotFollowUp}
+                  disabled={!pivotUserInput.trim()}
+                  className="px-4 py-2 bg-neon-cyan text-black font-semibold rounded-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Send
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -730,6 +886,7 @@ function NewReleasesModule() {
       {activeTab === 'saved-ideas' && (
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-white">Saved Ideas</h3>
+          <p className="text-sm text-gray-400">Click on an idea to edit it</p>
           {savedIdeas.length === 0 ? (
             <div className="p-6 rounded-xl border border-white/10 bg-white/5 text-center">
               <p className="text-gray-400">No saved ideas yet</p>
@@ -738,7 +895,11 @@ function NewReleasesModule() {
           ) : (
             <div className="space-y-3">
               {savedIdeas.map((idea: any) => (
-                <div key={idea.id} className="p-4 rounded-xl border border-magenta/30 bg-magenta/10">
+                <button
+                  key={idea.id}
+                  onClick={() => setEditingIdea({...idea})}
+                  className="w-full text-left p-4 rounded-xl border border-magenta/30 bg-magenta/10 hover:border-magenta/60 hover:bg-magenta/20 transition-all cursor-pointer"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <h4 className="font-bold text-white">{idea.name}</h4>
@@ -748,23 +909,88 @@ function NewReleasesModule() {
                         {new Date(idea.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleDeleteIdea(idea.id)}
+                    <span
+                      onClick={(e) => { e.stopPropagation(); handleDeleteIdea(idea.id); }}
                       className="p-2 text-gray-500 hover:text-red-400 transition-colors"
                     >
                       ×
-                    </button>
+                    </span>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
         </div>
       )}
 
+      {/* Edit Idea Modal */}
+      {editingIdea && (
+        <div className="fixed inset-0 bg-black/90 z-[100] overflow-y-auto">
+          <div className="min-h-full pt-20 pb-8 px-4 flex items-start justify-center">
+            <div className="max-w-lg w-full rounded-2xl border-2 border-magenta bg-dark-grey-azure p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-supernova text-magenta">Edit Idea</h2>
+                <button
+                  onClick={() => setEditingIdea(null)}
+                  className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-all"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Idea Name</label>
+                  <input
+                    type="text"
+                    value={editingIdea.name}
+                    onChange={(e) => setEditingIdea({...editingIdea, name: e.target.value})}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Problem it solves</label>
+                  <textarea
+                    value={editingIdea.problem || ''}
+                    onChange={(e) => setEditingIdea({...editingIdea, problem: e.target.value})}
+                    rows={3}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Target audience</label>
+                  <input
+                    type="text"
+                    value={editingIdea.audience || ''}
+                    onChange={(e) => setEditingIdea({...editingIdea, audience: e.target.value})}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setEditingIdea(null)}
+                  className="flex-1 py-3 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpdateIdea}
+                  className="flex-1 py-3 rounded-xl bg-magenta text-black font-bold hover:bg-white transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeTab === 'saved-pivots' && (
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-white">Saved Pivots</h3>
+          <p className="text-sm text-gray-400">Click on a pivot to edit it</p>
           {savedPivots.length === 0 ? (
             <div className="p-6 rounded-xl border border-white/10 bg-white/5 text-center">
               <p className="text-gray-400">No saved pivots yet</p>
@@ -773,7 +999,11 @@ function NewReleasesModule() {
           ) : (
             <div className="space-y-3">
               {savedPivots.map((pivot: any) => (
-                <div key={pivot.id} className="p-4 rounded-xl border border-white/30 bg-dark-grey-azure/30">
+                <button
+                  key={pivot.id}
+                  onClick={() => setEditingPivot({...pivot})}
+                  className="w-full text-left p-4 rounded-xl border border-white/30 bg-dark-grey-azure/30 hover:border-neon-cyan/60 hover:bg-dark-grey-azure/50 transition-all cursor-pointer"
+                >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       {pivot.leaving && (
@@ -798,17 +1028,81 @@ function NewReleasesModule() {
                         {new Date(pivot.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleDeletePivot(pivot.id)}
+                    <span
+                      onClick={(e) => { e.stopPropagation(); handleDeletePivot(pivot.id); }}
                       className="p-2 text-gray-500 hover:text-red-400 transition-colors"
                     >
                       ×
-                    </button>
+                    </span>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Edit Pivot Modal */}
+      {editingPivot && (
+        <div className="fixed inset-0 bg-black/90 z-[100] overflow-y-auto">
+          <div className="min-h-full pt-20 pb-8 px-4 flex items-start justify-center">
+            <div className="max-w-lg w-full rounded-2xl border-2 border-neon-cyan bg-dark-grey-azure p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-supernova text-neon-cyan">Edit Pivot</h2>
+                <button
+                  onClick={() => setEditingPivot(null)}
+                  className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-all"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">What I'm leaving behind</label>
+                  <textarea
+                    value={editingPivot.leaving || ''}
+                    onChange={(e) => setEditingPivot({...editingPivot, leaving: e.target.value})}
+                    rows={3}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Where I'm heading</label>
+                  <textarea
+                    value={editingPivot.heading || ''}
+                    onChange={(e) => setEditingPivot({...editingPivot, heading: e.target.value})}
+                    rows={3}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Why this matters</label>
+                  <textarea
+                    value={editingPivot.why || ''}
+                    onChange={(e) => setEditingPivot({...editingPivot, why: e.target.value})}
+                    rows={3}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setEditingPivot(null)}
+                  className="flex-1 py-3 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpdatePivot}
+                  className="flex-1 py-3 rounded-xl bg-neon-cyan text-black font-bold hover:bg-white transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
