@@ -28,7 +28,7 @@ export default function EmptyState({ filter = 'all' }: EmptyStateProps) {
       default:
         return {
           title: 'No Gigs Yet',
-          description: 'Time to plan your first show. Every tour starts with a single lyric!',
+          description: 'Time to plan your first show.\nEvery tour starts with a single lyric!',
         };
     }
   };
@@ -42,14 +42,14 @@ export default function EmptyState({ filter = 'all' }: EmptyStateProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-neon-pink/20 to-electric-purple/20 blur-3xl" />
 
         {/* Card */}
-        <div className="relative p-12 rounded-3xl border border-white/10 bg-[#3d3d3d]/80 backdrop-blur-sm max-w-lg text-center">
+        <div className="relative p-12 rounded-3xl border border-white/10 bg-white/5 backdrop-blur-sm max-w-lg text-center">
           <span className="text-6xl block mb-6">🤘</span>
 
           <h2 className="text-3xl font-black text-white mb-4">
             {message.title}
           </h2>
 
-          <p className="text-gray-400 mb-8 text-lg">
+          <p className="text-gray-400 mb-8 text-lg whitespace-pre-line">
             {message.description}
           </p>
 

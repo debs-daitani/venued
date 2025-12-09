@@ -98,7 +98,7 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
     removeItem(selectedItem.id);
     setShowTaskModal(false);
     setSelectedItem(null);
-    setToast('Task created!');
+    setToast('Action created!');
     setTimeout(() => setToast(null), 2000);
     if (onRefresh) onRefresh();
   };
@@ -195,7 +195,7 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
                     className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-magenta/20 text-magenta text-xs font-semibold hover:bg-magenta/30 transition-colors"
                   >
                     <ArrowRight className="w-3 h-3" />
-                    Task
+                    Action
                   </button>
                   <button
                     onClick={() => handleConvertToIdea(item)}
@@ -245,13 +245,13 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
         </div>
       )}
 
-      {/* Task Creation Modal */}
+      {/* Action Creation Modal */}
       {showTaskModal && selectedItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-dark-grey-azure rounded-2xl border border-magenta/30 overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20 pb-8 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-md bg-dark-grey-azure rounded-2xl border border-magenta/30 overflow-hidden my-auto">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <h2 className="text-lg font-supernova text-white">Create Task</h2>
+              <h2 className="text-lg font-supernova text-white">Create Action</h2>
               <button
                 onClick={() => {
                   setShowTaskModal(false);
@@ -265,9 +265,9 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
 
             {/* Body */}
             <div className="p-4 space-y-4">
-              {/* Task Title */}
+              {/* Action Title */}
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Task Name</label>
+                <label className="block text-sm font-semibold text-white mb-2">Action Name</label>
                 <input
                   type="text"
                   value={taskForm.title}
@@ -340,7 +340,7 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
                 disabled={!taskForm.title.trim()}
                 className="flex-1 py-3 rounded-xl bg-magenta text-black font-bold hover:bg-neon-cyan transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Task
+                Create Action
               </button>
             </div>
           </div>

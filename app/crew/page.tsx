@@ -208,18 +208,18 @@ export default function Crew() {
                 className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-neon-cyan text-black font-bold rounded-full hover:bg-magenta transition-all duration-300 shadow-[0_0_20px_rgba(0,240,233,0.4)] hover:shadow-[0_0_30px_rgba(255,0,142,0.6)]"
               >
                 <Plus className="w-5 h-5" />
-                Add Task
+                Add Action
               </button>
             </div>
           </div>
         </div>
 
-        {/* Add Task Modal */}
+        {/* Add New Action Modal */}
         {showAddTask && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-md w-full p-6">
+          <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20 pb-8 bg-black/80 backdrop-blur-sm overflow-y-auto">
+            <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-md w-full p-6 my-auto">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-supernova text-white">Add New Task</h2>
+                <h2 className="text-2xl font-supernova text-white">Add New Action</h2>
                 <button
                   onClick={() => setShowAddTask(false)}
                   className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -230,7 +230,7 @@ export default function Crew() {
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Task Name *</label>
+                  <label className="block text-sm font-semibold text-white mb-2">Action Name *</label>
                   <input
                     type="text"
                     value={newTask.title}
@@ -330,7 +330,7 @@ export default function Crew() {
                   disabled={!newTask.title.trim()}
                   className="flex-1 py-3 rounded-lg bg-magenta text-black font-bold hover:bg-neon-cyan transition-all disabled:opacity-50"
                 >
-                  Add Task
+                  Add Action
                 </button>
               </div>
             </div>

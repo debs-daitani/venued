@@ -187,7 +187,7 @@ export default function Backstage() {
           <div className="mb-8 p-4 sm:p-6 rounded-xl border-2 border-vivid-cyan/30 bg-vivid-cyan/10">
             <div className="flex items-center gap-2 mb-4">
               <Clock className="w-5 h-5 text-vivid-cyan" />
-              <h3 className="text-lg font-semibold text-white">Upcoming Tasks</h3>
+              <h3 className="text-lg font-semibold text-white">Upcoming Actions</h3>
             </div>
             <div className="space-y-2">
               {upcomingTasks.map((task) => (
@@ -219,7 +219,7 @@ export default function Backstage() {
               href="/crew"
               className="mt-4 inline-flex items-center gap-2 text-vivid-cyan hover:text-white transition-colors text-sm font-semibold"
             >
-              View all tasks &rarr;
+              View all actions &rarr;
             </Link>
           </div>
         )}
@@ -228,7 +228,7 @@ export default function Backstage() {
         {upcomingTasks.length === 0 && (
           <div className="mb-8 p-4 sm:p-6 rounded-xl border-2 border-white/10 bg-white/5 text-center">
             <Clock className="w-8 h-8 text-gray-500 mx-auto mb-2" />
-            <p className="text-gray-400 font-josefin">All up to date - no upcoming tasks!</p>
+            <p className="text-gray-400 font-josefin">All up to date - no upcoming actions!</p>
           </div>
         )}
 
