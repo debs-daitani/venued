@@ -1779,8 +1779,9 @@ function RetuneModule() {
 
       {/* Protocol Overlay */}
       {activeProtocol && currentProtocol && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-          <div className="max-w-lg w-full max-h-[90vh] overflow-y-auto rounded-2xl border-2 bg-black p-6" style={{ borderColor: currentProtocol.color }}>
+        <div className="fixed inset-0 bg-black/95 z-[100] overflow-y-auto">
+          <div className="min-h-full pt-20 pb-8 px-4 flex items-start justify-center">
+            <div className="max-w-lg w-full rounded-2xl border-2 bg-black p-6" style={{ borderColor: currentProtocol.color }}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
@@ -1886,6 +1887,7 @@ function RetuneModule() {
               >
                 Cancel
               </button>
+            </div>
             </div>
           </div>
         </div>
