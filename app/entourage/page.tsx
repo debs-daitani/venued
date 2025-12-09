@@ -396,13 +396,18 @@ function ElectrifyModule() {
 }
 
 function NewReleasesModule() {
-  const [activeTab, setActiveTab] = useState<'dump' | 'ideas' | 'pivots' | 'saved-ideas' | 'saved-pivots'>('dump');
+  const [activeTab, setActiveTab] = useState<'dump' | 'ideas' | 'pivots' | 'saved-ideas' | 'saved-pivots' | 'saved-dumps'>('dump');
   const [dumpText, setDumpText] = useState('');
   const [timeLeft, setTimeLeft] = useState(300);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [dumpSaved, setDumpSaved] = useState(false);
   const [aiInsight, setAiInsight] = useState('');
   const [dumpAction, setDumpAction] = useState('');
+  const [dumpConversation, setDumpConversation] = useState<{role: 'ai' | 'user', text: string}[]>([]);
+  const [dumpUserInput, setDumpUserInput] = useState('');
+  const [currentDumpId, setCurrentDumpId] = useState<string | null>(null);
+  const [savedDumps, setSavedDumps] = useState<any[]>([]);
+  const [editingDump, setEditingDump] = useState<any>(null);
   const [ideaName, setIdeaName] = useState('');
   const [ideaProblem, setIdeaProblem] = useState('');
   const [ideaAudience, setIdeaAudience] = useState('');
@@ -410,6 +415,7 @@ function NewReleasesModule() {
   const [ideaAiSuggestion, setIdeaAiSuggestion] = useState('');
   const [ideaConversation, setIdeaConversation] = useState<{role: 'ai' | 'user', text: string}[]>([]);
   const [ideaUserInput, setIdeaUserInput] = useState('');
+  const [currentIdeaId, setCurrentIdeaId] = useState<string | null>(null);
   const [pivotLeaving, setPivotLeaving] = useState('');
   const [pivotHeading, setPivotHeading] = useState('');
   const [pivotWhy, setPivotWhy] = useState('');
@@ -417,6 +423,7 @@ function NewReleasesModule() {
   const [pivotAiSuggestion, setPivotAiSuggestion] = useState('');
   const [pivotConversation, setPivotConversation] = useState<{role: 'ai' | 'user', text: string}[]>([]);
   const [pivotUserInput, setPivotUserInput] = useState('');
+  const [currentPivotId, setCurrentPivotId] = useState<string | null>(null);
   const [savedIdeas, setSavedIdeas] = useState<any[]>([]);
   const [savedPivots, setSavedPivots] = useState<any[]>([]);
   const [editingIdea, setEditingIdea] = useState<any>(null);
@@ -426,6 +433,7 @@ function NewReleasesModule() {
   useEffect(() => {
     setSavedIdeas(JSON.parse(localStorage.getItem('venued_ideas') || '[]'));
     setSavedPivots(JSON.parse(localStorage.getItem('venued_pivots') || '[]'));
+    setSavedDumps(JSON.parse(localStorage.getItem('venued_brain_dumps') || '[]'));
   }, [activeTab]);
 
   const startTimer = (seconds: number) => {
@@ -453,66 +461,76 @@ function NewReleasesModule() {
   const handleSaveDump = () => {
     if (!dumpText.trim()) return;
 
-    // Save to localStorage
-    const dumps = JSON.parse(localStorage.getItem('venued_brain_dumps') || '[]');
-    dumps.unshift({
-      id: Date.now().toString(),
-      content: dumpText,
-      timestamp: new Date().toISOString(),
-    });
-    localStorage.setItem('venued_brain_dumps', JSON.stringify(dumps.slice(0, 50)));
-    setDumpSaved(true);
+    const dumpId = Date.now().toString();
+    setCurrentDumpId(dumpId);
 
     // Generate AI insight based on dump content
-    setTimeout(() => {
-      const wordCount = dumpText.split(/\s+/).length;
-      const hasQuestions = dumpText.includes('?');
-      const mentionsWork = dumpText.toLowerCase().includes('work') || dumpText.toLowerCase().includes('project');
-      const mentionsStress = dumpText.toLowerCase().includes('stress') || dumpText.toLowerCase().includes('overwhelm') || dumpText.toLowerCase().includes('anxious');
+    const wordCount = dumpText.split(/\s+/).length;
+    const hasQuestions = dumpText.includes('?');
+    const mentionsWork = dumpText.toLowerCase().includes('work') || dumpText.toLowerCase().includes('project');
+    const mentionsStress = dumpText.toLowerCase().includes('stress') || dumpText.toLowerCase().includes('overwhelm') || dumpText.toLowerCase().includes('anxious');
 
-      let insight = '';
-      if (wordCount > 100) {
-        insight = "🧠 Wow, you had a LOT on your mind! That's the beauty of brain dumps - getting it OUT of your head creates space for clarity. Notice any patterns in what came out?";
-      } else if (hasQuestions) {
-        insight = "💡 I noticed some questions in there. Those questions are often your subconscious pointing you toward what matters. Which question feels most urgent to answer?";
-      } else if (mentionsStress) {
-        insight = "🤘 Sounds like you're carrying some weight. Remember: acknowledging stress is the first step to releasing it. What's ONE small thing you could let go of today?";
-      } else if (mentionsWork) {
-        insight = "📋 Looks like work is on your mind. Consider: which ONE thing from this dump, if completed, would make everything else easier or unnecessary?";
-      } else {
-        insight = "✨ Great job getting that out of your head! Now your brain has more bandwidth. What's the ONE action you want to take based on this dump?";
-      }
-      setAiInsight(insight);
-    }, 500);
+    let insight = '';
+    if (wordCount > 100) {
+      insight = "🧠 Wow, you had a LOT on your mind! That's the beauty of brain dumps - getting it OUT of your head creates space for clarity. Notice any patterns in what came out?";
+    } else if (hasQuestions) {
+      insight = "💡 I noticed some questions in there. Those questions are often your subconscious pointing you toward what matters. Which question feels most urgent to answer?";
+    } else if (mentionsStress) {
+      insight = "🤘 Sounds like you're carrying some weight. Remember: acknowledging stress is the first step to releasing it. What's ONE small thing you could let go of today?";
+    } else if (mentionsWork) {
+      insight = "📋 Looks like work is on your mind. Consider: which ONE thing from this dump, if completed, would make everything else easier or unnecessary?";
+    } else {
+      insight = "✨ Great job getting that out of your head! Now your brain has more bandwidth. What's the ONE action you want to take based on this dump?";
+    }
+
+    // Save to localStorage with initial AI insight
+    const dumps = JSON.parse(localStorage.getItem('venued_brain_dumps') || '[]');
+    dumps.unshift({
+      id: dumpId,
+      content: dumpText,
+      timestamp: new Date().toISOString(),
+      aiInsight: insight,
+      action: '',
+      conversation: [],
+    });
+    localStorage.setItem('venued_brain_dumps', JSON.stringify(dumps.slice(0, 50)));
+    setSavedDumps(dumps.slice(0, 50));
+    setDumpSaved(true);
+    setAiInsight(insight);
+    setDumpConversation([]);
   };
 
   const handleSaveIdea = () => {
     if (!ideaName.trim()) return;
 
+    const ideaId = Date.now().toString();
+    setCurrentIdeaId(ideaId);
+
+    // Generate AI suggestion
+    let suggestion = '';
+    if (ideaProblem && ideaAudience) {
+      suggestion = `Great idea! Next steps: 1) Validate the problem with 3-5 people from your target audience (${ideaAudience}). 2) Create a simple one-page outline. 3) Set a deadline to make a go/no-go decision. Want me to help break this down further?`;
+    } else if (ideaProblem) {
+      suggestion = `Interesting problem to solve! Consider: Who specifically experiences this problem most? That's your first customer. Research 3 competitors solving similar problems - what can you do differently?`;
+    } else {
+      suggestion = `Idea captured! To turn this into action: 1) Write down 3 reasons why this matters. 2) List 3 obstacles you'd face. 3) Define your first tiny experiment to test it.`;
+    }
+
     const ideas = JSON.parse(localStorage.getItem('venued_ideas') || '[]');
     ideas.unshift({
-      id: Date.now().toString(),
+      id: ideaId,
       name: ideaName,
       problem: ideaProblem,
       audience: ideaAudience,
       timestamp: new Date().toISOString(),
+      aiSuggestion: suggestion,
+      conversation: [],
     });
     localStorage.setItem('venued_ideas', JSON.stringify(ideas.slice(0, 50)));
     setIdeaSaved(true);
     setSavedIdeas(ideas.slice(0, 50));
-
-    // Generate AI suggestion
-    setTimeout(() => {
-      let suggestion = '';
-      if (ideaProblem && ideaAudience) {
-        suggestion = `Great idea! Next steps: 1) Validate the problem with 3-5 people from your target audience (${ideaAudience}). 2) Create a simple one-page outline. 3) Set a deadline to make a go/no-go decision. Want me to help break this down further?`;
-      } else if (ideaProblem) {
-        suggestion = `Interesting problem to solve! Consider: Who specifically experiences this problem most? That's your first customer. Research 3 competitors solving similar problems - what can you do differently?`;
-      } else {
-        suggestion = `Idea captured! To turn this into action: 1) Write down 3 reasons why this matters. 2) List 3 obstacles you'd face. 3) Define your first tiny experiment to test it.`;
-      }
-      setIdeaAiSuggestion(suggestion);
-    }, 500);
+    setIdeaAiSuggestion(suggestion);
+    setIdeaConversation([]);
 
     setTimeout(() => {
       setIdeaName('');
@@ -525,30 +543,34 @@ function NewReleasesModule() {
   const handleSavePivot = () => {
     if (!pivotLeaving.trim() && !pivotHeading.trim()) return;
 
+    const pivotId = Date.now().toString();
+    setCurrentPivotId(pivotId);
+
+    // Generate AI suggestion for pivot
+    let suggestion = '';
+    if (pivotWhy) {
+      suggestion = `Pivots take courage! Your 'why' is clear - that's your anchor. Next: 1) Tell 3 trusted people about this pivot. 2) Set a 90-day checkpoint to evaluate. 3) Define what "success" looks like in 6 months.`;
+    } else if (pivotHeading) {
+      suggestion = `Exciting new direction! Questions to consider: What skills do you need to develop? Who's already successful where you're heading - can you learn from them? What's your first 30-day goal?`;
+    } else {
+      suggestion = `Letting go is powerful. What you're leaving behind has taught you something valuable. Take a moment to acknowledge that growth before fully committing to the new path.`;
+    }
+
     const pivots = JSON.parse(localStorage.getItem('venued_pivots') || '[]');
     pivots.unshift({
-      id: Date.now().toString(),
+      id: pivotId,
       leaving: pivotLeaving,
       heading: pivotHeading,
       why: pivotWhy,
       timestamp: new Date().toISOString(),
+      aiSuggestion: suggestion,
+      conversation: [],
     });
     localStorage.setItem('venued_pivots', JSON.stringify(pivots.slice(0, 50)));
     setPivotSaved(true);
     setSavedPivots(pivots.slice(0, 50));
-
-    // Generate AI suggestion for pivot
-    setTimeout(() => {
-      let suggestion = '';
-      if (pivotWhy) {
-        suggestion = `Pivots take courage! Your 'why' is clear - that's your anchor. Next: 1) Tell 3 trusted people about this pivot. 2) Set a 90-day checkpoint to evaluate. 3) Define what "success" looks like in 6 months.`;
-      } else if (pivotHeading) {
-        suggestion = `Exciting new direction! Questions to consider: What skills do you need to develop? Who's already successful where you're heading - can you learn from them? What's your first 30-day goal?`;
-      } else {
-        suggestion = `Letting go is powerful. What you're leaving behind has taught you something valuable. Take a moment to acknowledge that growth before fully committing to the new path.`;
-      }
-      setPivotAiSuggestion(suggestion);
-    }, 500);
+    setPivotAiSuggestion(suggestion);
+    setPivotConversation([]);
 
     setTimeout(() => {
       setPivotLeaving('');
@@ -570,17 +592,62 @@ function NewReleasesModule() {
     setSavedPivots(pivots);
   };
 
+  const handleDeleteDump = (id: string) => {
+    const dumps = savedDumps.filter(d => d.id !== id);
+    localStorage.setItem('venued_brain_dumps', JSON.stringify(dumps));
+    setSavedDumps(dumps);
+  };
+
+  const handleDumpFollowUp = () => {
+    if (!dumpUserInput.trim()) return;
+
+    // Add user message to conversation
+    const newConversation = [...dumpConversation, { role: 'user' as const, text: dumpUserInput }];
+    setDumpConversation(newConversation);
+    const userMsg = dumpUserInput.toLowerCase();
+    setDumpUserInput('');
+
+    // Generate AI response
+    setTimeout(() => {
+      let response = '';
+
+      if (userMsg.includes('yes') || userMsg.includes('help') || userMsg.includes('break')) {
+        response = "Let's break this down:\n\n1️⃣ What's the VERY FIRST physical action you need to take?\n\n2️⃣ Can you do it in the next 5 minutes?\n\n3️⃣ If not, make it smaller until you can.\n\nThe goal is momentum, not perfection. What's your tiny first step?";
+      } else if (userMsg.includes('overwhelm') || userMsg.includes('too much') || userMsg.includes('stressed')) {
+        response = "I hear you. When everything feels too much:\n\n🧘 Take 3 deep breaths right now\n📝 Pick just ONE thing from your dump\n⏱️ Give it 10 minutes only\n\nYou don't have to do it all. What's the ONE thing that would give you the most relief if done?";
+      } else if (userMsg.includes('no') || userMsg.includes('later') || userMsg.includes('not now')) {
+        response = "That's totally fine. Your brain dump is saved. Come back to it when you're ready. Sometimes letting things sit helps clarity emerge. 🤘";
+      } else {
+        // Treat as their action item
+        response = `Great! "${dumpUserInput}" is now your next action. Remember: done is better than perfect. You've got this! 🤘\n\nWant me to help you break this down further, or are you ready to tackle it?`;
+      }
+
+      const fullConversation = [...newConversation, { role: 'ai' as const, text: response }];
+      setDumpConversation(fullConversation);
+
+      // Save conversation to localStorage
+      if (currentDumpId) {
+        const dumps = JSON.parse(localStorage.getItem('venued_brain_dumps') || '[]');
+        const updatedDumps = dumps.map((d: any) =>
+          d.id === currentDumpId ? { ...d, conversation: fullConversation, action: dumpAction } : d
+        );
+        localStorage.setItem('venued_brain_dumps', JSON.stringify(updatedDumps));
+        setSavedDumps(updatedDumps);
+      }
+    }, 800);
+  };
+
   const handleIdeaFollowUp = () => {
     if (!ideaUserInput.trim()) return;
 
     // Add user message to conversation
     const newConversation = [...ideaConversation, { role: 'user' as const, text: ideaUserInput }];
     setIdeaConversation(newConversation);
+    const userMsg = ideaUserInput.toLowerCase();
     setIdeaUserInput('');
 
     // Generate AI response based on context
     setTimeout(() => {
-      const userMsg = ideaUserInput.toLowerCase();
       let response = '';
 
       if (userMsg.includes('yes') || userMsg.includes('break') || userMsg.includes('help')) {
@@ -593,7 +660,18 @@ function NewReleasesModule() {
         response = `Great question! Based on what you've shared about "${ideaName}", I'd suggest focusing on the core problem first. What's the #1 pain point you're solving? When you can articulate that clearly, everything else falls into place. What would you like to explore next?`;
       }
 
-      setIdeaConversation([...newConversation, { role: 'ai' as const, text: response }]);
+      const fullConversation = [...newConversation, { role: 'ai' as const, text: response }];
+      setIdeaConversation(fullConversation);
+
+      // Save conversation to localStorage
+      if (currentIdeaId) {
+        const ideas = JSON.parse(localStorage.getItem('venued_ideas') || '[]');
+        const updatedIdeas = ideas.map((i: any) =>
+          i.id === currentIdeaId ? { ...i, conversation: fullConversation } : i
+        );
+        localStorage.setItem('venued_ideas', JSON.stringify(updatedIdeas));
+        setSavedIdeas(updatedIdeas);
+      }
     }, 800);
   };
 
@@ -603,11 +681,11 @@ function NewReleasesModule() {
     // Add user message to conversation
     const newConversation = [...pivotConversation, { role: 'user' as const, text: pivotUserInput }];
     setPivotConversation(newConversation);
+    const userMsg = pivotUserInput.toLowerCase();
     setPivotUserInput('');
 
     // Generate AI response
     setTimeout(() => {
-      const userMsg = pivotUserInput.toLowerCase();
       let response = '';
 
       if (userMsg.includes('yes') || userMsg.includes('help') || userMsg.includes('plan')) {
@@ -620,7 +698,18 @@ function NewReleasesModule() {
         response = `That's a thoughtful response! Pivoting from "${pivotLeaving}" to "${pivotHeading}" is a significant move. The fact that you're being intentional about it shows maturity. What's the ONE thing that would make this pivot feel more manageable?`;
       }
 
-      setPivotConversation([...newConversation, { role: 'ai' as const, text: response }]);
+      const fullConversation = [...newConversation, { role: 'ai' as const, text: response }];
+      setPivotConversation(fullConversation);
+
+      // Save conversation to localStorage
+      if (currentPivotId) {
+        const pivots = JSON.parse(localStorage.getItem('venued_pivots') || '[]');
+        const updatedPivots = pivots.map((p: any) =>
+          p.id === currentPivotId ? { ...p, conversation: fullConversation } : p
+        );
+        localStorage.setItem('venued_pivots', JSON.stringify(updatedPivots));
+        setSavedPivots(updatedPivots);
+      }
     }, 800);
   };
 
@@ -654,6 +743,7 @@ function NewReleasesModule() {
           { id: 'dump', label: 'DUMP', color: '#00F0E9' },
           { id: 'ideas', label: 'IDEAS', color: '#FF008E' },
           { id: 'pivots', label: 'PIVOTS', color: '#37454E' },
+          { id: 'saved-dumps', label: `SAVED DUMPS (${savedDumps.length})`, color: '#366F7E' },
           { id: 'saved-ideas', label: `SAVED IDEAS (${savedIdeas.length})`, color: '#C9005C' },
           { id: 'saved-pivots', label: `SAVED PIVOTS (${savedPivots.length})`, color: '#00A29D' },
         ].map((tab) => (
@@ -712,17 +802,44 @@ function NewReleasesModule() {
 
           {aiInsight && (
             <div className="mt-4 p-4 rounded-lg bg-black/30 border border-neon-cyan/30">
-              <p className="text-sm font-semibold text-neon-cyan mb-2">AI Insight:</p>
-              <p className="text-white mb-4">{aiInsight}</p>
-              <div>
-                <label className="text-sm font-semibold text-neon-cyan block mb-2">Your action based on this dump:</label>
+              <p className="text-sm font-semibold text-neon-cyan mb-2">🧠 AI Insight:</p>
+              <p className="text-white text-sm whitespace-pre-line mb-4">{aiInsight}</p>
+
+              {/* Conversation history */}
+              {dumpConversation.length > 0 && (
+                <div className="mt-4 space-y-3 border-t border-neon-cyan/20 pt-4">
+                  {dumpConversation.map((msg, idx) => (
+                    <div key={idx} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
+                      <span className={`inline-block px-3 py-2 rounded-lg ${
+                        msg.role === 'user'
+                          ? 'bg-neon-cyan/20 text-neon-cyan'
+                          : 'bg-white/10 text-white'
+                      }`}>
+                        {msg.role === 'ai' && <span className="text-neon-cyan font-semibold">🧠 </span>}
+                        <span className="whitespace-pre-line">{msg.text}</span>
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Follow-up input */}
+              <div className="mt-4 flex gap-2">
                 <input
                   type="text"
-                  value={dumpAction}
-                  onChange={(e) => setDumpAction(e.target.value)}
-                  placeholder="What's one thing you'll do next?"
-                  className="w-full px-4 py-3 bg-black border-2 border-neon-cyan/30 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
+                  value={dumpUserInput}
+                  onChange={(e) => setDumpUserInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleDumpFollowUp()}
+                  placeholder="Reply to AI... (your action, or ask a question)"
+                  className="flex-1 px-3 py-2 bg-black border border-neon-cyan/30 rounded-lg text-white text-sm placeholder-gray-500 focus:border-neon-cyan focus:outline-none"
                 />
+                <button
+                  onClick={handleDumpFollowUp}
+                  disabled={!dumpUserInput.trim()}
+                  className="px-4 py-2 bg-neon-cyan text-black font-semibold rounded-lg hover:bg-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Send
+                </button>
               </div>
             </div>
           )}
@@ -883,6 +1000,125 @@ function NewReleasesModule() {
         </div>
       )}
 
+      {activeTab === 'saved-dumps' && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold text-white">Saved Brain Dumps</h3>
+          <p className="text-sm text-gray-400">Click on a dump to view full conversation</p>
+          {savedDumps.length === 0 ? (
+            <div className="p-6 rounded-xl border border-white/10 bg-white/5 text-center">
+              <p className="text-gray-400">No saved brain dumps yet</p>
+              <p className="text-sm text-gray-500">Go to DUMP tab to do your first brain dump!</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {savedDumps.map((dump: any) => (
+                <button
+                  key={dump.id}
+                  onClick={() => setEditingDump({...dump})}
+                  className="w-full text-left p-4 rounded-xl border border-neon-cyan/30 bg-neon-cyan/10 hover:border-neon-cyan/60 hover:bg-neon-cyan/20 transition-all cursor-pointer"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm text-white line-clamp-2">{dump.content}</p>
+                      {dump.conversation && dump.conversation.length > 0 && (
+                        <p className="text-xs text-neon-cyan mt-2">💬 {dump.conversation.length} messages in conversation</p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-2">
+                        {new Date(dump.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
+                    <span
+                      onClick={(e) => { e.stopPropagation(); handleDeleteDump(dump.id); }}
+                      className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                    >
+                      ×
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Edit Dump Modal */}
+      {editingDump && (
+        <div className="fixed inset-0 bg-black/90 z-[100] overflow-y-auto">
+          <div className="min-h-full pt-20 pb-8 px-4 flex items-start justify-center">
+            <div className="max-w-lg w-full rounded-2xl border-2 border-neon-cyan bg-dark-grey-azure p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-supernova text-neon-cyan">Brain Dump</h2>
+                <button
+                  onClick={() => setEditingDump(null)}
+                  className="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-all"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Dump Content</label>
+                  <textarea
+                    value={editingDump.content}
+                    onChange={(e) => setEditingDump({...editingDump, content: e.target.value})}
+                    rows={5}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
+                  />
+                </div>
+
+                {editingDump.aiInsight && (
+                  <div className="p-4 rounded-lg bg-neon-cyan/10 border border-neon-cyan/30">
+                    <p className="text-sm font-semibold text-neon-cyan mb-2">🧠 AI Insight:</p>
+                    <p className="text-white text-sm">{editingDump.aiInsight}</p>
+                  </div>
+                )}
+
+                {editingDump.conversation && editingDump.conversation.length > 0 && (
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-white">Conversation History:</p>
+                    {editingDump.conversation.map((msg: any, idx: number) => (
+                      <div key={idx} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
+                        <span className={`inline-block px-3 py-2 rounded-lg ${
+                          msg.role === 'user'
+                            ? 'bg-neon-cyan/20 text-neon-cyan'
+                            : 'bg-white/10 text-white'
+                        }`}>
+                          {msg.role === 'ai' && <span className="text-neon-cyan font-semibold">🧠 </span>}
+                          <span className="whitespace-pre-line">{msg.text}</span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 mt-6">
+                <button
+                  onClick={() => setEditingDump(null)}
+                  className="flex-1 py-3 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() => {
+                    const dumps = savedDumps.map(d =>
+                      d.id === editingDump.id ? editingDump : d
+                    );
+                    localStorage.setItem('venued_brain_dumps', JSON.stringify(dumps));
+                    setSavedDumps(dumps);
+                    setEditingDump(null);
+                  }}
+                  className="flex-1 py-3 rounded-xl bg-neon-cyan text-black font-bold hover:bg-white transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeTab === 'saved-ideas' && (
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-white">Saved Ideas</h3>
@@ -966,6 +1202,27 @@ function NewReleasesModule() {
                     className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-magenta focus:outline-none"
                   />
                 </div>
+
+                {/* Conversation History */}
+                {editingIdea.conversation && editingIdea.conversation.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <label className="block text-sm font-semibold text-magenta mb-3">💬 Conversation History</label>
+                    <div className="space-y-3 max-h-48 overflow-y-auto">
+                      {editingIdea.conversation.map((msg: any, idx: number) => (
+                        <div key={idx} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
+                          <span className={`inline-block px-3 py-2 rounded-lg max-w-[85%] ${
+                            msg.role === 'user'
+                              ? 'bg-magenta/20 text-magenta'
+                              : 'bg-white/10 text-white'
+                          }`}>
+                            {msg.role === 'ai' && <span className="text-magenta font-semibold">🧠 </span>}
+                            <span className="whitespace-pre-line">{msg.text}</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 mt-6">
@@ -1085,6 +1342,27 @@ function NewReleasesModule() {
                     className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white focus:border-neon-cyan focus:outline-none resize-none"
                   />
                 </div>
+
+                {/* Conversation History */}
+                {editingPivot.conversation && editingPivot.conversation.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <label className="block text-sm font-semibold text-neon-cyan mb-3">💬 Conversation History</label>
+                    <div className="space-y-3 max-h-48 overflow-y-auto">
+                      {editingPivot.conversation.map((msg: any, idx: number) => (
+                        <div key={idx} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
+                          <span className={`inline-block px-3 py-2 rounded-lg max-w-[85%] ${
+                            msg.role === 'user'
+                              ? 'bg-neon-cyan/20 text-neon-cyan'
+                              : 'bg-white/10 text-white'
+                          }`}>
+                            {msg.role === 'ai' && <span className="text-neon-cyan font-semibold">🧠 </span>}
+                            <span className="whitespace-pre-line">{msg.text}</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 mt-6">
