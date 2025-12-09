@@ -433,87 +433,7 @@ export default function Crew() {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-4 relative z-50">
-            {/* FUCK IT - DO IT Button */}
-            <div className="p-6 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/20 to-neon-cyan/20">
-              <button
-                type="button"
-                onClick={() => setShowFuckItMode(true)}
-                className="w-full py-5 px-6 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold text-2xl hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all mb-3 cursor-pointer"
-              >
-                <span className="text-2xl mr-2">🤘</span>
-                FUCK IT - DO IT!
-              </button>
-              <p className="text-sm text-gray-400 text-center font-josefin">
-                48-hour commitment challenge
-              </p>
-            </div>
-
-            {/* FUCK IT Modal */}
-            {showFuckItMode && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                <div className="bg-dark-grey-azure rounded-2xl border-2 border-magenta/50 max-w-md w-full p-6">
-                  <div className="text-center mb-6">
-                    <span className="text-6xl mb-4 block">🤘</span>
-                    <h2 className="text-3xl font-supernova text-magenta mb-2">FUCK IT - DO IT!</h2>
-                    <p className="text-gray-400 font-josefin text-sm">
-                      48-hour commitment. No overthinking. No excuses. Just action.
-                    </p>
-                  </div>
-
-                  <div className="space-y-4 mb-6">
-                    <div>
-                      <label className="block text-sm font-semibold text-white mb-2">What are you committing to? *</label>
-                      <input
-                        type="text"
-                        value={fuckItTask.title}
-                        onChange={(e) => setFuckItTask({ ...fuckItTask, title: e.target.value })}
-                        placeholder="e.g., Launch the website, Finish the pitch deck"
-                        className="w-full px-4 py-3 bg-black border-2 border-magenta/30 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
-                        autoFocus
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-semibold text-white mb-2">Why does this matter? (optional)</label>
-                      <textarea
-                        value={fuckItTask.description}
-                        onChange={(e) => setFuckItTask({ ...fuckItTask, description: e.target.value })}
-                        placeholder="Your motivation for getting this done..."
-                        rows={3}
-                        className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none resize-none"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-xl bg-magenta/10 border border-magenta/30 mb-6">
-                    <p className="text-sm text-magenta font-semibold text-center">
-                      ⏰ You have 48 hours starting NOW
-                    </p>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => {
-                        setShowFuckItMode(false);
-                        setFuckItTask({ title: '', description: '' });
-                      }}
-                      className="flex-1 py-3 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10"
-                    >
-                      Not yet
-                    </button>
-                    <button
-                      onClick={handleFuckItDoIt}
-                      disabled={!fuckItTask.title.trim()}
-                      className="flex-1 py-3 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold hover:shadow-[0_0_30px_rgba(255,0,142,0.6)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      LET'S GO! 🤘
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
+          <div className="space-y-4">
             {/* Focus Timer */}
             <FocusTimer
               task={focusTask}
@@ -556,6 +476,90 @@ export default function Crew() {
             </button>
           </div>
         </div>
+
+        {/* FUCK IT - DO IT Section */}
+        <div className="mt-8 mb-24 md:mb-8">
+          <div className="max-w-2xl mx-auto p-6 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/20 to-neon-cyan/20">
+            <button
+              type="button"
+              onClick={() => setShowFuckItMode(true)}
+              className="w-full py-5 px-6 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold text-2xl hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all mb-3 cursor-pointer"
+            >
+              <span className="text-2xl mr-2">🤘</span>
+              FUCK IT - DO IT!
+            </button>
+            <p className="text-sm text-gray-400 text-center font-josefin">
+              48-hour commitment challenge
+            </p>
+          </div>
+        </div>
+
+        {/* FUCK IT Modal */}
+        {showFuckItMode && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+            <div className="bg-dark-grey-azure rounded-2xl border-2 border-magenta/50 max-w-md w-full p-6">
+              <div className="text-center mb-6">
+                <span className="text-6xl mb-4 block">🤘</span>
+                <h2 className="text-3xl font-supernova text-magenta mb-2">FUCK IT - DO IT!</h2>
+                <p className="text-gray-400 font-josefin text-sm">
+                  48-hour commitment. No overthinking. No excuses. Just action.
+                </p>
+              </div>
+
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">What are you committing to? *</label>
+                  <input
+                    type="text"
+                    value={fuckItTask.title}
+                    onChange={(e) => setFuckItTask({ ...fuckItTask, title: e.target.value })}
+                    placeholder="e.g., Launch the website, Finish the pitch deck"
+                    className="w-full px-4 py-3 bg-black border-2 border-magenta/30 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none"
+                    autoFocus
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-white mb-2">Why does this matter? (optional)</label>
+                  <textarea
+                    value={fuckItTask.description}
+                    onChange={(e) => setFuckItTask({ ...fuckItTask, description: e.target.value })}
+                    placeholder="Your motivation for getting this done..."
+                    rows={3}
+                    className="w-full px-4 py-3 bg-black border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-magenta/10 border border-magenta/30 mb-6">
+                <p className="text-sm text-magenta font-semibold text-center">
+                  ⏰ You have 48 hours starting NOW
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowFuckItMode(false);
+                    setFuckItTask({ title: '', description: '' });
+                  }}
+                  className="flex-1 py-3 rounded-xl border-2 border-white/20 text-white font-semibold hover:bg-white/10"
+                >
+                  Not yet
+                </button>
+                <button
+                  type="button"
+                  onClick={handleFuckItDoIt}
+                  disabled={!fuckItTask.title.trim()}
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold hover:shadow-[0_0_30px_rgba(255,0,142,0.6)] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  LET'S GO! 🤘
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Bottom Stats Bar - Desktop only */}
         <div className="hidden md:block fixed bottom-0 left-0 right-0 bg-dark-grey-azure/95 backdrop-blur-md border-t border-white/10 px-6 py-4 z-40">
