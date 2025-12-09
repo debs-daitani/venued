@@ -435,11 +435,15 @@ export default function Crew() {
           {/* Sidebar */}
           <div className="space-y-4">
             {/* FUCK IT - DO IT Button */}
-            <div className="p-6 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/20 to-neon-cyan/20 relative z-10">
+            <div className="p-6 rounded-xl border-2 border-magenta/30 bg-gradient-to-br from-magenta/20 to-neon-cyan/20">
               <button
                 type="button"
-                onClick={() => setShowFuckItMode(true)}
-                className="w-full py-5 px-6 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold text-2xl hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all mb-3 cursor-pointer"
+                onClick={() => {
+                  console.log('FUCK IT button clicked!');
+                  setShowFuckItMode(true);
+                }}
+                style={{ cursor: 'pointer', pointerEvents: 'auto' }}
+                className="w-full py-5 px-6 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold text-2xl hover:shadow-[0_0_40px_rgba(255,0,142,0.6)] transition-all mb-3"
               >
                 <span className="text-2xl mr-2">🤘</span>
                 FUCK IT - DO IT!
