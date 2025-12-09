@@ -1,4 +1,4 @@
-const CACHE_NAME = 'venued-v14';
+const CACHE_NAME = 'venued-v15';
 const urlsToCache = [
   '/',
   '/backstage',

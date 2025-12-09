@@ -146,53 +146,54 @@ export default function Entourage() {
   return (
     <div className="min-h-screen pt-20 px-4 sm:px-6 lg:px-8 pb-24 md:pb-8">
       <div className="max-w-7xl mx-auto py-6">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="header-gradient-entourage rounded-2xl p-6 sm:p-8">
-            <div className="flex items-center gap-3">
-              <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              <div>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-supernova text-white tracking-tight">
-                  ENTOURAGE
-                </h1>
-                <p className="text-base sm:text-lg font-arp-display text-white/80 mt-1">
-                  9 'groupies' who've always got your back!
-                </p>
+        {/* Header - Only show when no module is active */}
+        {!activeModule && (
+          <div className="mb-6 sm:mb-8">
+            <div className="header-gradient-entourage rounded-2xl p-6 sm:p-8">
+              <div className="flex items-center gap-3">
+                <Brain className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                <div>
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-supernova text-white tracking-tight">
+                    ENTOURAGE
+                  </h1>
+                  <p className="text-base sm:text-lg font-arp-display text-white/80 mt-1">
+                    9 'groupies' who've always got your back!
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Module Grid - 3x3 spelling E-N-T-O-U-R-A-G-E */}
         {!activeModule && (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
               {modules.map((module) => {
                 const Icon = module.icon;
+                const firstLetter = module.name.charAt(0);
+                const restOfName = module.name.slice(1);
                 return (
                   <button
                     key={module.id}
                     onClick={() => setActiveModule(module.id)}
-                    className="relative p-4 sm:p-6 rounded-xl border border-white/10 hover:border-white/30 transition-all group text-left bg-white/5 overflow-hidden"
+                    className="relative p-3 sm:p-5 rounded-xl border border-white/10 hover:border-white/30 transition-all group text-left bg-white/5 overflow-hidden"
                   >
                     {/* Bottom gradient highlight */}
                     <div
                       className="absolute bottom-0 left-0 right-0 h-1 opacity-80"
                       style={{ backgroundColor: module.letterColor }}
                     />
-                    <div className="flex items-center gap-2 mb-2">
-                      <span
-                        className="text-2xl sm:text-3xl font-supernova"
-                        style={{ color: module.letterColor }}
-                      >
-                        {module.letter}
-                      </span>
-                      <Icon className="w-5 h-5 text-white/70" />
+                    {/* Icon on top row */}
+                    <div className="mb-2 sm:mb-3">
+                      <Icon className="w-6 h-6 sm:w-8 sm:h-8" style={{ color: module.letterColor }} />
                     </div>
-                    <h3 className="text-base sm:text-lg font-bold text-white mb-1">
-                      {module.name}
+                    {/* Title with first letter highlighted */}
+                    <h3 className="text-sm sm:text-base md:text-lg font-josefin text-white mb-1">
+                      <span className="font-supernova" style={{ color: module.letterColor }}>{firstLetter}</span>
+                      {restOfName}
                     </h3>
-                    <p className="text-xs sm:text-sm text-white/60 font-josefin">
+                    <p className="text-xs text-white/60 font-josefin leading-tight">
                       {module.subtitle}
                     </p>
                   </button>
@@ -222,7 +223,7 @@ export default function Entourage() {
                 &larr; Back to Entourage
               </button>
 
-              {/* Module-specific header */}
+              {/* Module-specific header - Icon on left, title on right */}
               <div
                 className="rounded-2xl p-6 sm:p-8 mb-6"
                 style={{
@@ -232,14 +233,9 @@ export default function Entourage() {
                   borderStyle: 'solid'
                 }}
               >
-                <div className="flex items-center gap-3">
-                  <span
-                    className="text-4xl sm:text-5xl font-supernova"
-                    style={{ color: module?.letterColor }}
-                  >
-                    {module?.letter}
-                  </span>
-                  <Icon className="w-8 h-8 sm:w-10 sm:h-10" style={{ color: module?.letterColor }} />
+                <div className="flex items-center gap-4 sm:gap-6">
+                  {/* Bigger icon on left */}
+                  <Icon className="w-12 h-12 sm:w-16 sm:h-16" style={{ color: module?.letterColor }} />
                   <div>
                     <h2
                       className="text-2xl sm:text-3xl font-supernova tracking-tight"
