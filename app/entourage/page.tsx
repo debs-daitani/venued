@@ -396,7 +396,8 @@ function ElectrifyModule() {
 }
 
 function NewReleasesModule() {
-  const [activeTab, setActiveTab] = useState<'dump' | 'ideas' | 'pivots' | 'saved-ideas' | 'saved-pivots' | 'saved-dumps'>('dump');
+  const [activeTab, setActiveTab] = useState<'dump' | 'ideas' | 'pivots' | 'saved'>('dump');
+  const [savedFilter, setSavedFilter] = useState<'all' | 'dumps' | 'ideas' | 'pivots'>('all');
   const [dumpText, setDumpText] = useState('');
   const [timeLeft, setTimeLeft] = useState(300);
   const [isTimerActive, setIsTimerActive] = useState(false);
@@ -506,14 +507,16 @@ function NewReleasesModule() {
     const ideaId = Date.now().toString();
     setCurrentIdeaId(ideaId);
 
-    // Generate AI suggestion
+    // Generate AI suggestion - highly contextual based on what user entered
     let suggestion = '';
     if (ideaProblem && ideaAudience) {
-      suggestion = `Great idea! Next steps: 1) Validate the problem with 3-5 people from your target audience (${ideaAudience}). 2) Create a simple one-page outline. 3) Set a deadline to make a go/no-go decision. Want me to help break this down further?`;
+      suggestion = `Love it! "${ideaName}" solving "${ideaProblem}" for ${ideaAudience}.\n\nYour first 3 moves:\n\n1️⃣ VALIDATE: Find 3 people who are ${ideaAudience}. Ask them: "How do you currently handle ${ideaProblem.toLowerCase().includes('help') ? ideaProblem : `the problem of ${ideaProblem}`}?"\n\n2️⃣ DIFFERENTIATE: Search "${ideaProblem} solution" - who else is doing this? What's YOUR angle?\n\n3️⃣ PROTOTYPE: What's the simplest version you could show someone this week?\n\nWhich step feels most important right now?`;
     } else if (ideaProblem) {
-      suggestion = `Interesting problem to solve! Consider: Who specifically experiences this problem most? That's your first customer. Research 3 competitors solving similar problems - what can you do differently?`;
+      suggestion = `"${ideaName}" tackling "${ideaProblem}" - solid foundation!\n\n🎯 Missing piece: WHO has this problem most urgently? When you can name them specifically, marketing becomes obvious.\n\nThink about:\n• Who's frustrated by this daily?\n• Who would PAY to solve this?\n• Who's YOUR people (you understand their world)?\n\nDescribe your ideal customer in one sentence.`;
+    } else if (ideaAudience) {
+      suggestion = `"${ideaName}" for ${ideaAudience} - great target!\n\n🔍 Missing piece: What PROBLEM does ${ideaAudience} need solved?\n\nResearch mission:\n• Hang out where ${ideaAudience} complains online\n• Ask 3 of them: "What's your biggest frustration with [related area]?"\n• Look for the pain they'd pay to fix\n\nWhat do you THINK their biggest pain is?`;
     } else {
-      suggestion = `Idea captured! To turn this into action: 1) Write down 3 reasons why this matters. 2) List 3 obstacles you'd face. 3) Define your first tiny experiment to test it.`;
+      suggestion = `"${ideaName}" captured! 💡\n\nTo develop this further:\n\n❓ WHO is this for? (Be specific - "everyone" = no one)\n❓ WHAT problem does it solve? (Pain points > nice-to-haves)\n❓ WHY you? What makes you the right person to build this?\n\nAnswer these and your path forward becomes clearer. Which question can you answer right now?`;
     }
 
     const ideas = JSON.parse(localStorage.getItem('venued_ideas') || '[]');
@@ -546,14 +549,16 @@ function NewReleasesModule() {
     const pivotId = Date.now().toString();
     setCurrentPivotId(pivotId);
 
-    // Generate AI suggestion for pivot
+    // Generate AI suggestion for pivot - highly contextual
     let suggestion = '';
-    if (pivotWhy) {
-      suggestion = `Pivots take courage! Your 'why' is clear - that's your anchor. Next: 1) Tell 3 trusted people about this pivot. 2) Set a 90-day checkpoint to evaluate. 3) Define what "success" looks like in 6 months.`;
+    if (pivotLeaving && pivotHeading && pivotWhy) {
+      suggestion = `Powerful pivot! "${pivotLeaving}" → "${pivotHeading}"\n\nYour anchor: "${pivotWhy}"\n\n🎯 Your 90-day roadmap:\n\nWEEK 1: Tell 3 people about this shift. Accountability accelerates action.\n\nWEEK 2-4: What skills from "${pivotLeaving}" transfer to "${pivotHeading}"? List them.\n\nDAY 90: Check-in. Is "${pivotHeading}" feeling right?\n\nWhat's your biggest uncertainty about this move?`;
+    } else if (pivotLeaving && pivotHeading) {
+      suggestion = `Clear pivot! Moving from "${pivotLeaving}" to "${pivotHeading}".\n\n🤔 Before diving in, answer:\n\n• WHY this change? (Write it down - this keeps you grounded when it gets hard)\n\n• What PROOF do you have that "${pivotHeading}" is right for you?\n\n• What will you MISS about "${pivotLeaving}"?\n\nUnderstanding your "why" prevents second-guessing later. What's driving this pivot?`;
     } else if (pivotHeading) {
-      suggestion = `Exciting new direction! Questions to consider: What skills do you need to develop? Who's already successful where you're heading - can you learn from them? What's your first 30-day goal?`;
+      suggestion = `Heading toward "${pivotHeading}" - exciting!\n\n📝 To make this real:\n\n1. What are you leaving behind? (Name it to release it)\n2. What's your first action toward "${pivotHeading}" this week?\n3. Who's already succeeding in "${pivotHeading}" that you could learn from?\n\nNew directions need concrete first steps. What's yours?`;
     } else {
-      suggestion = `Letting go is powerful. What you're leaving behind has taught you something valuable. Take a moment to acknowledge that growth before fully committing to the new path.`;
+      suggestion = `Letting go of "${pivotLeaving}" takes courage.\n\n🙏 Before moving on:\n\n• What did "${pivotLeaving}" teach you?\n• What skills/connections will you take with you?\n• What are you grateful for from this chapter?\n\nHonoring the past makes space for the future. Where are you heading next?`;
     }
 
     const pivots = JSON.parse(localStorage.getItem('venued_pivots') || '[]');
@@ -605,21 +610,41 @@ function NewReleasesModule() {
     const newConversation = [...dumpConversation, { role: 'user' as const, text: dumpUserInput }];
     setDumpConversation(newConversation);
     const userMsg = dumpUserInput.toLowerCase();
+    const userInputOriginal = dumpUserInput;
     setDumpUserInput('');
 
-    // Generate AI response
+    // Generate AI response - using dump content for context
     setTimeout(() => {
       let response = '';
 
+      // Extract key themes from the dump
+      const dumpLower = dumpText.toLowerCase();
+      const mentionsWork = dumpLower.includes('work') || dumpLower.includes('project') || dumpLower.includes('job') || dumpLower.includes('client');
+      const mentionsRelationships = dumpLower.includes('friend') || dumpLower.includes('family') || dumpLower.includes('partner') || dumpLower.includes('relationship');
+      const mentionsHealth = dumpLower.includes('health') || dumpLower.includes('sleep') || dumpLower.includes('exercise') || dumpLower.includes('tired');
+      const mentionsMoney = dumpLower.includes('money') || dumpLower.includes('finance') || dumpLower.includes('pay') || dumpLower.includes('cost');
+
+      // Find first few significant words from dump for context
+      const dumpWords = dumpText.split(/\s+/).slice(0, 15).join(' ');
+      const dumpSnippet = dumpWords.length > 50 ? dumpWords.substring(0, 50) + '...' : dumpWords;
+
       if (userMsg.includes('yes') || userMsg.includes('help') || userMsg.includes('break')) {
-        response = "Let's break this down:\n\n1️⃣ What's the VERY FIRST physical action you need to take?\n\n2️⃣ Can you do it in the next 5 minutes?\n\n3️⃣ If not, make it smaller until you can.\n\nThe goal is momentum, not perfection. What's your tiny first step?";
-      } else if (userMsg.includes('overwhelm') || userMsg.includes('too much') || userMsg.includes('stressed')) {
-        response = "I hear you. When everything feels too much:\n\n🧘 Take 3 deep breaths right now\n📝 Pick just ONE thing from your dump\n⏱️ Give it 10 minutes only\n\nYou don't have to do it all. What's the ONE thing that would give you the most relief if done?";
+        if (mentionsWork) {
+          response = `Let's break down what you wrote about work:\n\n1️⃣ What's the SINGLE most important work task?\n2️⃣ What's blocking you from starting it?\n3️⃣ What's a 5-minute version of that task?\n\nFor VARIANT brains, starting is the hardest part. Once you're in motion, momentum takes over.\n\nWhat's blocking you right now?`;
+        } else if (mentionsRelationships) {
+          response = `Sounds like relationships are on your mind. Let's untangle:\n\n1️⃣ What do you NEED from this situation?\n2️⃣ What can you CONTROL vs what can't you?\n3️⃣ What's ONE conversation you could have?\n\nOften the action is simpler than the spiral. What would feel like relief?`;
+        } else {
+          response = `Looking at what you dumped ("${dumpSnippet}"):\n\n1️⃣ What's the FIRST physical action? (Not "think about" - an actual VERB)\n2️⃣ Can you do it in 5 minutes? If not, make it smaller.\n3️⃣ What tool/resource do you need to start?\n\nMomentum > Motivation. What's your tiny first step?`;
+        }
+      } else if (userMsg.includes('overwhelm') || userMsg.includes('too much') || userMsg.includes('stressed') || userMsg.includes('anxiety')) {
+        response = `Your brain dumped a lot - that means it was carrying a lot. That's heavy!\n\n🧘 Right now: 3 deep breaths. Seriously, do it.\n\n📝 From everything you wrote, what's the ONE thing that if handled would bring the most relief?\n\n⏱️ Give that ONE thing just 10 minutes. Set a timer.\n\nYou don't have to solve "${dumpSnippet}" all at once. What's the relief task?`;
       } else if (userMsg.includes('no') || userMsg.includes('later') || userMsg.includes('not now')) {
-        response = "That's totally fine. Your brain dump is saved. Come back to it when you're ready. Sometimes letting things sit helps clarity emerge. 🤘";
+        response = `Totally valid. Your dump about "${dumpSnippet}" is saved.\n\nSometimes the dump itself is the action - getting it OUT of your head creates space.\n\nCome back when you're ready. 🤘`;
+      } else if (userMsg.includes('priority') || userMsg.includes('first') || userMsg.includes('start')) {
+        response = `From your dump, here's how to prioritize:\n\n🔥 URGENT + IMPORTANT: What has a deadline or consequence?\n⭐ IMPORTANT + NOT URGENT: What moves you toward your goals?\n⏰ URGENT + NOT IMPORTANT: Can someone else do this?\n🗑️ NEITHER: Delete it from your mental load.\n\nLooking at "${dumpSnippet}" - which category does your biggest concern fall into?`;
       } else {
-        // Treat as their action item
-        response = `Great! "${dumpUserInput}" is now your next action. Remember: done is better than perfect. You've got this! 🤘\n\nWant me to help you break this down further, or are you ready to tackle it?`;
+        // Treat user input as action/response and be contextual
+        response = `Got it! "${userInputOriginal}"\n\nRelating this to what you dumped ("${dumpSnippet}"):\n\n✅ Does this action address the ROOT cause or just a symptom?\n\n⏱️ When will you do this? (Vague = never for VARIANT brains)\n\n🎯 How will you know it's "done enough"?\n\nWant to break this down further, or are you ready to move?`;
       }
 
       const fullConversation = [...newConversation, { role: 'ai' as const, text: response }];
@@ -646,18 +671,28 @@ function NewReleasesModule() {
     const userMsg = ideaUserInput.toLowerCase();
     setIdeaUserInput('');
 
-    // Generate AI response based on context
+    // Generate AI response based on context - using actual idea content
     setTimeout(() => {
       let response = '';
+      const ideaContext = ideaName ? `"${ideaName}"` : 'your idea';
+      const audienceContext = ideaAudience || 'your target audience';
+      const problemContext = ideaProblem || '';
 
-      if (userMsg.includes('yes') || userMsg.includes('break') || userMsg.includes('help')) {
-        response = "Here's your action plan:\n\n1️⃣ VALIDATE (Week 1): Talk to 3 people who might use this. Ask what they struggle with.\n\n2️⃣ PROTOTYPE (Week 2): Create a simple version - could be a landing page, mockup, or even a document.\n\n3️⃣ TEST (Week 3): Get feedback on your prototype. What works? What doesn't?\n\n4️⃣ DECIDE (Week 4): Based on feedback, commit or pivot.\n\nWant me to help you with any of these steps?";
-      } else if (userMsg.includes('competitor') || userMsg.includes('market')) {
-        response = "Smart to research the competition! Here's how:\n\n🔍 Search for similar products/services\n📊 Check their reviews - what do customers complain about?\n💰 Note their pricing - can you position differently?\n🎯 Find the gap they're NOT serving\n\nYour unique advantage often lies in what others overlook. What makes YOUR approach different?";
+      if (userMsg.includes('validate') || userMsg.includes('1') || userMsg.includes('talk')) {
+        response = `Great choice starting with validation for ${ideaContext}!\n\nHere's your validation script:\n\n📝 "Hey, I'm exploring a solution for [${problemContext || 'the problem you described'}]. Do you experience this? How do you currently handle it?"\n\n🎯 Talk to 3-5 people from ${audienceContext}. Don't pitch - just LISTEN.\n\n📊 Track: What words do THEY use? What frustrates them most?\n\nWho's the FIRST person you could reach out to today?`;
+      } else if (userMsg.includes('prototype') || userMsg.includes('2') || userMsg.includes('build') || userMsg.includes('create')) {
+        response = `Let's prototype ${ideaContext}! For ${audienceContext}, I'd suggest:\n\n🎨 SIMPLEST: A one-page Google Doc describing what it does\n\n📱 QUICK: A Figma/Canva mockup of the key screen\n\n🌐 BETTER: A simple landing page with "Sign up for early access"\n\nRemember: The goal isn't perfection - it's something you can SHOW people. What's your comfort level with these options?`;
+      } else if (userMsg.includes('test') || userMsg.includes('3') || userMsg.includes('feedback')) {
+        response = `Testing time for ${ideaContext}! Share your prototype with ${audienceContext} and ask:\n\n✅ "What's your first impression?"\n✅ "What's confusing?"\n✅ "Would you use this? Why/why not?"\n✅ "What would make this a MUST-HAVE?"\n\n⚠️ Warning: Friends will be nice. You want HONEST feedback from people who'd actually PAY.\n\nHow many people have you shown it to so far?`;
+      } else if (userMsg.includes('competitor') || userMsg.includes('market') || userMsg.includes('research')) {
+        response = `Let's research the competitive landscape for ${ideaContext}:\n\n🔍 Search: "${problemContext ? problemContext : 'your problem'} solution" - what comes up?\n\n📊 Check reviews of similar products - what do users complain about?\n\n💡 Your differentiation for ${audienceContext} might be:\n• Simpler/faster\n• More affordable\n• Better for a specific niche\n• Different business model\n\nWhat do you think makes YOUR approach different?`;
       } else if (userMsg.includes('no') || userMsg.includes('later') || userMsg.includes('not now')) {
-        response = "No worries! Your idea is safely saved. When you're ready to revisit, check the SAVED IDEAS tab. Sometimes the best ideas need time to marinate. 🤘";
+        response = `No pressure! ${ideaContext} is saved in your SAVED tab whenever you're ready.\n\nSometimes stepping away helps clarity emerge. When you return, start with: "What ONE thing would move this forward?"\n\n🤘`;
+      } else if (userMsg.includes('stuck') || userMsg.includes('overwhelm') || userMsg.includes('too much')) {
+        response = `Feeling stuck on ${ideaContext}? That's normal!\n\n🧘 Take a breath. You don't need to figure it ALL out.\n\n📌 Pick just ONE thing:\n• Talk to ONE person from ${audienceContext}\n• Draw ONE sketch of your solution\n• Write ONE paragraph about ${problemContext || 'the problem'}\n\nWhat's the tiniest step you could take in the next 10 minutes?`;
       } else {
-        response = `Great question! Based on what you've shared about "${ideaName}", I'd suggest focusing on the core problem first. What's the #1 pain point you're solving? When you can articulate that clearly, everything else falls into place. What would you like to explore next?`;
+        // Use the user's actual input to craft a contextual response
+        response = `Interesting point about "${ideaUserInput}"!\n\nThinking about ${ideaContext}${problemContext ? ` (solving: ${problemContext})` : ''} for ${audienceContext}:\n\n🤔 How does this relate to what your audience actually needs?\n\n💡 Could this be your unique angle - something competitors aren't doing?\n\n🎯 What would you need to test to know if this direction is right?\n\nTell me more about what you're thinking!`;
       }
 
       const fullConversation = [...newConversation, { role: 'ai' as const, text: response }];
@@ -684,18 +719,28 @@ function NewReleasesModule() {
     const userMsg = pivotUserInput.toLowerCase();
     setPivotUserInput('');
 
-    // Generate AI response
+    // Generate AI response - using actual pivot content
     setTimeout(() => {
       let response = '';
+      const leavingContext = pivotLeaving || 'what you\'re leaving behind';
+      const headingContext = pivotHeading || 'your new direction';
+      const whyContext = pivotWhy || '';
 
-      if (userMsg.includes('yes') || userMsg.includes('help') || userMsg.includes('plan')) {
-        response = "Here's your pivot action plan:\n\n🎯 WEEK 1: Announce your pivot to 3 key people. Accountability matters.\n\n📋 WEEK 2: List 5 skills you need for the new direction. Start learning ONE.\n\n🔗 WEEK 3: Connect with someone already successful in your new direction. Ask for advice.\n\n⏱️ DAY 90: Check-in. Are you closer to where you want to be?\n\nWhat's your biggest concern about this pivot?";
-      } else if (userMsg.includes('scared') || userMsg.includes('afraid') || userMsg.includes('uncertain')) {
-        response = "Pivots are scary - that's normal! Here's the truth: staying stuck is scarier than changing. You've already done the hard part by acknowledging you need to pivot.\n\n💪 Remember: Every successful person has pivoted multiple times. You're in good company.\n\nWhat would you tell a friend in your situation?";
-      } else if (userMsg.includes('no') || userMsg.includes('later')) {
-        response = "Totally fine. Your pivot reflection is saved whenever you need it. Sometimes we need time to process big changes. Trust your timing. 🤘";
+      if (userMsg.includes('90') || userMsg.includes('evaluate') || userMsg.includes('check')) {
+        response = `At your 90-day checkpoint for pivoting to "${headingContext}", evaluate:\n\n📊 PROGRESS:\n• What concrete steps have you taken?\n• What's working? What isn't?\n• Are you closer to your vision?\n\n💭 FEELINGS:\n• Do you still feel excited about ${headingContext}?\n• What do you miss about ${leavingContext}?\n${whyContext ? `• Does your original "why" (${whyContext}) still resonate?` : ''}\n\n🎯 DECISION:\n• Continue full speed?\n• Adjust the approach?\n• Pivot again? (That's okay too!)\n\nWhat specific metrics will tell you this pivot is working?`;
+      } else if (userMsg.includes('tell') || userMsg.includes('announce') || userMsg.includes('people')) {
+        response = `Announcing your pivot from "${leavingContext}" to "${headingContext}":\n\n👥 WHO TO TELL:\n• 1 person who'll be your cheerleader\n• 1 person who'll give honest feedback\n• 1 person already in ${headingContext} space\n\n💬 SCRIPT:\n"I'm making a change. I'm moving from [${leavingContext}] toward [${headingContext}]${whyContext ? ` because ${whyContext}` : ''}. I'd love your support/advice."\n\n⚡ Do this BEFORE you feel ready. Public commitment creates momentum.\n\nWho's your first call?`;
+      } else if (userMsg.includes('skill') || userMsg.includes('learn') || userMsg.includes('need')) {
+        response = `Skills for your pivot to "${headingContext}":\n\n📝 LIST:\n• What skills does ${headingContext} require that you don't have yet?\n• What skills from ${leavingContext} can you transfer?\n• What's the ONE skill that would unlock the most?\n\n🎯 ACTION:\n• YouTube tutorial today\n• Book/course this week\n• Find a mentor this month\n\nYou don't need ALL the skills before starting. What's the most crucial one?`;
+      } else if (userMsg.includes('scared') || userMsg.includes('afraid') || userMsg.includes('uncertain') || userMsg.includes('doubt')) {
+        response = `Fear about pivoting from "${leavingContext}" to "${headingContext}" is NORMAL.\n\n🧠 Your brain is trying to protect you. Thank it, then remind it:\n\n✅ You've handled hard things before\n✅ Staying stuck has its own risks\n${whyContext ? `✅ Your "why" is real: ${whyContext}` : '✅ You have good reasons for this change'}\n✅ Pivots can be reversed if needed\n\n💪 Courage isn't the absence of fear - it's action DESPITE fear.\n\nWhat's the worst that could realistically happen? And could you handle it?`;
+      } else if (userMsg.includes('no') || userMsg.includes('later') || userMsg.includes('not now')) {
+        response = `No rush. Your pivot reflection (${leavingContext} → ${headingContext}) is saved.\n\nMajor changes deserve processing time. When you're ready, I'll be here.\n\n🤘`;
+      } else if (userMsg.includes('stuck') || userMsg.includes('overwhelm')) {
+        response = `Overwhelmed by your pivot to "${headingContext}"?\n\n🧘 Breathe. You don't have to figure it all out today.\n\n📌 ONE thing for each:\n• TODAY: Write down why ${headingContext} matters to you\n• THIS WEEK: Have one conversation about your new direction\n• THIS MONTH: Take one small action toward ${headingContext}\n\nWhat's the tiniest step that still feels meaningful?`;
       } else {
-        response = `That's a thoughtful response! Pivoting from "${pivotLeaving}" to "${pivotHeading}" is a significant move. The fact that you're being intentional about it shows maturity. What's the ONE thing that would make this pivot feel more manageable?`;
+        // Context-aware response using user's actual input
+        response = `Interesting thought about "${pivotUserInput}"!\n\nConsidering your pivot (${leavingContext} → ${headingContext})${whyContext ? ` driven by: ${whyContext}` : ''}:\n\n🤔 How does this connect to your new direction?\n\n💡 Is this something to explore, or something to release?\n\n🎯 What action does this thought point you toward?\n\nI'm curious - tell me more about where this is coming from.`;
       }
 
       const fullConversation = [...newConversation, { role: 'ai' as const, text: response }];
@@ -742,10 +787,8 @@ function NewReleasesModule() {
         {[
           { id: 'dump', label: 'DUMP', color: '#00F0E9' },
           { id: 'ideas', label: 'IDEAS', color: '#FF008E' },
-          { id: 'pivots', label: 'PIVOTS', color: '#37454E' },
-          { id: 'saved-dumps', label: `SAVED DUMPS (${savedDumps.length})`, color: '#366F7E' },
-          { id: 'saved-ideas', label: `SAVED IDEAS (${savedIdeas.length})`, color: '#C9005C' },
-          { id: 'saved-pivots', label: `SAVED PIVOTS (${savedPivots.length})`, color: '#00A29D' },
+          { id: 'pivots', label: 'PIVOTS', color: '#00A29D' },
+          { id: 'saved', label: `SAVED (${savedDumps.length + savedIdeas.length + savedPivots.length})`, color: '#C9005C' },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -1000,28 +1043,59 @@ function NewReleasesModule() {
         </div>
       )}
 
-      {activeTab === 'saved-dumps' && (
+      {activeTab === 'saved' && (
         <div className="space-y-4">
-          <h3 className="text-lg font-bold text-white">Saved Brain Dumps</h3>
-          <p className="text-sm text-gray-400">Click on a dump to view full conversation</p>
-          {savedDumps.length === 0 ? (
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold text-white">Your Saved Items</h3>
+          </div>
+
+          {/* Category Filter Buttons */}
+          <div className="flex flex-wrap gap-2">
+            {[
+              { id: 'all', label: 'All', count: savedDumps.length + savedIdeas.length + savedPivots.length },
+              { id: 'dumps', label: 'Brain Dumps', count: savedDumps.length, color: '#00F0E9' },
+              { id: 'ideas', label: 'Ideas', count: savedIdeas.length, color: '#FF008E' },
+              { id: 'pivots', label: 'Pivots', count: savedPivots.length, color: '#00A29D' },
+            ].map((filter) => (
+              <button
+                key={filter.id}
+                onClick={() => setSavedFilter(filter.id as any)}
+                className={`px-3 py-1.5 rounded-lg font-semibold text-sm transition-all ${
+                  savedFilter === filter.id
+                    ? 'text-black'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                }`}
+                style={savedFilter === filter.id ? { backgroundColor: filter.color || '#C9005C' } : {}}
+              >
+                {filter.label} ({filter.count})
+              </button>
+            ))}
+          </div>
+
+          {/* Empty State */}
+          {(savedFilter === 'all' && savedDumps.length + savedIdeas.length + savedPivots.length === 0) ||
+           (savedFilter === 'dumps' && savedDumps.length === 0) ||
+           (savedFilter === 'ideas' && savedIdeas.length === 0) ||
+           (savedFilter === 'pivots' && savedPivots.length === 0) ? (
             <div className="p-6 rounded-xl border border-white/10 bg-white/5 text-center">
-              <p className="text-gray-400">No saved brain dumps yet</p>
-              <p className="text-sm text-gray-500">Go to DUMP tab to do your first brain dump!</p>
+              <p className="text-gray-400">No saved items yet</p>
+              <p className="text-sm text-gray-500">Start capturing your thoughts in the DUMP, IDEAS, or PIVOTS tabs!</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {savedDumps.map((dump: any) => (
+              {/* Brain Dumps */}
+              {(savedFilter === 'all' || savedFilter === 'dumps') && savedDumps.map((dump: any) => (
                 <button
-                  key={dump.id}
+                  key={`dump-${dump.id}`}
                   onClick={() => setEditingDump({...dump})}
                   className="w-full text-left p-4 rounded-xl border border-neon-cyan/30 bg-neon-cyan/10 hover:border-neon-cyan/60 hover:bg-neon-cyan/20 transition-all cursor-pointer"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-neon-cyan/20 text-neon-cyan rounded mb-2">BRAIN DUMP</span>
                       <p className="text-sm text-white line-clamp-2">{dump.content}</p>
                       {dump.conversation && dump.conversation.length > 0 && (
-                        <p className="text-xs text-neon-cyan mt-2">💬 {dump.conversation.length} messages in conversation</p>
+                        <p className="text-xs text-neon-cyan mt-2">💬 {dump.conversation.length} messages</p>
                       )}
                       <p className="text-xs text-gray-500 mt-2">
                         {new Date(dump.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -1029,6 +1103,66 @@ function NewReleasesModule() {
                     </div>
                     <span
                       onClick={(e) => { e.stopPropagation(); handleDeleteDump(dump.id); }}
+                      className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                    >
+                      ×
+                    </span>
+                  </div>
+                </button>
+              ))}
+
+              {/* Ideas */}
+              {(savedFilter === 'all' || savedFilter === 'ideas') && savedIdeas.map((idea: any) => (
+                <button
+                  key={`idea-${idea.id}`}
+                  onClick={() => setEditingIdea({...idea})}
+                  className="w-full text-left p-4 rounded-xl border border-magenta/30 bg-magenta/10 hover:border-magenta/60 hover:bg-magenta/20 transition-all cursor-pointer"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-magenta/20 text-magenta rounded mb-2">IDEA</span>
+                      <h4 className="font-bold text-white">{idea.name}</h4>
+                      {idea.problem && <p className="text-sm text-gray-300 mt-1 line-clamp-1">{idea.problem}</p>}
+                      {idea.audience && <p className="text-xs text-gray-400 mt-1">For: {idea.audience}</p>}
+                      {idea.conversation && idea.conversation.length > 0 && (
+                        <p className="text-xs text-magenta mt-2">💬 {idea.conversation.length} messages</p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-2">
+                        {new Date(idea.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
+                    <span
+                      onClick={(e) => { e.stopPropagation(); handleDeleteIdea(idea.id); }}
+                      className="p-2 text-gray-500 hover:text-red-400 transition-colors"
+                    >
+                      ×
+                    </span>
+                  </div>
+                </button>
+              ))}
+
+              {/* Pivots */}
+              {(savedFilter === 'all' || savedFilter === 'pivots') && savedPivots.map((pivot: any) => (
+                <button
+                  key={`pivot-${pivot.id}`}
+                  onClick={() => setEditingPivot({...pivot})}
+                  className="w-full text-left p-4 rounded-xl border border-teal-500/30 bg-teal-500/10 hover:border-teal-500/60 hover:bg-teal-500/20 transition-all cursor-pointer"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-teal-500/20 text-teal-400 rounded mb-2">PIVOT</span>
+                      {pivot.heading && <h4 className="font-bold text-white">{pivot.heading}</h4>}
+                      {pivot.leaving && <p className="text-sm text-gray-300 mt-1">From: {pivot.leaving}</p>}
+                      {pivot.why && <p className="text-xs text-gray-400 mt-1 line-clamp-1">Why: {pivot.why}</p>}
+                      {pivot.conversation && pivot.conversation.length > 0 && (
+                        <p className="text-xs text-teal-400 mt-2">💬 {pivot.conversation.length} messages</p>
+                      )}
+                      <p className="text-xs text-gray-500 mt-2">
+                        {new Date(pivot.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </p>
+                    </div>
+                    <span
+                      onClick={(e) => { e.stopPropagation(); handleDeletePivot(pivot.id); }}
                       className="p-2 text-gray-500 hover:text-red-400 transition-colors"
                     >
                       ×
@@ -1075,20 +1209,22 @@ function NewReleasesModule() {
                 )}
 
                 {editingDump.conversation && editingDump.conversation.length > 0 && (
-                  <div className="space-y-3">
-                    <p className="text-sm font-semibold text-white">Conversation History:</p>
-                    {editingDump.conversation.map((msg: any, idx: number) => (
-                      <div key={idx} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
-                        <span className={`inline-block px-3 py-2 rounded-lg ${
-                          msg.role === 'user'
-                            ? 'bg-neon-cyan/20 text-neon-cyan'
-                            : 'bg-white/10 text-white'
-                        }`}>
-                          {msg.role === 'ai' && <span className="text-neon-cyan font-semibold">🧠 </span>}
-                          <span className="whitespace-pre-line">{msg.text}</span>
-                        </span>
-                      </div>
-                    ))}
+                  <div className="space-y-3 pt-4 border-t border-white/10">
+                    <p className="text-sm font-semibold text-neon-cyan">💬 Conversation History:</p>
+                    <div className="max-h-48 overflow-y-auto space-y-2">
+                      {editingDump.conversation.map((msg: any, idx: number) => (
+                        <div key={idx} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
+                          <span className={`inline-block px-3 py-2 rounded-lg max-w-[85%] ${
+                            msg.role === 'user'
+                              ? 'bg-neon-cyan/20 text-neon-cyan'
+                              : 'bg-white/10 text-white'
+                          }`}>
+                            {msg.role === 'ai' && <span className="text-neon-cyan font-semibold">🧠 </span>}
+                            <span className="whitespace-pre-line">{msg.text}</span>
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1116,46 +1252,6 @@ function NewReleasesModule() {
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {activeTab === 'saved-ideas' && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-white">Saved Ideas</h3>
-          <p className="text-sm text-gray-400">Click on an idea to edit it</p>
-          {savedIdeas.length === 0 ? (
-            <div className="p-6 rounded-xl border border-white/10 bg-white/5 text-center">
-              <p className="text-gray-400">No saved ideas yet</p>
-              <p className="text-sm text-gray-500">Go to IDEAS tab to capture your first idea!</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {savedIdeas.map((idea: any) => (
-                <button
-                  key={idea.id}
-                  onClick={() => setEditingIdea({...idea})}
-                  className="w-full text-left p-4 rounded-xl border border-magenta/30 bg-magenta/10 hover:border-magenta/60 hover:bg-magenta/20 transition-all cursor-pointer"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-bold text-white">{idea.name}</h4>
-                      {idea.problem && <p className="text-sm text-gray-300 mt-1">{idea.problem}</p>}
-                      {idea.audience && <p className="text-xs text-gray-400 mt-1">For: {idea.audience}</p>}
-                      <p className="text-xs text-gray-500 mt-2">
-                        {new Date(idea.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </p>
-                    </div>
-                    <span
-                      onClick={(e) => { e.stopPropagation(); handleDeleteIdea(idea.id); }}
-                      className="p-2 text-gray-500 hover:text-red-400 transition-colors"
-                    >
-                      ×
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
@@ -1241,61 +1337,6 @@ function NewReleasesModule() {
               </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {activeTab === 'saved-pivots' && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-white">Saved Pivots</h3>
-          <p className="text-sm text-gray-400">Click on a pivot to edit it</p>
-          {savedPivots.length === 0 ? (
-            <div className="p-6 rounded-xl border border-white/10 bg-white/5 text-center">
-              <p className="text-gray-400">No saved pivots yet</p>
-              <p className="text-sm text-gray-500">Go to PIVOTS tab to record your first pivot!</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {savedPivots.map((pivot: any) => (
-                <button
-                  key={pivot.id}
-                  onClick={() => setEditingPivot({...pivot})}
-                  className="w-full text-left p-4 rounded-xl border border-white/30 bg-dark-grey-azure/30 hover:border-neon-cyan/60 hover:bg-dark-grey-azure/50 transition-all cursor-pointer"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      {pivot.leaving && (
-                        <div className="mb-2">
-                          <p className="text-xs text-gray-500 uppercase">Leaving Behind:</p>
-                          <p className="text-sm text-gray-300">{pivot.leaving}</p>
-                        </div>
-                      )}
-                      {pivot.heading && (
-                        <div className="mb-2">
-                          <p className="text-xs text-gray-500 uppercase">Heading Toward:</p>
-                          <p className="text-sm text-white">{pivot.heading}</p>
-                        </div>
-                      )}
-                      {pivot.why && (
-                        <div className="mb-2">
-                          <p className="text-xs text-gray-500 uppercase">Why:</p>
-                          <p className="text-sm text-gray-300">{pivot.why}</p>
-                        </div>
-                      )}
-                      <p className="text-xs text-gray-500 mt-2">
-                        {new Date(pivot.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
-                      </p>
-                    </div>
-                    <span
-                      onClick={(e) => { e.stopPropagation(); handleDeletePivot(pivot.id); }}
-                      className="p-2 text-gray-500 hover:text-red-400 transition-colors"
-                    >
-                      ×
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
@@ -1398,10 +1439,32 @@ function TuneUpModule() {
   const [sessionComplete, setSessionComplete] = useState(false);
   const [recentSessions, setRecentSessions] = useState<any[]>([]);
 
+  // Hyperfocus Logging State
+  const [showHyperfocusForm, setShowHyperfocusForm] = useState(false);
+  const [hyperfocusActivity, setHyperfocusActivity] = useState('');
+  const [hyperfocusTrigger, setHyperfocusTrigger] = useState('');
+  const [hyperfocusDuration, setHyperfocusDuration] = useState('');
+  const [hyperfocusNotes, setHyperfocusNotes] = useState('');
+  const [hyperfocusLogs, setHyperfocusLogs] = useState<any[]>([]);
+  const [editingHyperfocus, setEditingHyperfocus] = useState<any>(null);
+
+  // Time Blindness Estimation State
+  const [showTimeEstimator, setShowTimeEstimator] = useState(false);
+  const [estimatorTask, setEstimatorTask] = useState('');
+  const [estimatedTime, setEstimatedTime] = useState('');
+  const [estimatorRunning, setEstimatorRunning] = useState(false);
+  const [estimatorStartTime, setEstimatorStartTime] = useState<number | null>(null);
+  const [actualTime, setActualTime] = useState<number | null>(null);
+  const [estimatorElapsed, setEstimatorElapsed] = useState(0);
+  const [timeEstimates, setTimeEstimates] = useState<any[]>([]);
+  const [editingEstimate, setEditingEstimate] = useState<any>(null);
+
   // Load saved data
   useEffect(() => {
     const sessions = JSON.parse(localStorage.getItem('venued_focus_sessions') || '[]');
     setRecentSessions(sessions.slice(0, 5));
+    setHyperfocusLogs(JSON.parse(localStorage.getItem('venued_hyperfocus_logs') || '[]'));
+    setTimeEstimates(JSON.parse(localStorage.getItem('venued_time_estimates') || '[]'));
 
     // Calculate today's stats
     const today = new Date().toISOString().split('T')[0];
@@ -1409,6 +1472,17 @@ function TuneUpModule() {
     setTodayMinutes(todaySessions.reduce((sum: number, s: any) => sum + s.duration, 0));
     setTotalSessions(sessions.length);
   }, []);
+
+  // Estimator timer effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (estimatorRunning && estimatorStartTime) {
+      interval = setInterval(() => {
+        setEstimatorElapsed(Math.floor((Date.now() - estimatorStartTime) / 1000));
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [estimatorRunning, estimatorStartTime]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -1463,6 +1537,103 @@ function TuneUpModule() {
       setSeconds(0);
     }
   };
+
+  // Hyperfocus handlers
+  const handleSaveHyperfocus = () => {
+    if (!hyperfocusActivity.trim()) return;
+    const log = {
+      id: Date.now().toString(),
+      activity: hyperfocusActivity,
+      trigger: hyperfocusTrigger,
+      duration: hyperfocusDuration,
+      notes: hyperfocusNotes,
+      timestamp: new Date().toISOString(),
+    };
+    const logs = [log, ...hyperfocusLogs].slice(0, 50);
+    localStorage.setItem('venued_hyperfocus_logs', JSON.stringify(logs));
+    setHyperfocusLogs(logs);
+    setHyperfocusActivity('');
+    setHyperfocusTrigger('');
+    setHyperfocusDuration('');
+    setHyperfocusNotes('');
+    setShowHyperfocusForm(false);
+  };
+
+  const handleUpdateHyperfocus = () => {
+    if (!editingHyperfocus) return;
+    const logs = hyperfocusLogs.map(l => l.id === editingHyperfocus.id ? editingHyperfocus : l);
+    localStorage.setItem('venued_hyperfocus_logs', JSON.stringify(logs));
+    setHyperfocusLogs(logs);
+    setEditingHyperfocus(null);
+  };
+
+  const handleDeleteHyperfocus = (id: string) => {
+    const logs = hyperfocusLogs.filter(l => l.id !== id);
+    localStorage.setItem('venued_hyperfocus_logs', JSON.stringify(logs));
+    setHyperfocusLogs(logs);
+  };
+
+  // Time Estimator handlers
+  const handleStartEstimator = () => {
+    if (!estimatorTask.trim() || !estimatedTime) return;
+    setEstimatorRunning(true);
+    setEstimatorStartTime(Date.now());
+    setEstimatorElapsed(0);
+    setActualTime(null);
+  };
+
+  const handleStopEstimator = () => {
+    setEstimatorRunning(false);
+    const elapsed = Math.floor((Date.now() - (estimatorStartTime || 0)) / 60000); // in minutes
+    setActualTime(elapsed);
+
+    // Save estimate
+    const estimate = {
+      id: Date.now().toString(),
+      task: estimatorTask,
+      estimated: parseInt(estimatedTime),
+      actual: elapsed,
+      accuracy: Math.round((parseInt(estimatedTime) / Math.max(elapsed, 1)) * 100),
+      timestamp: new Date().toISOString(),
+    };
+    const estimates = [estimate, ...timeEstimates].slice(0, 50);
+    localStorage.setItem('venued_time_estimates', JSON.stringify(estimates));
+    setTimeEstimates(estimates);
+  };
+
+  const handleResetEstimator = () => {
+    setEstimatorRunning(false);
+    setEstimatorStartTime(null);
+    setEstimatorElapsed(0);
+    setActualTime(null);
+    setEstimatorTask('');
+    setEstimatedTime('');
+  };
+
+  const handleUpdateEstimate = () => {
+    if (!editingEstimate) return;
+    const estimates = timeEstimates.map(e => e.id === editingEstimate.id ? editingEstimate : e);
+    localStorage.setItem('venued_time_estimates', JSON.stringify(estimates));
+    setTimeEstimates(estimates);
+    setEditingEstimate(null);
+  };
+
+  const handleDeleteEstimate = (id: string) => {
+    const estimates = timeEstimates.filter(e => e.id !== id);
+    localStorage.setItem('venued_time_estimates', JSON.stringify(estimates));
+    setTimeEstimates(estimates);
+  };
+
+  const formatElapsed = (secs: number) => {
+    const mins = Math.floor(secs / 60);
+    const s = secs % 60;
+    return `${mins}:${String(s).padStart(2, '0')}`;
+  };
+
+  // Calculate average accuracy
+  const avgAccuracy = timeEstimates.length > 0
+    ? Math.round(timeEstimates.reduce((sum, e) => sum + e.accuracy, 0) / timeEstimates.length)
+    : 0;
 
   return (
     <div className="space-y-6">
@@ -1568,6 +1739,346 @@ function TuneUpModule() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* ============ HYPERFOCUS LOGGING SECTION ============ */}
+      <div className="p-4 rounded-xl border-2 border-vivid-pink/30 bg-vivid-pink/10">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-vivid-pink">🔥 Hyperfocus Log</h3>
+          <button
+            onClick={() => setShowHyperfocusForm(!showHyperfocusForm)}
+            className="px-4 py-2 rounded-lg bg-vivid-pink/20 text-vivid-pink font-semibold hover:bg-vivid-pink/30 transition-all text-sm"
+          >
+            {showHyperfocusForm ? 'Cancel' : '+ Log Session'}
+          </button>
+        </div>
+        <p className="text-sm text-gray-400 mb-4">Track past hyperfocus sessions to understand your patterns</p>
+
+        {/* Hyperfocus Form */}
+        {showHyperfocusForm && (
+          <div className="space-y-3 mb-4 p-4 rounded-lg bg-black/30">
+            <div>
+              <label className="block text-xs font-semibold text-white mb-1">What did you focus on? *</label>
+              <input
+                type="text"
+                value={hyperfocusActivity}
+                onChange={(e) => setHyperfocusActivity(e.target.value)}
+                placeholder="e.g., Coding, Research, Creative project..."
+                className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-white mb-1">What triggered it?</label>
+              <input
+                type="text"
+                value={hyperfocusTrigger}
+                onChange={(e) => setHyperfocusTrigger(e.target.value)}
+                placeholder="e.g., Deadline pressure, New idea, Interesting problem..."
+                className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-white mb-1">How long? (approx)</label>
+              <input
+                type="text"
+                value={hyperfocusDuration}
+                onChange={(e) => setHyperfocusDuration(e.target.value)}
+                placeholder="e.g., 3 hours, All afternoon..."
+                className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-white mb-1">Notes / Insights</label>
+              <textarea
+                value={hyperfocusNotes}
+                onChange={(e) => setHyperfocusNotes(e.target.value)}
+                placeholder="What did you notice? How did you feel? What interrupted you?"
+                rows={2}
+                className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none resize-none"
+              />
+            </div>
+            <button
+              onClick={handleSaveHyperfocus}
+              disabled={!hyperfocusActivity.trim()}
+              className="w-full py-2 rounded-lg bg-vivid-pink text-black font-semibold hover:bg-white transition-all disabled:opacity-50"
+            >
+              Save Log
+            </button>
+          </div>
+        )}
+
+        {/* Hyperfocus Logs List */}
+        {hyperfocusLogs.length > 0 && (
+          <div className="space-y-2">
+            {hyperfocusLogs.slice(0, 5).map((log: any) => (
+              <button
+                key={log.id}
+                onClick={() => setEditingHyperfocus({...log})}
+                className="w-full text-left p-3 rounded-lg bg-black/30 hover:bg-black/50 transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-white text-sm font-semibold">{log.activity}</p>
+                    {log.duration && <p className="text-xs text-vivid-pink">{log.duration}</p>}
+                    {log.trigger && <p className="text-xs text-gray-400">Trigger: {log.trigger}</p>}
+                  </div>
+                  <span className="text-xs text-gray-500">
+                    {new Date(log.timestamp).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Edit Hyperfocus Modal */}
+      {editingHyperfocus && (
+        <div className="fixed inset-0 bg-black/90 z-[100] overflow-y-auto">
+          <div className="min-h-full pt-20 pb-8 px-4 flex items-start justify-center">
+            <div className="max-w-md w-full rounded-2xl border-2 border-vivid-pink bg-dark-grey-azure p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-supernova text-vivid-pink">Edit Hyperfocus Log</h2>
+                <button onClick={() => setEditingHyperfocus(null)} className="p-2 text-gray-400 hover:text-white">✕</button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-white mb-1">Activity</label>
+                  <input
+                    type="text"
+                    value={editingHyperfocus.activity}
+                    onChange={(e) => setEditingHyperfocus({...editingHyperfocus, activity: e.target.value})}
+                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-white mb-1">Trigger</label>
+                  <input
+                    type="text"
+                    value={editingHyperfocus.trigger || ''}
+                    onChange={(e) => setEditingHyperfocus({...editingHyperfocus, trigger: e.target.value})}
+                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-white mb-1">Duration</label>
+                  <input
+                    type="text"
+                    value={editingHyperfocus.duration || ''}
+                    onChange={(e) => setEditingHyperfocus({...editingHyperfocus, duration: e.target.value})}
+                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-white mb-1">Notes</label>
+                  <textarea
+                    value={editingHyperfocus.notes || ''}
+                    onChange={(e) => setEditingHyperfocus({...editingHyperfocus, notes: e.target.value})}
+                    rows={3}
+                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-vivid-pink focus:outline-none resize-none"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => { handleDeleteHyperfocus(editingHyperfocus.id); setEditingHyperfocus(null); }}
+                  className="px-4 py-2 rounded-lg border border-red-500/50 text-red-400 text-sm hover:bg-red-500/10"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={handleUpdateHyperfocus}
+                  className="flex-1 py-2 rounded-lg bg-vivid-pink text-black font-semibold hover:bg-white transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============ TIME BLINDNESS ESTIMATION SECTION ============ */}
+      <div className="p-4 rounded-xl border-2 border-electric-purple/30 bg-electric-purple/10">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-bold text-electric-purple">⏱️ Time Blindness Trainer</h3>
+          {avgAccuracy > 0 && (
+            <span className="px-3 py-1 rounded-full bg-electric-purple/20 text-electric-purple text-sm font-semibold">
+              Avg: {avgAccuracy}% accurate
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-gray-400 mb-4">Improve time estimation by tracking estimated vs actual time</p>
+
+        {/* Estimator Interface */}
+        <div className="p-4 rounded-lg bg-black/30 mb-4">
+          {!estimatorRunning && actualTime === null ? (
+            // Setup Phase
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-white mb-1">What task are you about to do?</label>
+                <input
+                  type="text"
+                  value={estimatorTask}
+                  onChange={(e) => setEstimatorTask(e.target.value)}
+                  placeholder="e.g., Write email, Complete form, Read article..."
+                  className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-white mb-1">How long do you THINK it will take? (minutes)</label>
+                <input
+                  type="number"
+                  value={estimatedTime}
+                  onChange={(e) => setEstimatedTime(e.target.value)}
+                  placeholder="e.g., 15"
+                  min="1"
+                  className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                />
+              </div>
+              <button
+                onClick={handleStartEstimator}
+                disabled={!estimatorTask.trim() || !estimatedTime}
+                className="w-full py-3 rounded-lg bg-electric-purple text-black font-bold hover:bg-white transition-all disabled:opacity-50"
+              >
+                Start Timer & Do Task
+              </button>
+            </div>
+          ) : estimatorRunning ? (
+            // Running Phase
+            <div className="text-center">
+              <p className="text-sm text-gray-400 mb-2">Doing: {estimatorTask}</p>
+              <p className="text-4xl font-supernova text-electric-purple mb-2">{formatElapsed(estimatorElapsed)}</p>
+              <p className="text-sm text-gray-400 mb-4">Estimated: {estimatedTime} minutes</p>
+              <button
+                onClick={handleStopEstimator}
+                className="px-8 py-3 rounded-lg bg-vivid-yellow-green text-black font-bold hover:bg-white transition-all"
+              >
+                ✓ Done!
+              </button>
+            </div>
+          ) : (
+            // Results Phase
+            <div className="text-center">
+              <p className="text-sm text-gray-400 mb-2">Task: {estimatorTask}</p>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="p-3 rounded-lg bg-electric-purple/20">
+                  <p className="text-xs text-gray-400">Estimated</p>
+                  <p className="text-2xl font-bold text-electric-purple">{estimatedTime}m</p>
+                </div>
+                <div className="p-3 rounded-lg bg-vivid-yellow-green/20">
+                  <p className="text-xs text-gray-400">Actual</p>
+                  <p className="text-2xl font-bold text-vivid-yellow-green">{actualTime}m</p>
+                </div>
+              </div>
+              <div className={`p-3 rounded-lg mb-4 ${
+                parseInt(estimatedTime) >= (actualTime || 0) ? 'bg-vivid-yellow-green/20' : 'bg-vivid-pink/20'
+              }`}>
+                <p className="text-sm font-semibold">
+                  {parseInt(estimatedTime) >= (actualTime || 0)
+                    ? `🎉 Nice! You overestimated by ${parseInt(estimatedTime) - (actualTime || 0)} minutes`
+                    : `⏰ Learning moment! Task took ${(actualTime || 0) - parseInt(estimatedTime)} more minutes than expected`
+                  }
+                </p>
+              </div>
+              <button
+                onClick={handleResetEstimator}
+                className="px-8 py-3 rounded-lg bg-electric-purple text-black font-bold hover:bg-white transition-all"
+              >
+                Try Another Task
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Time Estimates History */}
+        {timeEstimates.length > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-400">Recent Estimates</h4>
+            {timeEstimates.slice(0, 5).map((est: any) => (
+              <button
+                key={est.id}
+                onClick={() => setEditingEstimate({...est})}
+                className="w-full text-left p-3 rounded-lg bg-black/30 hover:bg-black/50 transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <p className="text-white text-sm font-semibold">{est.task}</p>
+                    <p className="text-xs text-gray-400">
+                      Est: {est.estimated}m → Actual: {est.actual}m
+                    </p>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                    est.accuracy >= 80 ? 'bg-vivid-yellow-green/20 text-vivid-yellow-green' :
+                    est.accuracy >= 50 ? 'bg-neon-cyan/20 text-neon-cyan' :
+                    'bg-vivid-pink/20 text-vivid-pink'
+                  }`}>
+                    {est.accuracy}%
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Edit Estimate Modal */}
+      {editingEstimate && (
+        <div className="fixed inset-0 bg-black/90 z-[100] overflow-y-auto">
+          <div className="min-h-full pt-20 pb-8 px-4 flex items-start justify-center">
+            <div className="max-w-md w-full rounded-2xl border-2 border-electric-purple bg-dark-grey-azure p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-supernova text-electric-purple">Edit Estimate</h2>
+                <button onClick={() => setEditingEstimate(null)} className="p-2 text-gray-400 hover:text-white">✕</button>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-white mb-1">Task</label>
+                  <input
+                    type="text"
+                    value={editingEstimate.task}
+                    onChange={(e) => setEditingEstimate({...editingEstimate, task: e.target.value})}
+                    className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-white mb-1">Estimated (min)</label>
+                    <input
+                      type="number"
+                      value={editingEstimate.estimated}
+                      onChange={(e) => setEditingEstimate({...editingEstimate, estimated: parseInt(e.target.value) || 0})}
+                      className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-white mb-1">Actual (min)</label>
+                    <input
+                      type="number"
+                      value={editingEstimate.actual}
+                      onChange={(e) => setEditingEstimate({...editingEstimate, actual: parseInt(e.target.value) || 0})}
+                      className="w-full px-3 py-2 bg-black border border-white/10 rounded-lg text-white text-sm focus:border-electric-purple focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => { handleDeleteEstimate(editingEstimate.id); setEditingEstimate(null); }}
+                  className="px-4 py-2 rounded-lg border border-red-500/50 text-red-400 text-sm hover:bg-red-500/10"
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={handleUpdateEstimate}
+                  className="flex-1 py-2 rounded-lg bg-electric-purple text-black font-semibold hover:bg-white transition-all"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
