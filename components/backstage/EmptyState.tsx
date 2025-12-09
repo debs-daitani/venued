@@ -54,7 +54,7 @@ export default function EmptyState({ filter = 'all' }: EmptyStateProps) {
           </p>
 
           <Link
-            href="/setlist"
+            href="/crew"
             className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-neon-pink to-electric-purple rounded-full text-black font-bold hover:shadow-[0_0_40px_rgba(255,27,141,0.6)] transition-all duration-300 transform hover:scale-105"
           >
             <Plus className="w-5 h-5" />
