@@ -9,6 +9,7 @@ import { getCrewTasks } from '@/lib/crew';
 import BackstageStats from '@/components/backstage/BackstageStats';
 import ProjectCard from '@/components/backstage/ProjectCard';
 import EmptyState from '@/components/backstage/EmptyState';
+import BackstageInbox from '@/components/backstage/Inbox';
 
 export default function Backstage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -162,6 +163,21 @@ export default function Backstage() {
             <p className="text-2xl sm:text-3xl font-bold text-white">{filterCounts.complete}</p>
           </button>
         </div>
+
+        {/* Inbox Section - Quick Capture items */}
+        <BackstageInbox onRefresh={() => {
+          const tasks = getCrewTasks();
+          const today = new Date().toISOString().split('T')[0];
+          const upcoming = tasks
+            .filter(t => !t.completed && t.scheduledDate && t.scheduledDate >= today)
+            .sort((a, b) => {
+              const dateA = a.scheduledDate || '';
+              const dateB = b.scheduledDate || '';
+              return dateA.localeCompare(dateB);
+            })
+            .slice(0, 3);
+          setUpcomingTasks(upcoming);
+        }} />
 
         {/* Upcoming Tasks Section */}
         {upcomingTasks.length > 0 && (

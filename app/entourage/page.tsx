@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Zap,
   Music,
@@ -108,12 +109,35 @@ const modules = [
   },
 ];
 
+// Wrapper component for Suspense boundary
 export default function Entourage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen pt-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-magenta border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-400 font-josefin">Loading...</p>
+        </div>
+      </div>
+    }>
+      <EntourageContent />
+    </Suspense>
+  );
+}
+
+function EntourageContent() {
+  const searchParams = useSearchParams();
   const [activeModule, setActiveModule] = useState<string | null>(null);
 
   useEffect(() => {
     generateSampleADHDData();
-  }, []);
+
+    // Check for URL params to auto-open modules
+    const tab = searchParams.get('tab');
+    if (tab === 'ideas') {
+      setActiveModule('new-releases');
+    }
+  }, [searchParams]);
 
   const renderModuleContent = (moduleId: string) => {
     const module = modules.find(m => m.id === moduleId);
@@ -430,11 +454,19 @@ function NewReleasesModule() {
   const [editingIdea, setEditingIdea] = useState<any>(null);
   const [editingPivot, setEditingPivot] = useState<any>(null);
 
-  // Load saved items
+  // Load saved items and check for prefill
   useEffect(() => {
     setSavedIdeas(JSON.parse(localStorage.getItem('venued_ideas') || '[]'));
     setSavedPivots(JSON.parse(localStorage.getItem('venued_pivots') || '[]'));
     setSavedDumps(JSON.parse(localStorage.getItem('venued_brain_dumps') || '[]'));
+
+    // Check for prefill from Inbox
+    const prefillIdea = localStorage.getItem('venued_prefill_idea');
+    if (prefillIdea) {
+      setActiveTab('ideas');
+      setIdeaName(prefillIdea);
+      localStorage.removeItem('venued_prefill_idea');
+    }
   }, [activeTab]);
 
   const startTimer = (seconds: number) => {
