@@ -1,61 +1,88 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Star, Plus, CheckCircle2, Rocket, ListChecks, Clock, FileEdit } from 'lucide-react';
+import { Star, Plus, CheckCircle2, Rocket, ListChecks, Clock, FileEdit, Music, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { Project, ProjectStatus } from '@/lib/types';
+import { Project, ProjectStatus, Tour, Action } from '@/lib/types';
 import { getProjects, calculateStats, initializeSampleData } from '@/lib/storage';
 import { getCrewTasks } from '@/lib/crew';
+import { getTours, getActions, getTourStats, calculateTourProgress } from '@/lib/tours';
 import BackstageStats from '@/components/backstage/BackstageStats';
 import ProjectCard from '@/components/backstage/ProjectCard';
 import EmptyState from '@/components/backstage/EmptyState';
 import BackstageInbox from '@/components/backstage/Inbox';
+import LFGChoiceModal from '@/components/LFGChoiceModal';
 
 export default function Backstage() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [activeFilter, setActiveFilter] = useState<ProjectStatus | 'all'>('all');
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [actions, setActions] = useState<Action[]>([]);
+  const [activeFilter, setActiveFilter] = useState<'all' | 'planning' | 'development' | 'launch'>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [upcomingTasks, setUpcomingTasks] = useState<any[]>([]);
+  const [showLFGModal, setShowLFGModal] = useState(false);
 
   useEffect(() => {
     // Initialize sample data if no projects exist
     initializeSampleData();
+    loadData();
+    setIsLoading(false);
+  }, []);
 
-    // Load projects
+  const loadData = () => {
+    // Load projects (legacy)
     const loadedProjects = getProjects();
     setProjects(loadedProjects);
 
-    // Load upcoming tasks
+    // Load tours and actions
+    const loadedTours = getTours().filter(t => !t.isArchived);
+    setTours(loadedTours);
+    const loadedActions = getActions();
+    setActions(loadedActions);
+
+    // Load upcoming actions (new system) and tasks (legacy)
     const tasks = getCrewTasks();
     const today = new Date().toISOString().split('T')[0];
-    const upcoming = tasks
+
+    // Combine legacy tasks with new actions
+    const upcomingLegacyTasks = tasks
       .filter(t => !t.completed && t.scheduledDate && t.scheduledDate >= today)
+      .map(t => ({ ...t, type: 'legacy' }));
+
+    const upcomingNewActions = loadedActions
+      .filter(a => !a.completed && a.scheduledDate && a.scheduledDate >= today)
+      .map(a => ({ ...a, type: 'action' }));
+
+    const combined = [...upcomingNewActions, ...upcomingLegacyTasks]
       .sort((a, b) => {
         const dateA = a.scheduledDate || '';
         const dateB = b.scheduledDate || '';
         return dateA.localeCompare(dateB);
       })
-      .slice(0, 3);
-    setUpcomingTasks(upcoming);
+      .slice(0, 5);
 
-    setIsLoading(false);
-  }, []);
+    setUpcomingTasks(combined);
+  };
 
   const stats = calculateStats();
+  const tourStats = getTourStats();
 
-  // Filter projects
-  const filteredProjects = projects.filter((project) => {
+  // Filter tours by stage
+  const filteredTours = tours.filter((tour) => {
     if (activeFilter === 'all') return true;
-    return project.status === activeFilter;
+    return tour.stage === activeFilter;
   });
 
-  // Calculate filter counts
+  // Calculate filter counts (using tours)
   const filterCounts = {
-    all: projects.length,
-    planning: projects.filter((p) => p.status === 'planning').length,
-    live: projects.filter((p) => p.status === 'live').length,
-    complete: projects.filter((p) => p.status === 'complete').length,
+    all: tours.length,
+    planning: tours.filter((t) => t.stage === 'planning').length,
+    development: tours.filter((t) => t.stage === 'development').length,
+    launch: tours.filter((t) => t.stage === 'launch').length,
   };
+
+  // Get loose actions count
+  const looseActionsCount = actions.filter(a => a.tourId === null && !a.completed).length;
 
   const handleProjectClick = (projectId: string) => {
     console.log('Project clicked:', projectId);
@@ -93,18 +120,18 @@ export default function Backstage() {
                   </p>
                 </div>
               </div>
-              <Link
-                href="/crew"
+              <button
+                onClick={() => setShowLFGModal(true)}
                 className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold rounded-full hover:shadow-[0_0_30px_rgba(255,0,142,0.6)] transition-all duration-300"
               >
                 <span className="text-xl">🤘</span>
                 LFG!
-              </Link>
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Stats Grid - 2x2 on mobile, clickable status filters */}
+        {/* Stats Grid - 2x2 on mobile, clickable stage filters */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <button
             onClick={() => setActiveFilter('all')}
@@ -115,8 +142,8 @@ export default function Backstage() {
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
-              <ListChecks className="w-5 h-5 text-magenta" />
-              <span className="text-sm font-semibold text-gray-400">All Shows</span>
+              <Music className="w-5 h-5 text-magenta" />
+              <span className="text-sm font-semibold text-gray-400">All Tours</span>
             </div>
             <p className="text-2xl sm:text-3xl font-bold text-white">{filterCounts.all}</p>
           </button>
@@ -137,52 +164,40 @@ export default function Backstage() {
           </button>
 
           <button
-            onClick={() => setActiveFilter('live')}
+            onClick={() => setActiveFilter('development')}
             className={`p-4 sm:p-6 rounded-xl border-2 transition-all text-left ${
-              activeFilter === 'live'
-                ? 'border-neon-cyan bg-neon-cyan/10'
-                : 'border-white/10 bg-white/5 hover:border-neon-cyan/40'
+              activeFilter === 'development'
+                ? 'border-magenta bg-magenta/10'
+                : 'border-white/10 bg-white/5 hover:border-magenta/40'
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
-              <Rocket className="w-5 h-5 text-neon-cyan" />
-              <span className="text-sm font-semibold text-gray-400">Live</span>
+              <Rocket className="w-5 h-5 text-magenta" />
+              <span className="text-sm font-semibold text-gray-400">Development</span>
             </div>
-            <p className="text-2xl sm:text-3xl font-bold text-white">{filterCounts.live}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-white">{filterCounts.development}</p>
           </button>
 
           <button
-            onClick={() => setActiveFilter('complete')}
+            onClick={() => setActiveFilter('launch')}
             className={`p-4 sm:p-6 rounded-xl border-2 transition-all text-left ${
-              activeFilter === 'complete'
+              activeFilter === 'launch'
                 ? 'border-vivid-yellow-green bg-vivid-yellow-green/10'
                 : 'border-white/10 bg-white/5 hover:border-vivid-yellow-green/40'
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
               <CheckCircle2 className="w-5 h-5 text-vivid-yellow-green" />
-              <span className="text-sm font-semibold text-gray-400">Completed</span>
+              <span className="text-sm font-semibold text-gray-400">Launch</span>
             </div>
-            <p className="text-2xl sm:text-3xl font-bold text-white">{filterCounts.complete}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-white">{filterCounts.launch}</p>
           </button>
         </div>
 
         {/* Inbox Section - Quick Capture items */}
-        <BackstageInbox onRefresh={() => {
-          const tasks = getCrewTasks();
-          const today = new Date().toISOString().split('T')[0];
-          const upcoming = tasks
-            .filter(t => !t.completed && t.scheduledDate && t.scheduledDate >= today)
-            .sort((a, b) => {
-              const dateA = a.scheduledDate || '';
-              const dateB = b.scheduledDate || '';
-              return dateA.localeCompare(dateB);
-            })
-            .slice(0, 3);
-          setUpcomingTasks(upcoming);
-        }} />
+        <BackstageInbox onRefresh={loadData} />
 
-        {/* Upcoming Tasks Section */}
+        {/* Upcoming Actions Section */}
         {upcomingTasks.length > 0 && (
           <div className="mb-8 p-4 sm:p-6 rounded-xl border-2 border-vivid-cyan/30 bg-vivid-cyan/10">
             <div className="flex items-center gap-2 mb-4">
@@ -190,30 +205,33 @@ export default function Backstage() {
               <h3 className="text-lg font-semibold text-white">Upcoming Actions</h3>
             </div>
             <div className="space-y-2">
-              {upcomingTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center justify-between p-3 rounded-lg bg-[#3d3d3d]/60 border border-white/10"
-                >
-                  <div>
-                    <p className="font-semibold text-white">{task.title}</p>
-                    <p className="text-sm text-gray-400">
-                      {task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        month: 'short',
-                        day: 'numeric'
-                      }) : 'No date'}
-                    </p>
+              {upcomingTasks.map((task: any) => {
+                const gigVibe = task.gigVibe || task.energyLevel;
+                return (
+                  <div
+                    key={task.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-[#3d3d3d]/60 border border-white/10"
+                  >
+                    <div>
+                      <p className="font-semibold text-white">{task.title}</p>
+                      <p className="text-sm text-gray-400">
+                        {task.scheduledDate ? new Date(task.scheduledDate).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric'
+                        }) : 'No date'}
+                      </p>
+                    </div>
+                    <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                      gigVibe === 'high' ? 'bg-vivid-yellow-green/20 text-vivid-yellow-green' :
+                      gigVibe === 'medium' ? 'bg-magenta/20 text-magenta' :
+                      'bg-vivid-cyan/20 text-vivid-cyan'
+                    }`}>
+                      {gigVibe}
+                    </span>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                    task.energyLevel === 'high' ? 'bg-vivid-yellow-green/20 text-vivid-yellow-green' :
-                    task.energyLevel === 'medium' ? 'bg-magenta/20 text-magenta' :
-                    'bg-vivid-cyan/20 text-vivid-cyan'
-                  }`}>
-                    {task.energyLevel}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <Link
               href="/crew"
@@ -224,7 +242,7 @@ export default function Backstage() {
           </div>
         )}
 
-        {/* Empty state for upcoming tasks */}
+        {/* Empty state for upcoming actions */}
         {upcomingTasks.length === 0 && (
           <div className="mb-8 p-4 sm:p-6 rounded-xl border-2 border-white/10 bg-white/5 text-center">
             <Clock className="w-8 h-8 text-gray-500 mx-auto mb-2" />
@@ -232,20 +250,101 @@ export default function Backstage() {
           </div>
         )}
 
-        {/* Projects Grid or Empty State */}
-        {filteredProjects.length === 0 ? (
+        {/* Tours Grid or Empty State */}
+        {filteredTours.length === 0 ? (
           <EmptyState filter={activeFilter} />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {filteredProjects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                onClick={() => handleProjectClick(project.id)}
-              />
-            ))}
+            {filteredTours.map((tour) => {
+              const progress = calculateTourProgress(tour);
+              const tourActions = actions.filter(a => a.tourId === tour.id);
+              const incompleteCount = tourActions.filter(a => !a.completed).length;
+
+              return (
+                <Link
+                  key={tour.id}
+                  href="/crew"
+                  className={`block p-5 rounded-xl border-2 transition-all hover:scale-[1.02] ${
+                    tour.stage === 'planning'
+                      ? 'border-azure/30 bg-azure/10 hover:border-azure/50'
+                      : tour.stage === 'development'
+                      ? 'border-magenta/30 bg-magenta/10 hover:border-magenta/50'
+                      : 'border-vivid-yellow-green/30 bg-vivid-yellow-green/10 hover:border-vivid-yellow-green/50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`p-2 rounded-lg ${
+                      tour.stage === 'planning'
+                        ? 'bg-azure/20 text-azure'
+                        : tour.stage === 'development'
+                        ? 'bg-magenta/20 text-magenta'
+                        : 'bg-vivid-yellow-green/20 text-vivid-yellow-green'
+                    }`}>
+                      <Music className="w-5 h-5" />
+                    </div>
+                    <span className={`px-2 py-1 rounded text-xs font-semibold capitalize ${
+                      tour.stage === 'planning'
+                        ? 'bg-azure/20 text-azure'
+                        : tour.stage === 'development'
+                        ? 'bg-magenta/20 text-magenta'
+                        : 'bg-vivid-yellow-green/20 text-vivid-yellow-green'
+                    }`}>
+                      {tour.stage}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-white mb-2">{tour.name}</h3>
+                  {tour.description && (
+                    <p className="text-sm text-gray-400 mb-3 line-clamp-2">{tour.description}</p>
+                  )}
+                  <div className="flex items-center justify-between text-sm text-gray-400 mb-2">
+                    <span>{incompleteCount} actions remaining</span>
+                    <span className="font-bold text-white">{progress}%</span>
+                  </div>
+                  <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all ${
+                        tour.stage === 'planning'
+                          ? 'bg-azure'
+                          : tour.stage === 'development'
+                          ? 'bg-magenta'
+                          : 'bg-vivid-yellow-green'
+                      }`}
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         )}
+
+        {/* Loose Actions Count */}
+        {looseActionsCount > 0 && (
+          <div className="mt-6 p-4 rounded-xl border border-neon-cyan/30 bg-neon-cyan/10">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-neon-cyan" />
+                <span className="text-white font-semibold">{looseActionsCount} Loose Actions</span>
+              </div>
+              <Link
+                href="/crew"
+                className="text-neon-cyan hover:text-white transition-colors text-sm font-semibold"
+              >
+                View in Crew &rarr;
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {/* LFG Choice Modal */}
+        <LFGChoiceModal
+          isOpen={showLFGModal}
+          onClose={() => setShowLFGModal(false)}
+          onCreated={() => {
+            loadData();
+            setShowLFGModal(false);
+          }}
+        />
       </div>
     </div>
   );

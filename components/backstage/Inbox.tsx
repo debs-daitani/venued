@@ -277,9 +277,9 @@ export default function BackstageInbox({ onRefresh }: InboxProps) {
                 />
               </div>
 
-              {/* Energy Level */}
+              {/* Gig Vibe Needed */}
               <div>
-                <label className="block text-sm font-semibold text-white mb-2">Energy Level</label>
+                <label className="block text-sm font-semibold text-white mb-2">Gig Vibe Needed</label>
                 <div className="flex gap-2">
                   {(['low', 'medium', 'high'] as const).map((level) => (
                     <button

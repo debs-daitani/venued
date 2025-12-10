@@ -10,25 +10,25 @@ interface EmptyStateProps {
 export default function EmptyState({ filter = 'all' }: EmptyStateProps) {
   const getEmptyMessage = () => {
     switch (filter) {
-      case 'live':
-        return {
-          title: 'No Live Shows',
-          description: 'Start a project and kick off your tour. The stage is waiting.',
-        };
       case 'planning':
         return {
-          title: 'No Shows in Planning',
-          description: 'Create a project and start mapping out your next big launch.',
+          title: 'No Tours in Planning',
+          description: 'Start mapping out your next big thing.',
         };
-      case 'complete':
+      case 'development':
         return {
-          title: 'No Completed Shows',
-          description: 'Ship your first project and celebrate the win. Every headliner starts somewhere.',
+          title: 'No Tours in Development',
+          description: 'Get building! Move a tour from planning to development.',
+        };
+      case 'launch':
+        return {
+          title: 'No Tours in Launch',
+          description: 'Ready to go live? Move a tour to the launch stage.',
         };
       default:
         return {
-          title: 'No Gigs Yet',
-          description: 'Time to plan your first show.\nEvery tour starts with a single lyric!',
+          title: 'No Tours Yet',
+          description: 'Time to plan your first tour.\nEvery headliner starts with a single lyric!',
         };
     }
   };

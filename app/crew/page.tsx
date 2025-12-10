@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, List, Zap, Clock, Shuffle, Flame, Star, TrendingUp, CheckCircle2, Trophy, Plus, Rocket } from 'lucide-react';
-import { CrewTask, CrewView, DateFilter, EnergyLevel } from '@/lib/types';
+import { Users, List, Zap, Clock, Shuffle, Flame, Star, TrendingUp, CheckCircle2, Trophy, Plus, Rocket, Music, ChevronDown, ChevronUp } from 'lucide-react';
+import { CrewTask, CrewView, DateFilter, EnergyLevel, Tour, Action, GigVibe } from '@/lib/types';
 import {
   getCrewTasks,
   toggleCrewTaskComplete,
@@ -12,19 +12,29 @@ import {
   celebrateAllComplete,
   addCrewTask
 } from '@/lib/crew';
+import { getTours, getActions, getLooseActions, getActionsByTourId, toggleActionComplete, calculateTourProgress } from '@/lib/tours';
 import CrewTaskCard from '@/components/crew/CrewTaskCard';
 import FocusTimer from '@/components/crew/FocusTimer';
+import LFGChoiceModal from '@/components/LFGChoiceModal';
+import QuickActionModal from '@/components/QuickActionModal';
 
 export default function Crew() {
   const [tasks, setTasks] = useState<CrewTask[]>([]);
+  const [tours, setTours] = useState<Tour[]>([]);
+  const [actions, setActions] = useState<Action[]>([]);
+  const [expandedTours, setExpandedTours] = useState<Set<string>>(new Set());
   const [view, setView] = useState<CrewView>('list');
   const [dateFilter, setDateFilter] = useState<DateFilter>('today');
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all');
   const [currentEnergy, setCurrentEnergy] = useState<EnergyLevel>('medium');
   const [focusTask, setFocusTask] = useState<CrewTask | null>(null);
+  const [focusAction, setFocusAction] = useState<Action | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showFuckItMode, setShowFuckItMode] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
+  const [showLFGModal, setShowLFGModal] = useState(false);
+  const [showQuickActionModal, setShowQuickActionModal] = useState(false);
+  const [selectedTourForAction, setSelectedTourForAction] = useState<string | null>(null);
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -40,10 +50,18 @@ export default function Crew() {
 
   useEffect(() => {
     initializeSampleCrewTasks();
-    const loadedTasks = getCrewTasks();
-    setTasks(loadedTasks);
+    loadData();
     setIsLoading(false);
   }, []);
+
+  const loadData = () => {
+    const loadedTasks = getCrewTasks();
+    setTasks(loadedTasks);
+    const loadedTours = getTours().filter(t => !t.isArchived);
+    setTours(loadedTours);
+    const loadedActions = getActions();
+    setActions(loadedActions);
+  };
 
   const stats = calculateCrewStats();
 
@@ -204,11 +222,11 @@ export default function Crew() {
                 </div>
               </div>
               <button
-                onClick={() => setShowAddTask(true)}
-                className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-neon-cyan text-black font-bold rounded-full hover:bg-magenta transition-all duration-300 shadow-[0_0_20px_rgba(0,240,233,0.4)] hover:shadow-[0_0_30px_rgba(255,0,142,0.6)]"
+                onClick={() => setShowLFGModal(true)}
+                className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold rounded-full hover:shadow-[0_0_30px_rgba(255,0,142,0.6)] transition-all duration-300"
               >
-                <Plus className="w-5 h-5" />
-                Add Action
+                <span className="text-xl">🤘</span>
+                LFG!
               </button>
             </div>
           </div>
@@ -252,7 +270,7 @@ export default function Crew() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Energy Level</label>
+                  <label className="block text-sm font-semibold text-white mb-2">Gig Vibe Needed</label>
                   <div className="flex gap-2">
                     {(['high', 'medium', 'low'] as const).map((level) => (
                       <button
@@ -400,38 +418,292 @@ export default function Crew() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Tasks Column */}
-          <div className="lg:col-span-2 space-y-4">
-            {/* Task List */}
-            {incompleteTasks.length === 0 ? (
-              <div className="p-8 sm:p-12 rounded-xl border-2 border-dashed border-gray-700 bg-gray-900/30 text-center">
-                <Trophy className="w-12 h-12 sm:w-16 sm:h-16 text-vivid-yellow-green mx-auto mb-4" />
-                <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">All Clear!</h3>
-                <p className="text-gray-400">No tasks for {dateFilter}. You're rocking it!</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {incompleteTasks.map(task => (
-                  <div key={task.id} id={`task-${task.id}`}>
-                    <CrewTaskCard
-                      task={task}
-                      onToggleComplete={() => handleToggleComplete(task.id)}
-                      onStartFocus={() => handleStartFocus(task)}
-                      isActive={focusTask?.id === task.id}
-                    />
-                  </div>
-                ))}
+          {/* Main Column */}
+          <div className="lg:col-span-2 space-y-6">
+
+            {/* Active Tours Section */}
+            {tours.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Music className="w-5 h-5 text-magenta" />
+                  Active Tours
+                </h3>
+                {tours.map((tour) => {
+                  const tourActions = actions.filter(a => a.tourId === tour.id);
+                  const incompleteActions = tourActions.filter(a => !a.completed);
+                  const completedActions = tourActions.filter(a => a.completed);
+                  const progress = calculateTourProgress(tour);
+                  const isExpanded = expandedTours.has(tour.id);
+
+                  return (
+                    <div
+                      key={tour.id}
+                      className={`rounded-xl border-2 transition-all ${
+                        tour.stage === 'planning'
+                          ? 'border-azure/30 bg-azure/5'
+                          : tour.stage === 'development'
+                          ? 'border-magenta/30 bg-magenta/5'
+                          : 'border-vivid-yellow-green/30 bg-vivid-yellow-green/5'
+                      }`}
+                    >
+                      {/* Tour Header */}
+                      <button
+                        onClick={() => {
+                          const newExpanded = new Set(expandedTours);
+                          if (isExpanded) {
+                            newExpanded.delete(tour.id);
+                          } else {
+                            newExpanded.add(tour.id);
+                          }
+                          setExpandedTours(newExpanded);
+                        }}
+                        className="w-full p-4 flex items-center justify-between text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${
+                            tour.stage === 'planning'
+                              ? 'bg-azure/20 text-azure'
+                              : tour.stage === 'development'
+                              ? 'bg-magenta/20 text-magenta'
+                              : 'bg-vivid-yellow-green/20 text-vivid-yellow-green'
+                          }`}>
+                            <Music className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-white">{tour.name}</h4>
+                            <div className="flex items-center gap-2 text-sm text-gray-400">
+                              <span className="capitalize">{tour.stage}</span>
+                              <span>•</span>
+                              <span>{incompleteActions.length} actions remaining</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <span className="text-lg font-bold text-white">{progress}%</span>
+                          </div>
+                          {isExpanded ? (
+                            <ChevronUp className="w-5 h-5 text-gray-400" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5 text-gray-400" />
+                          )}
+                        </div>
+                      </button>
+
+                      {/* Progress Bar */}
+                      <div className="px-4 pb-4">
+                        <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all ${
+                              tour.stage === 'planning'
+                                ? 'bg-azure'
+                                : tour.stage === 'development'
+                                ? 'bg-magenta'
+                                : 'bg-vivid-yellow-green'
+                            }`}
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Expanded Actions */}
+                      {isExpanded && (
+                        <div className="px-4 pb-4 space-y-3">
+                          {incompleteActions.length === 0 && completedActions.length === 0 ? (
+                            <div className="text-center py-4 text-gray-400">
+                              <p className="mb-2">No actions yet. Add your first step!</p>
+                              <button
+                                onClick={() => {
+                                  setSelectedTourForAction(tour.id);
+                                  setShowQuickActionModal(true);
+                                }}
+                                className="inline-flex items-center gap-1 px-4 py-2 bg-magenta/20 text-magenta rounded-lg text-sm font-semibold hover:bg-magenta/30 transition-colors"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Add Action
+                              </button>
+                            </div>
+                          ) : (
+                            <>
+                              {/* Incomplete Actions */}
+                              {incompleteActions.map((action) => (
+                                <div
+                                  key={action.id}
+                                  className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10"
+                                >
+                                  <button
+                                    onClick={() => {
+                                      toggleActionComplete(action.id);
+                                      loadData();
+                                    }}
+                                    className="w-6 h-6 rounded-full border-2 border-gray-500 hover:border-vivid-yellow-green transition-colors flex-shrink-0"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="font-semibold text-white truncate">{action.title}</p>
+                                    <div className="flex items-center gap-2 text-xs text-gray-400">
+                                      <span className={`px-1.5 py-0.5 rounded ${
+                                        action.gigVibe === 'high'
+                                          ? 'bg-vivid-yellow-green/20 text-vivid-yellow-green'
+                                          : action.gigVibe === 'medium'
+                                          ? 'bg-magenta/20 text-magenta'
+                                          : 'bg-neon-cyan/20 text-neon-cyan'
+                                      }`}>
+                                        {action.gigVibe}
+                                      </span>
+                                      {action.scheduledDate && (
+                                        <span>{new Date(action.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+
+                              {/* Add Action Button */}
+                              <button
+                                onClick={() => {
+                                  setSelectedTourForAction(tour.id);
+                                  setShowQuickActionModal(true);
+                                }}
+                                className="w-full flex items-center justify-center gap-2 p-3 rounded-lg border-2 border-dashed border-white/20 text-gray-400 hover:border-magenta/50 hover:text-magenta transition-colors"
+                              >
+                                <Plus className="w-4 h-4" />
+                                Add Action
+                              </button>
+
+                              {/* Completed Actions */}
+                              {completedActions.length > 0 && (
+                                <div className="pt-2 border-t border-white/10">
+                                  <p className="text-xs text-gray-500 mb-2">{completedActions.length} completed</p>
+                                  {completedActions.slice(0, 3).map((action) => (
+                                    <div
+                                      key={action.id}
+                                      className="flex items-center gap-3 p-2 opacity-60"
+                                    >
+                                      <button
+                                        onClick={() => {
+                                          toggleActionComplete(action.id);
+                                          loadData();
+                                        }}
+                                        className="w-5 h-5 rounded-full bg-vivid-yellow-green flex items-center justify-center flex-shrink-0"
+                                      >
+                                        <CheckCircle2 className="w-3 h-3 text-black" />
+                                      </button>
+                                      <span className="text-sm text-gray-400 line-through truncate">{action.title}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
 
+            {/* Loose Actions Section */}
+            {(() => {
+              const looseActions = actions.filter(a => a.tourId === null && !a.completed);
+              const completedLooseActions = actions.filter(a => a.tourId === null && a.completed);
+
+              if (looseActions.length === 0 && completedLooseActions.length === 0 && tours.length > 0) {
+                return null;
+              }
+
+              return (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-neon-cyan" />
+                    Loose Actions
+                  </h3>
+
+                  {looseActions.length === 0 && incompleteTasks.length === 0 ? (
+                    <div className="p-8 sm:p-12 rounded-xl border-2 border-dashed border-gray-700 bg-gray-900/30 text-center">
+                      <Trophy className="w-12 h-12 sm:w-16 sm:h-16 text-vivid-yellow-green mx-auto mb-4" />
+                      <h3 className="text-xl sm:text-2xl font-bold text-white mb-2">All Clear!</h3>
+                      <p className="text-gray-400">No actions scheduled. You're rocking it!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* New Actions */}
+                      {looseActions.map((action) => (
+                        <div
+                          key={action.id}
+                          className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10"
+                        >
+                          <button
+                            onClick={() => {
+                              toggleActionComplete(action.id);
+                              loadData();
+                            }}
+                            className="w-6 h-6 rounded-full border-2 border-gray-500 hover:border-vivid-yellow-green transition-colors flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-white">{action.title}</p>
+                            <div className="flex items-center gap-2 text-sm text-gray-400">
+                              <span className={`px-2 py-0.5 rounded ${
+                                action.gigVibe === 'high'
+                                  ? 'bg-vivid-yellow-green/20 text-vivid-yellow-green'
+                                  : action.gigVibe === 'medium'
+                                  ? 'bg-magenta/20 text-magenta'
+                                  : 'bg-neon-cyan/20 text-neon-cyan'
+                              }`}>
+                                {action.gigVibe}
+                              </span>
+                              {action.scheduledDate && (
+                                <span>{new Date(action.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Legacy Tasks (from old system) */}
+                      {incompleteTasks.map(task => (
+                        <div key={task.id} id={`task-${task.id}`}>
+                          <CrewTaskCard
+                            task={task}
+                            onToggleComplete={() => handleToggleComplete(task.id)}
+                            onStartFocus={() => handleStartFocus(task)}
+                            isActive={focusTask?.id === task.id}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+
             {/* Completed Section */}
-            {completedTasks.length > 0 && (
+            {(completedTasks.length > 0 || actions.filter(a => a.completed).length > 0) && (
               <div className="mt-6">
                 <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                   <CheckCircle2 className="w-5 h-5 text-vivid-yellow-green" />
-                  Completed ({completedTasks.length})
+                  Completed ({completedTasks.length + actions.filter(a => a.completed && a.tourId === null).length})
                 </h3>
                 <div className="space-y-2">
+                  {/* Completed new actions */}
+                  {actions.filter(a => a.completed && a.tourId === null).slice(0, 5).map(action => (
+                    <div
+                      key={action.id}
+                      className="flex items-center gap-3 p-3 rounded-lg bg-white/5 opacity-60"
+                    >
+                      <button
+                        onClick={() => {
+                          toggleActionComplete(action.id);
+                          loadData();
+                        }}
+                        className="w-5 h-5 rounded-full bg-vivid-yellow-green flex items-center justify-center flex-shrink-0"
+                      >
+                        <CheckCircle2 className="w-3 h-3 text-black" />
+                      </button>
+                      <span className="text-sm text-gray-400 line-through">{action.title}</span>
+                    </div>
+                  ))}
+                  {/* Legacy completed tasks */}
                   {completedTasks.map(task => (
                     <div key={task.id} className="opacity-60">
                       <CrewTaskCard
@@ -599,6 +871,31 @@ export default function Crew() {
             </div>
           </div>
         </div>
+
+        {/* LFG Choice Modal */}
+        <LFGChoiceModal
+          isOpen={showLFGModal}
+          onClose={() => setShowLFGModal(false)}
+          onCreated={() => {
+            loadData();
+            setShowLFGModal(false);
+          }}
+        />
+
+        {/* Quick Action Modal for adding to a specific tour */}
+        <QuickActionModal
+          isOpen={showQuickActionModal}
+          onClose={() => {
+            setShowQuickActionModal(false);
+            setSelectedTourForAction(null);
+          }}
+          onCreated={() => {
+            loadData();
+            setShowQuickActionModal(false);
+            setSelectedTourForAction(null);
+          }}
+          defaultTourId={selectedTourForAction}
+        />
       </div>
     </div>
   );
