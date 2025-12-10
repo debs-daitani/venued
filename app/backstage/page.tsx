@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Star, Plus, CheckCircle2, Rocket, ListChecks, Clock, FileEdit, Music, Zap, Play, Moon } from 'lucide-react';
+import { Star, Plus, CheckCircle2, Rocket, ListChecks, Clock, FileEdit, Music, Zap, Play, Moon, Sun, Maximize2 } from 'lucide-react';
 import Link from 'next/link';
 import { Project, ProjectStatus, Tour, Action } from '@/lib/types';
 import { getProjects, calculateStats, initializeSampleData } from '@/lib/storage';
@@ -16,6 +16,10 @@ import QuickCaptureButton from '@/components/QuickCaptureButton';
 import EndMyDayModal from '@/components/EndMyDayModal';
 import NextBigHitCard from '@/components/backstage/NextBigHitCard';
 
+// Storage key for tracking last visit time
+const LAST_VISIT_KEY = 'venued_last_backstage_visit';
+const VIEW_MODE_KEY = 'venued_backstage_view_mode';
+
 export default function Backstage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [tours, setTours] = useState<Tour[]>([]);
@@ -26,11 +30,30 @@ export default function Backstage() {
   const [showLFGModal, setShowLFGModal] = useState(false);
   const [showQuickCapture, setShowQuickCapture] = useState(false);
   const [showEndMyDayModal, setShowEndMyDayModal] = useState(false);
+  const [viewMode, setViewMode] = useState<'spotlight' | 'fullstage'>('spotlight');
 
   useEffect(() => {
     // Initialize sample data if no projects exist
     initializeSampleData();
     loadData();
+
+    // Morning Launch Mode: Check if this is a fresh visit (>4 hours since last)
+    const lastVisit = localStorage.getItem(LAST_VISIT_KEY);
+    const savedMode = localStorage.getItem(VIEW_MODE_KEY) as 'spotlight' | 'fullstage' | null;
+    const now = Date.now();
+    const fourHoursMs = 4 * 60 * 60 * 1000; // 4 hours in milliseconds
+
+    if (!lastVisit || (now - parseInt(lastVisit)) > fourHoursMs) {
+      // First visit of the day (or >4 hours gap) - show Spotlight
+      setViewMode('spotlight');
+    } else if (savedMode) {
+      // Restore previous mode if within same session
+      setViewMode(savedMode);
+    }
+
+    // Update last visit timestamp
+    localStorage.setItem(LAST_VISIT_KEY, now.toString());
+
     setIsLoading(false);
   }, []);
 
@@ -89,6 +112,13 @@ export default function Backstage() {
   // Get loose actions count
   const looseActionsCount = actions.filter(a => a.tourId === null && !a.completed).length;
 
+  // Toggle between Spotlight and Full Stage modes
+  const toggleViewMode = () => {
+    const newMode = viewMode === 'spotlight' ? 'fullstage' : 'spotlight';
+    setViewMode(newMode);
+    localStorage.setItem(VIEW_MODE_KEY, newMode);
+  };
+
   const handleProjectClick = (projectId: string) => {
     console.log('Project clicked:', projectId);
   };
@@ -125,22 +155,48 @@ export default function Backstage() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => setShowLFGModal(true)}
-                className="w-full sm:w-auto group flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold rounded-full hover:shadow-[0_0_30px_rgba(255,0,142,0.6)] transition-all duration-300"
-              >
-                <span className="text-xl">🤘</span>
-                LFG!
-              </button>
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                {/* Spotlight / Full Stage Toggle */}
+                <button
+                  onClick={toggleViewMode}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-full border-2 font-semibold text-sm transition-all duration-300 ${
+                    viewMode === 'spotlight'
+                      ? 'border-vivid-yellow-green bg-vivid-yellow-green/20 text-vivid-yellow-green hover:bg-vivid-yellow-green/30'
+                      : 'border-neon-cyan bg-neon-cyan/20 text-neon-cyan hover:bg-neon-cyan/30'
+                  }`}
+                  title={viewMode === 'spotlight' ? 'Switch to Full Stage' : 'Switch to Spotlight'}
+                >
+                  {viewMode === 'spotlight' ? (
+                    <>
+                      <Sun className="w-4 h-4" />
+                      <span className="hidden sm:inline">Spotlight</span>
+                    </>
+                  ) : (
+                    <>
+                      <Maximize2 className="w-4 h-4" />
+                      <span className="hidden sm:inline">Full Stage</span>
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowLFGModal(true)}
+                  className="flex-1 sm:flex-none group flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold rounded-full hover:shadow-[0_0_30px_rgba(255,0,142,0.6)] transition-all duration-300"
+                >
+                  <span className="text-xl">🤘</span>
+                  LFG!
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Your Next Big Hit - Smart Suggestion Card */}
+        {/* Your Next Big Hit - Smart Suggestion Card - ALWAYS VISIBLE */}
         <NextBigHitCard onRefresh={loadData} />
 
-        {/* Stats Grid - 2x2 on mobile, clickable stage filters */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {/* Stats Grid - 2x2 on mobile, clickable stage filters - FULL STAGE ONLY */}
+        <div className={`grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 transition-all duration-500 ${
+          viewMode === 'spotlight' ? 'opacity-0 max-h-0 overflow-hidden mb-0' : 'opacity-100 max-h-[500px]'
+        }`}>
           <button
             onClick={() => setActiveFilter('all')}
             className={`p-4 sm:p-6 rounded-xl border-2 transition-all text-left ${
@@ -202,10 +258,10 @@ export default function Backstage() {
           </button>
         </div>
 
-        {/* Inbox Section - Quick Capture items */}
+        {/* Inbox Section - Quick Capture items - ALWAYS VISIBLE (just badge in Spotlight) */}
         <BackstageInbox onRefresh={loadData} />
 
-        {/* Quick Wins Section - 4 buttons */}
+        {/* Quick Wins Section - 4 buttons - ALWAYS VISIBLE */}
         <div className="mb-8">
           <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
             <Zap className="w-5 h-5 text-magenta" />
@@ -258,9 +314,11 @@ export default function Backstage() {
           </div>
         </div>
 
-        {/* Upcoming Actions Section */}
+        {/* Upcoming Actions Section - FULL STAGE ONLY */}
         {upcomingTasks.length > 0 && (
-          <div className="mb-8 p-4 sm:p-6 rounded-xl border-2 border-vivid-cyan/30 bg-vivid-cyan/10">
+          <div className={`mb-8 p-4 sm:p-6 rounded-xl border-2 border-vivid-cyan/30 bg-vivid-cyan/10 transition-all duration-500 ${
+            viewMode === 'spotlight' ? 'opacity-0 max-h-0 overflow-hidden p-0 mb-0 border-0' : 'opacity-100 max-h-[1000px]'
+          }`}>
             <div className="flex items-center gap-2 mb-4">
               <Clock className="w-5 h-5 text-vivid-cyan" />
               <h3 className="text-lg font-semibold text-white">Upcoming Actions</h3>
@@ -303,15 +361,18 @@ export default function Backstage() {
           </div>
         )}
 
-        {/* Empty state for upcoming actions */}
-        {upcomingTasks.length === 0 && (
-          <div className="mb-8 p-4 sm:p-6 rounded-xl border-2 border-white/10 bg-white/5 text-center">
+        {/* Empty state for upcoming actions - FULL STAGE ONLY */}
+        {upcomingTasks.length === 0 && viewMode === 'fullstage' && (
+          <div className="mb-8 p-4 sm:p-6 rounded-xl border-2 border-white/10 bg-white/5 text-center transition-all duration-500">
             <Clock className="w-8 h-8 text-gray-500 mx-auto mb-2" />
             <p className="text-gray-400 font-josefin">All up to date - no upcoming actions!</p>
           </div>
         )}
 
-        {/* Tours Grid or Empty State */}
+        {/* Tours Grid or Empty State - FULL STAGE ONLY */}
+        <div className={`transition-all duration-500 ${
+          viewMode === 'spotlight' ? 'opacity-0 max-h-0 overflow-hidden' : 'opacity-100 max-h-[3000px]'
+        }`}>
         {filteredTours.length === 0 ? (
           <EmptyState filter={activeFilter} />
         ) : (
@@ -379,9 +440,11 @@ export default function Backstage() {
           </div>
         )}
 
-        {/* Loose Actions Count */}
+        {/* Loose Actions Count - FULL STAGE ONLY */}
         {looseActionsCount > 0 && (
-          <div className="mt-6 p-4 rounded-xl border border-neon-cyan/30 bg-neon-cyan/10">
+          <div className={`mt-6 p-4 rounded-xl border border-neon-cyan/30 bg-neon-cyan/10 transition-all duration-500 ${
+            viewMode === 'spotlight' ? 'opacity-0 max-h-0 overflow-hidden p-0 mt-0 border-0' : 'opacity-100 max-h-[200px]'
+          }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Zap className="w-5 h-5 text-neon-cyan" />
@@ -396,6 +459,7 @@ export default function Backstage() {
             </div>
           </div>
         )}
+        </div>
 
         {/* LFG Choice Modal */}
         <LFGChoiceModal
