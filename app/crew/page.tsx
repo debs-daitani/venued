@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, List, Zap, Clock, Shuffle, Flame, Star, TrendingUp, CheckCircle2, Trophy, Plus, Rocket, Music, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
+import { Users, List, Zap, Clock, Shuffle, Flame, Star, TrendingUp, CheckCircle2, Trophy, Plus, Rocket, Music, ChevronDown, ChevronUp, ExternalLink, Edit3 } from 'lucide-react';
 import { CrewTask, CrewView, DateFilter, EnergyLevel, Tour, Action, GigVibe } from '@/lib/types';
 import {
   getCrewTasks,
@@ -17,6 +17,7 @@ import CrewTaskCard from '@/components/crew/CrewTaskCard';
 import FocusTimer from '@/components/crew/FocusTimer';
 import LFGChoiceModal from '@/components/LFGChoiceModal';
 import QuickActionModal from '@/components/QuickActionModal';
+import ActionEditModal from '@/components/ActionEditModal';
 
 export default function Crew() {
   const [tasks, setTasks] = useState<CrewTask[]>([]);
@@ -35,6 +36,8 @@ export default function Crew() {
   const [showLFGModal, setShowLFGModal] = useState(false);
   const [showQuickActionModal, setShowQuickActionModal] = useState(false);
   const [selectedTourForAction, setSelectedTourForAction] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAction, setEditingAction] = useState<Action | null>(null);
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -529,7 +532,7 @@ export default function Crew() {
                               {incompleteActions.map((action) => (
                                 <div
                                   key={action.id}
-                                  className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10"
+                                  className="flex items-center gap-3 p-3 rounded-lg bg-white/5 border border-white/10 group"
                                 >
                                   <button
                                     onClick={() => {
@@ -572,6 +575,16 @@ export default function Crew() {
                                       </div>
                                     )}
                                   </div>
+                                  <button
+                                    onClick={() => {
+                                      setEditingAction(action);
+                                      setShowEditModal(true);
+                                    }}
+                                    className="p-2 text-gray-500 hover:text-magenta opacity-0 group-hover:opacity-100 transition-all"
+                                    title="Edit action"
+                                  >
+                                    <Edit3 className="w-4 h-4" />
+                                  </button>
                                 </div>
                               ))}
 
@@ -648,7 +661,7 @@ export default function Crew() {
                       {looseActions.map((action) => (
                         <div
                           key={action.id}
-                          className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10"
+                          className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10 group"
                         >
                           <button
                             onClick={() => {
@@ -690,6 +703,16 @@ export default function Crew() {
                               </div>
                             )}
                           </div>
+                          <button
+                            onClick={() => {
+                              setEditingAction(action);
+                              setShowEditModal(true);
+                            }}
+                            className="p-2 text-gray-500 hover:text-magenta opacity-0 group-hover:opacity-100 transition-all"
+                            title="Edit action"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
                         </div>
                       ))}
 
@@ -928,6 +951,21 @@ export default function Crew() {
             setSelectedTourForAction(null);
           }}
           defaultTourId={selectedTourForAction}
+        />
+
+        {/* Action Edit Modal */}
+        <ActionEditModal
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingAction(null);
+          }}
+          onUpdated={() => {
+            loadData();
+            setShowEditModal(false);
+            setEditingAction(null);
+          }}
+          action={editingAction}
         />
       </div>
     </div>
