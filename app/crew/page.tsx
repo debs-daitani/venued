@@ -19,6 +19,16 @@ import LFGChoiceModal from '@/components/LFGChoiceModal';
 import QuickActionModal from '@/components/QuickActionModal';
 import ActionEditModal from '@/components/ActionEditModal';
 
+// Helper to safely extract hostname from URL
+const getHostname = (url: string): string => {
+  try {
+    return new URL(url).hostname;
+  } catch {
+    // If invalid URL, just show truncated string
+    return url.length > 20 ? url.substring(0, 20) + '...' : url;
+  }
+};
+
 export default function Crew() {
   const [tasks, setTasks] = useState<CrewTask[]>([]);
   const [tours, setTours] = useState<Tour[]>([]);
@@ -569,7 +579,7 @@ export default function Crew() {
                                             className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-neon-cyan/10 text-neon-cyan text-xs rounded hover:bg-neon-cyan/20 transition-colors"
                                           >
                                             <ExternalLink className="w-3 h-3" />
-                                            <span className="truncate max-w-[80px]">{new URL(link).hostname}</span>
+                                            <span className="truncate max-w-[80px]">{getHostname(link)}</span>
                                           </a>
                                         ))}
                                       </div>
@@ -697,7 +707,7 @@ export default function Crew() {
                                     className="inline-flex items-center gap-1 px-2 py-1 bg-neon-cyan/10 text-neon-cyan text-xs rounded hover:bg-neon-cyan/20 transition-colors"
                                   >
                                     <ExternalLink className="w-3 h-3" />
-                                    <span className="truncate max-w-[100px]">{new URL(link).hostname}</span>
+                                    <span className="truncate max-w-[100px]">{getHostname(link)}</span>
                                   </a>
                                 ))}
                               </div>
