@@ -53,48 +53,86 @@ const getCurrentGigVibe = (): { level: GigVibe | null; isStale: boolean; timesta
   };
 };
 
-// AI Elaboration generator based on task context
+// AI Elaboration generator - context-aware and task-specific
 const generateElaboration = (task: SuggestedTask): string => {
-  const { type, action, crewTask, priority } = task;
+  const { type, action, crewTask, tour, priority } = task;
   const taskTitle = type === 'action' ? action?.title : crewTask?.title;
+  const taskDescription = type === 'action' ? action?.description : crewTask?.description;
   const isQuickWin = type === 'action' ? action?.isQuickWin : crewTask?.isQuickWin;
   const estimatedHours = type === 'action' ? action?.estimatedHours : crewTask?.estimatedHours;
+  const difficulty = type === 'action' ? action?.difficulty : crewTask?.difficulty;
 
-  // Priority-based elaborations
-  if (priority === 'overdue') {
-    const overduePhrases = [
-      `Getting "${taskTitle}" done stops the guilt spiral and clears mental space. Once complete, you'll have breathing room and momentum.`,
-      `This has been waiting too long. Knocking it out removes a weight from your shoulders and shows you're back on track.`,
-      `Overdue tasks drain energy just by existing. Clear "${taskTitle}" and free up headspace for what matters next.`,
-    ];
-    return overduePhrases[Math.floor(Math.random() * overduePhrases.length)];
+  // Analyze task title for context-specific elaboration
+  const titleLower = (taskTitle || '').toLowerCase();
+  const descLower = (taskDescription || '').toLowerCase();
+
+  // Social media / marketing tasks
+  if (titleLower.includes('social') || titleLower.includes('post') || titleLower.includes('instagram') || titleLower.includes('twitter') || titleLower.includes('linkedin')) {
+    const timeHint = estimatedHours && estimatedHours <= 0.5 ? 'Quick 15-30 min task.' : '';
+    return `${timeHint} Getting this posted keeps your presence active and your audience engaged. Done is better than perfect here.`.trim();
   }
 
-  if (priority === 'high') {
-    const highPrioPhrases = [
-      `"${taskTitle}" is your highest impact move right now. Completing it could unblock other tasks and create serious momentum.`,
-      `High priority means high payoff. Tackling "${taskTitle}" now capitalizes on your energy when it matters most.`,
-      `This is the task that moves the needle. Your future self will thank you for getting "${taskTitle}" done today.`,
-    ];
-    return highPrioPhrases[Math.floor(Math.random() * highPrioPhrases.length)];
+  // Email / communication tasks
+  if (titleLower.includes('email') || titleLower.includes('reply') || titleLower.includes('message') || titleLower.includes('respond')) {
+    return `Clearing this from your inbox removes a mental niggle. Quick response = good vibes all round.`;
+  }
+
+  // Meeting / call tasks
+  if (titleLower.includes('meeting') || titleLower.includes('call') || titleLower.includes('schedule') || titleLower.includes('book')) {
+    return `Lock this in and it's off your plate. One less thing to remember.`;
+  }
+
+  // Writing / content tasks
+  if (titleLower.includes('write') || titleLower.includes('draft') || titleLower.includes('blog') || titleLower.includes('content') || titleLower.includes('copy')) {
+    return `Creative work benefits from your current headspace. Start with a rough draft - polish later.`;
+  }
+
+  // Design / creative tasks
+  if (titleLower.includes('design') || titleLower.includes('logo') || titleLower.includes('graphic') || titleLower.includes('visual') || titleLower.includes('mockup')) {
+    return `Visual work flows best when you're in the zone. Get the first version done and iterate from there.`;
+  }
+
+  // Review / feedback tasks
+  if (titleLower.includes('review') || titleLower.includes('feedback') || titleLower.includes('check') || titleLower.includes('approve')) {
+    return `Fresh eyes catch things you'd miss later. Quick review now saves bigger headaches down the line.`;
+  }
+
+  // Planning / strategy tasks
+  if (titleLower.includes('plan') || titleLower.includes('strategy') || titleLower.includes('roadmap') || titleLower.includes('outline')) {
+    return `Planning work sets you up for smoother execution. Worth the time investment now.`;
+  }
+
+  // Research tasks
+  if (titleLower.includes('research') || titleLower.includes('find') || titleLower.includes('explore') || titleLower.includes('investigate')) {
+    return `Gather what you need now so you're not blocked later. Focused research beats scattered Googling.`;
+  }
+
+  // Update / fix tasks
+  if (titleLower.includes('update') || titleLower.includes('fix') || titleLower.includes('change') || titleLower.includes('edit')) {
+    return `Small updates prevent bigger issues. Knock this out while it's fresh in your mind.`;
+  }
+
+  // If linked to a tour/project, mention that context
+  if (tour) {
+    const stageText = tour.stage === 'planning' ? 'still in planning' : tour.stage === 'development' ? 'in active development' : 'heading to launch';
+    return `Part of "${tour.name}" which is ${stageText}. Completing this moves the whole project forward.`;
+  }
+
+  // Priority-based fallbacks (more concise)
+  if (priority === 'overdue') {
+    return `This has been waiting. Getting it done clears mental space and stops the guilt drain.`;
+  }
+
+  if (priority === 'high' || difficulty === 'hard') {
+    return `Your energy is right for this. Tackle it now while you've got the momentum.`;
   }
 
   if (isQuickWin || (estimatedHours && estimatedHours <= 0.5)) {
-    const quickWinPhrases = [
-      `Quick wins build momentum. "${taskTitle}" takes about ${estimatedHours || 0.5} hour(s) but the dopamine hit lasts much longer.`,
-      `Small task, big impact on your motivation. Cross "${taskTitle}" off and ride that accomplishment into bigger tasks.`,
-      `This is a fast one. Done in under an hour, but the satisfaction of completing it sets up your whole day.`,
-    ];
-    return quickWinPhrases[Math.floor(Math.random() * quickWinPhrases.length)];
+    return `Fast task, quick win. Cross it off and build momentum for what's next.`;
   }
 
-  // Default medium priority elaborations
-  const mediumPhrases = [
-    `"${taskTitle}" matches your current energy perfectly. This is a great time to make meaningful progress.`,
-    `Steady energy for steady work. "${taskTitle}" is the right fit for focused effort without burning out.`,
-    `Perfect timing for "${taskTitle}". Your current vibe is ideal for this kind of task.`,
-  ];
-  return mediumPhrases[Math.floor(Math.random() * mediumPhrases.length)];
+  // Generic fallback - still useful
+  return `Good time to make progress on this. Your current vibe matches the effort needed.`;
 };
 
 // Main suggestion algorithm
@@ -466,16 +504,19 @@ export default function NextBigHitCard({ onRefresh }: NextBigHitCardProps) {
                   )}
                 </div>
 
-                {/* Tour Badge */}
+                {/* Tour Badge - Clickable to view project */}
                 {suggestion.tour && (
                   <div className="mb-3">
-                    <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
-                      suggestion.tour.stage === 'planning' ? 'bg-azure/20 text-azure' :
-                      suggestion.tour.stage === 'development' ? 'bg-magenta/20 text-magenta' :
-                      'bg-vivid-yellow-green/20 text-vivid-yellow-green'
-                    }`}>
-                      Tour: {suggestion.tour.name}
-                    </span>
+                    <Link
+                      href={`/crew?tour=${suggestion.tour.id}`}
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold transition-all hover:scale-105 ${
+                        suggestion.tour.stage === 'planning' ? 'bg-azure/20 text-azure hover:bg-azure/30' :
+                        suggestion.tour.stage === 'development' ? 'bg-magenta/20 text-magenta hover:bg-magenta/30' :
+                        'bg-vivid-yellow-green/20 text-vivid-yellow-green hover:bg-vivid-yellow-green/30'
+                      }`}
+                    >
+                      Tour: {suggestion.tour.name} →
+                    </Link>
                   </div>
                 )}
 
@@ -501,19 +542,19 @@ export default function NextBigHitCard({ onRefresh }: NextBigHitCardProps) {
                   LFG!
                 </Link>
 
-                {/* Secondary: Skip It */}
+                {/* Secondary: Skip It - #c9005c */}
                 <button
                   onClick={handleSkip}
-                  className="flex items-center justify-center gap-2 px-5 py-3 bg-white/10 text-gray-300 font-semibold rounded-xl hover:bg-white/20 transition-all"
+                  className="flex items-center justify-center gap-2 px-5 py-3 bg-[#c9005c]/20 text-[#c9005c] font-semibold rounded-xl hover:bg-[#c9005c]/30 transition-all border border-[#c9005c]/30"
                 >
                   <SkipForward className="w-5 h-5" />
                   Skip It
                 </button>
 
-                {/* Tertiary: Pick Next Track */}
+                {/* Tertiary: Pick Next Track - #00a29d */}
                 <button
                   onClick={handlePickRandom}
-                  className="flex items-center justify-center gap-2 px-5 py-3 bg-white/5 text-gray-400 font-semibold rounded-xl hover:bg-white/10 hover:text-white transition-all border border-white/10"
+                  className="flex items-center justify-center gap-2 px-5 py-3 bg-[#00a29d]/15 text-[#00a29d] font-semibold rounded-xl hover:bg-[#00a29d]/25 transition-all border border-[#00a29d]/30"
                 >
                   <Shuffle className="w-5 h-5" />
                   Random Track
@@ -562,15 +603,29 @@ export default function NextBigHitCard({ onRefresh }: NextBigHitCardProps) {
                 <Star className="w-8 h-8 text-vivid-yellow-green" />
               </div>
               <h3 className="text-xl font-bold text-white mb-2">All caught up!</h3>
-              <p className="text-gray-400 mb-4">
-                You've skipped through all available tasks. Time for a break?
+              <p className="text-gray-400 mb-6 max-w-md mx-auto">
+                You've skipped through all available tasks. Time for a break or something new?
               </p>
-              <button
-                onClick={loadData}
-                className="px-5 py-2.5 bg-magenta/20 text-magenta font-semibold rounded-lg hover:bg-magenta/30 transition-all"
-              >
-                Start Fresh
-              </button>
+              <div className="flex flex-wrap justify-center gap-3">
+                <button
+                  onClick={loadData}
+                  className="px-5 py-2.5 bg-magenta/20 text-magenta font-semibold rounded-lg hover:bg-magenta/30 transition-all"
+                >
+                  Start Fresh
+                </button>
+                <Link
+                  href="/entourage"
+                  className="px-5 py-2.5 bg-neon-cyan/20 text-neon-cyan font-semibold rounded-lg hover:bg-neon-cyan/30 transition-all"
+                >
+                  Brain Dump
+                </Link>
+                <Link
+                  href="/setlist"
+                  className="px-5 py-2.5 bg-vivid-yellow-green/20 text-vivid-yellow-green font-semibold rounded-lg hover:bg-vivid-yellow-green/30 transition-all"
+                >
+                  Check Vibe
+                </Link>
+              </div>
             </div>
           )}
         </div>
