@@ -14,6 +14,7 @@ import BackstageInbox from '@/components/backstage/Inbox';
 import LFGChoiceModal from '@/components/LFGChoiceModal';
 import QuickCaptureButton from '@/components/QuickCaptureButton';
 import EndMyDayModal from '@/components/EndMyDayModal';
+import NextBigHitCard from '@/components/backstage/NextBigHitCard';
 
 export default function Backstage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -134,6 +135,9 @@ export default function Backstage() {
             </div>
           </div>
         </div>
+
+        {/* Your Next Big Hit - Smart Suggestion Card */}
+        <NextBigHitCard onRefresh={loadData} />
 
         {/* Stats Grid - 2x2 on mobile, clickable stage filters */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
