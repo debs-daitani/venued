@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, List, Zap, Clock, Shuffle, Flame, Star, TrendingUp, CheckCircle2, Trophy, Plus, Rocket, Music, ChevronDown, ChevronUp } from 'lucide-react';
+import { Users, List, Zap, Clock, Shuffle, Flame, Star, TrendingUp, CheckCircle2, Trophy, Plus, Rocket, Music, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { CrewTask, CrewView, DateFilter, EnergyLevel, Tour, Action, GigVibe } from '@/lib/types';
 import {
   getCrewTasks,
@@ -554,6 +554,23 @@ export default function Crew() {
                                         <span>{new Date(action.scheduledDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                                       )}
                                     </div>
+                                    {action.links && action.links.length > 0 && (
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {action.links.map((link, i) => (
+                                          <a
+                                            key={i}
+                                            href={link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-neon-cyan/10 text-neon-cyan text-xs rounded hover:bg-neon-cyan/20 transition-colors"
+                                          >
+                                            <ExternalLink className="w-3 h-3" />
+                                            <span className="truncate max-w-[80px]">{new URL(link).hostname}</span>
+                                          </a>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               ))}
@@ -656,6 +673,22 @@ export default function Crew() {
                                 <span>{new Date(action.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                               )}
                             </div>
+                            {action.links && action.links.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2">
+                                {action.links.map((link, i) => (
+                                  <a
+                                    key={i}
+                                    href={link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-2 py-1 bg-neon-cyan/10 text-neon-cyan text-xs rounded hover:bg-neon-cyan/20 transition-colors"
+                                  >
+                                    <ExternalLink className="w-3 h-3" />
+                                    <span className="truncate max-w-[100px]">{new URL(link).hostname}</span>
+                                  </a>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
                       ))}

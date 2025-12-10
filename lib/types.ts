@@ -214,6 +214,7 @@ export interface Tour {
   actionIds: string[]; // References to actions in this tour
   completedActionIds: string[];
   isArchived: boolean;
+  links?: string[]; // Related URLs (Google Drive, Notion, etc.)
 }
 
 export interface Action {
@@ -234,4 +235,5 @@ export interface Action {
   isHyperfocus: boolean;
   isQuickWin: boolean;
   order: number;
+  links?: string[]; // Related URLs (Google Drive, Notion, etc.)
 }

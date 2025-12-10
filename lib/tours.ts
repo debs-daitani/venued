@@ -236,6 +236,7 @@ export const createAction = (data: {
   difficulty?: 'easy' | 'medium' | 'hard';
   estimatedHours?: number;
   scheduledDate?: string;
+  links?: string[];
 }): Action => {
   const now = new Date().toISOString();
   return {
@@ -254,6 +255,7 @@ export const createAction = (data: {
     isHyperfocus: false,
     isQuickWin: data.difficulty === 'easy',
     order: 0,
+    links: data.links || [],
   };
 };
 
@@ -263,6 +265,7 @@ export const createTour = (data: {
   description?: string;
   stage?: TourStage;
   targetDate?: string;
+  links?: string[];
 }): Tour => {
   const now = new Date().toISOString();
   return {
@@ -276,5 +279,6 @@ export const createTour = (data: {
     actionIds: [],
     completedActionIds: [],
     isArchived: false,
+    links: data.links || [],
   };
 };

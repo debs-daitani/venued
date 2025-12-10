@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, Music, FileEdit, Rocket, Star, Plus } from 'lucide-react';
+import { X, Music, FileEdit, Rocket, Star, Plus, ExternalLink, Trash2 } from 'lucide-react';
 import { TourStage, GigVibe } from '@/lib/types';
 import { addTour, addAction, createTour, createAction } from '@/lib/tours';
 
@@ -25,7 +25,9 @@ export default function TourCreationModal({ isOpen, onClose, onCreated }: TourCr
     targetDate: '',
     firstActionTitle: '',
     firstActionGigVibe: 'medium' as GigVibe,
+    links: [] as string[],
   });
+  const [newLink, setNewLink] = useState('');
 
   if (!isOpen) return null;
 
@@ -38,6 +40,7 @@ export default function TourCreationModal({ isOpen, onClose, onCreated }: TourCr
       description: form.description,
       stage: form.stage,
       targetDate: form.targetDate || undefined,
+      links: form.links,
     });
 
     addTour(newTour);
@@ -60,7 +63,9 @@ export default function TourCreationModal({ isOpen, onClose, onCreated }: TourCr
       targetDate: '',
       firstActionTitle: '',
       firstActionGigVibe: 'medium',
+      links: [],
     });
+    setNewLink('');
 
     onCreated?.();
   };
@@ -151,6 +156,66 @@ export default function TourCreationModal({ isOpen, onClose, onCreated }: TourCr
               rows={3}
               className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none resize-none"
             />
+          </div>
+
+          {/* Links */}
+          <div>
+            <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2">
+              <ExternalLink className="w-4 h-4 text-gray-400" />
+              Links
+            </label>
+            <div className="space-y-2">
+              {form.links.map((link, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-neon-cyan text-sm truncate hover:border-magenta transition-colors"
+                  >
+                    {link}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, links: form.links.filter((_, i) => i !== index) })}
+                    className="p-2 text-gray-400 hover:text-magenta transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={newLink}
+                  onChange={(e) => setNewLink(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1 px-4 py-2 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-magenta focus:outline-none text-sm"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newLink.trim()) {
+                      e.preventDefault();
+                      setForm({ ...form, links: [...form.links, newLink.trim()] });
+                      setNewLink('');
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newLink.trim()) {
+                      setForm({ ...form, links: [...form.links, newLink.trim()] });
+                      setNewLink('');
+                    }
+                  }}
+                  className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Add Google Drive, Notion, or any URLs
+            </p>
           </div>
 
           {/* Target Date */}

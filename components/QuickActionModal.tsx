@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Zap, Link2 } from 'lucide-react';
+import { X, Zap, Link2, Plus, Trash2, ExternalLink } from 'lucide-react';
 import { GigVibe, Tour } from '@/lib/types';
 import { getTours, addAction, createAction } from '@/lib/tours';
 
@@ -22,7 +22,9 @@ export default function QuickActionModal({ isOpen, onClose, onCreated, defaultTo
     difficulty: 'medium' as 'easy' | 'medium' | 'hard',
     estimatedHours: 1,
     scheduledDate: new Date().toISOString().split('T')[0],
+    links: [] as string[],
   });
+  const [newLink, setNewLink] = useState('');
 
   useEffect(() => {
     if (isOpen) {
@@ -47,6 +49,7 @@ export default function QuickActionModal({ isOpen, onClose, onCreated, defaultTo
       difficulty: form.difficulty,
       estimatedHours: form.estimatedHours,
       scheduledDate: form.scheduledDate,
+      links: form.links,
     });
 
     addAction(newAction);
@@ -60,7 +63,9 @@ export default function QuickActionModal({ isOpen, onClose, onCreated, defaultTo
       difficulty: 'medium',
       estimatedHours: 1,
       scheduledDate: new Date().toISOString().split('T')[0],
+      links: [],
     });
+    setNewLink('');
 
     onCreated?.();
   };
@@ -107,10 +112,70 @@ export default function QuickActionModal({ isOpen, onClose, onCreated, defaultTo
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
-              placeholder="Notes, details, links..."
+              placeholder="Notes, details..."
               rows={3}
               className="w-full px-4 py-3 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none resize-none"
             />
+          </div>
+
+          {/* Links */}
+          <div>
+            <label className="block text-sm font-semibold text-white mb-2 flex items-center gap-2">
+              <ExternalLink className="w-4 h-4 text-gray-400" />
+              Links
+            </label>
+            <div className="space-y-2">
+              {form.links.map((link, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <a
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 px-3 py-2 bg-[#3d3d3d]/80 border border-white/10 rounded-lg text-neon-cyan text-sm truncate hover:border-neon-cyan transition-colors"
+                  >
+                    {link}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, links: form.links.filter((_, i) => i !== index) })}
+                    className="p-2 text-gray-400 hover:text-magenta transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={newLink}
+                  onChange={(e) => setNewLink(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1 px-4 py-2 bg-[#3d3d3d]/80 border-2 border-white/10 rounded-lg text-white placeholder-gray-500 focus:border-neon-cyan focus:outline-none text-sm"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && newLink.trim()) {
+                      e.preventDefault();
+                      setForm({ ...form, links: [...form.links, newLink.trim()] });
+                      setNewLink('');
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newLink.trim()) {
+                      setForm({ ...form, links: [...form.links, newLink.trim()] });
+                      setNewLink('');
+                    }
+                  }}
+                  className="px-3 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Add Google Drive, Notion, or any URLs
+            </p>
           </div>
 
           {/* Link to Tour */}
