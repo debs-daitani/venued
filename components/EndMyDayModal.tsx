@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Moon, ChevronRight, ChevronLeft, Check, Music, Sparkles, ArrowRight, Plus } from 'lucide-react';
+import { X, Moon, ChevronRight, ChevronLeft, Check, Music, Sparkles, Plus, Guitar } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { getCrewTasks } from '@/lib/crew';
 import { getActions, getTours, createAction, addAction } from '@/lib/tours';
@@ -32,7 +32,7 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
   // Step 2: Missed beats
   const [missedBeatsText, setMissedBeatsText] = useState('');
 
-  // Step 3: Tomorrow's MIT
+  // Step 3: Tomorrow's WIN
   const [existingTasks, setExistingTasks] = useState<{ id: string; title: string; tourName?: string }[]>([]);
   const [tours, setTours] = useState<Tour[]>([]);
   const [selectedMIT, setSelectedMIT] = useState<string | null>(null);
@@ -40,14 +40,14 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskTourId, setNewTaskTourId] = useState<string>('');
 
-  // Step 4: Closing line
+  // Step 4: Curtain Call
   const [closingLine, setClosingLine] = useState('');
 
   const steps = [
-    { title: 'What You Rocked', icon: '🎸' },
-    { title: 'Any Missed Beats', icon: '🎵' },
-    { title: "Tomorrow's Hit", icon: '🎯' },
-    { title: 'Closing Line', icon: '🌙' },
+    { title: 'What You Rocked', icon: '🤘' },
+    { title: 'Missed Beats', icon: '🎵' },
+    { title: "Tomorrow's WIN", icon: '🎸' },
+    { title: 'Curtain Call', icon: '🌙' },
   ];
 
   // Load data when modal opens
@@ -85,7 +85,6 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
   };
 
   const loadExistingTasks = () => {
-    const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
     const allTours = getTours();
 
     // Get incomplete crew tasks
@@ -190,54 +189,81 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
       handleAddMissedBeats();
     }
 
-    // Trigger celebration!
+    // Trigger celebration with pyrotechnics!
     celebrateGigDone();
 
     // Show toast and close
-    setToast('Gig = DONE! 🎸');
+    setToast('Gig = DONE! 🤘');
     setTimeout(() => {
       setToast(null);
       onClose();
-    }, 3000);
+    }, 4000);
   };
 
   const celebrateGigDone = () => {
-    // Big confetti celebration
-    const duration = 3000;
-    const end = Date.now() + duration;
+    // Firework-style pyrotechnics celebration!
+    const duration = 4000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
 
-    const frame = () => {
-      confetti({
-        particleCount: 7,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 },
-        colors: ['#FF008E', '#00F0E9', '#D3FF2C', '#9D4EDD'],
-      });
-      confetti({
-        particleCount: 7,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 },
-        colors: ['#FF008E', '#00F0E9', '#D3FF2C', '#9D4EDD'],
-      });
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
 
-      if (Date.now() < end) {
-        requestAnimationFrame(frame);
+    // Firework bursts from different positions
+    const interval = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
       }
-    };
 
-    frame();
+      const particleCount = 50 * (timeLeft / duration);
+
+      // Firework burst from random positions
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        colors: ['#FF008E', '#00F0E9', '#D3FF2C'],
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        colors: ['#FF008E', '#9D4EDD', '#00F0E9'],
+      });
+    }, 250);
+
+    // Big central burst at start
+    confetti({
+      particleCount: 100,
+      spread: 100,
+      origin: { y: 0.6, x: 0.5 },
+      colors: ['#FF008E', '#00F0E9', '#D3FF2C', '#9D4EDD'],
+    });
+
+    // Side cannons
+    setTimeout(() => {
+      confetti({
+        particleCount: 50,
+        angle: 60,
+        spread: 80,
+        origin: { x: 0, y: 0.8 },
+        colors: ['#FF008E', '#D3FF2C'],
+      });
+      confetti({
+        particleCount: 50,
+        angle: 120,
+        spread: 80,
+        origin: { x: 1, y: 0.8 },
+        colors: ['#00F0E9', '#9D4EDD'],
+      });
+    }, 500);
   };
 
   const canProceed = () => {
-    switch (currentStep) {
-      case 0: return true; // Can always proceed from rocked (even with nothing checked)
-      case 1: return true; // Missed beats is optional
-      case 2: return true; // MIT is optional
-      case 3: return true; // Closing line is optional
-      default: return true;
-    }
+    return true; // All steps are optional
   };
 
   const handleNext = () => {
@@ -261,7 +287,7 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/10 flex-shrink-0">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-gradient-to-br from-magenta/30 to-dark-cyan/30">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-magenta to-dark-cyan">
                 <Moon className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -287,7 +313,7 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
                       index === currentStep
                         ? 'bg-gradient-to-br from-magenta to-neon-cyan scale-110'
                         : index < currentStep
-                          ? 'bg-dark-cyan/50'
+                          ? 'bg-dark-cyan'
                           : 'bg-white/10'
                     }`}
                   >
@@ -309,15 +335,24 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
             {currentStep === 0 && (
               <div className="space-y-4">
                 <div className="text-center mb-6">
-                  <h3 className="text-2xl font-supernova text-white mb-2">What You Rocked Today 🎸</h3>
-                  <p className="text-gray-400 font-josefin">These are the beats you crushed. Uncheck any that didn't actually get done.</p>
+                  <h3 className="text-2xl font-supernova text-white mb-2">What You Rocked Today 🤘</h3>
+                  <p className="text-gray-400 font-josefin">
+                    These are the actions you smashed today.
+                    <br />
+                    Uncheck any that didn't make it onto the stage today.
+                  </p>
                 </div>
 
                 {completedTasks.length === 0 ? (
                   <div className="text-center py-8 px-4 rounded-xl bg-white/5 border border-white/10">
-                    <Music className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-                    <p className="text-gray-400 font-josefin">No completed tasks today - and that's okay!</p>
-                    <p className="text-gray-500 text-sm mt-2">Some days are for planning, not playing.</p>
+                    <Music className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                    <p className="text-white font-semibold mb-1">No impactful actions today - and that's OK!</p>
+                    <p className="text-white font-semibold mb-4">Some days are for doing sweet F/A!</p>
+                    <p className="text-gray-400 text-sm">
+                      YES - doing NOTHING is actually doing SOMETHING!
+                      <br />
+                      Or maybe you planned, maybe you practised, procrastinated and pondered... but as long as you did it with passion and purpose - it's ALL productive!
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -346,7 +381,7 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
                         <span className={`text-xs px-2 py-0.5 rounded ${
                           task.type === 'crew' ? 'bg-magenta/20 text-magenta' : 'bg-neon-cyan/20 text-neon-cyan'
                         }`}>
-                          {task.type === 'crew' ? 'Task' : 'Action'}
+                          Action
                         </span>
                       </button>
                     ))}
@@ -355,7 +390,7 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
 
                 <div className="mt-4 p-3 rounded-lg bg-vivid-yellow-green/10 border border-vivid-yellow-green/30">
                   <p className="text-vivid-yellow-green text-sm font-semibold">
-                    ✨ {completedTasks.filter(t => t.checked).length} win{completedTasks.filter(t => t.checked).length !== 1 ? 's' : ''} today!
+                    🤘 {completedTasks.filter(t => t.checked).length} win{completedTasks.filter(t => t.checked).length !== 1 ? 's' : ''} today!
                   </p>
                 </div>
               </div>
@@ -366,7 +401,11 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
               <div className="space-y-4">
                 <div className="text-center mb-6">
                   <h3 className="text-2xl font-supernova text-white mb-2">Any Missed Beats? 🎵</h3>
-                  <p className="text-gray-400 font-josefin">Anything still bouncing around in your head? Dump it here - we'll add it to your inbox.</p>
+                  <p className="text-gray-400 font-josefin">
+                    What's still running riot in your head?
+                    <br />
+                    Get those spare lyrics OUT and ready to be reconsidered tomorrow.
+                  </p>
                 </div>
 
                 <textarea
@@ -379,18 +418,20 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
                 <div className="p-3 rounded-lg bg-magenta/10 border border-magenta/30">
                   <p className="text-magenta text-sm font-josefin">
                     <Sparkles className="w-4 h-4 inline mr-1" />
-                    These will be waiting in your Inbox tomorrow - ready to be turned into actions or ideas!
+                    They'll be safe in your Backstage Inbox til then - turn them into fresh actions or use as inspo for ideas and projects!
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Step 3: Tomorrow's Most Impactful Action */}
+            {/* Step 3: Tomorrow's WIN */}
             {currentStep === 2 && (
               <div className="space-y-4">
                 <div className="text-center mb-6">
-                  <h3 className="text-2xl font-supernova text-white mb-2">Tomorrow's Hit 🎯</h3>
-                  <p className="text-gray-400 font-josefin">Pick ONE thing that would make tomorrow feel like a success.</p>
+                  <h3 className="text-2xl font-supernova text-white mb-2">Tomorrow's WIN 🎸</h3>
+                  <p className="text-gray-400 font-josefin">
+                    Pick ONE action that would make tomorrow feel like a sell-out gig.
+                  </p>
                 </div>
 
                 {!showNewTaskInput ? (
@@ -403,7 +444,7 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
                           onClick={() => setSelectedMIT(task.id === selectedMIT ? null : task.id)}
                           className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
                             selectedMIT === task.id
-                              ? 'bg-gradient-to-r from-magenta/20 to-neon-cyan/20 border-2 border-magenta'
+                              ? 'bg-gradient-to-r from-magenta/30 to-neon-cyan/30 border-2 border-magenta'
                               : 'bg-white/5 border border-white/10 hover:bg-white/10'
                           }`}
                         >
@@ -485,29 +526,33 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
               </div>
             )}
 
-            {/* Step 4: Closing Line */}
+            {/* Step 4: Curtain Call */}
             {currentStep === 3 && (
               <div className="space-y-4">
                 <div className="text-center mb-6">
-                  <h3 className="text-2xl font-supernova text-white mb-2">Your Closing Line 🌙</h3>
-                  <p className="text-gray-400 font-josefin">Any final thoughts? A win to celebrate? A lesson learned?</p>
+                  <h3 className="text-2xl font-supernova text-white mb-2">Curtain Call 🌙</h3>
+                  <p className="text-gray-400 font-josefin">
+                    Take a bow! Any final words?
+                    <br />
+                    A win to celebrate? A reframe or reset required?
+                  </p>
                 </div>
 
                 <textarea
                   value={closingLine}
                   onChange={(e) => setClosingLine(e.target.value)}
-                  placeholder="How are you feeling about today?&#10;&#10;(Totally optional - just for you)"
+                  placeholder="How are you feeling about today's gig?&#10;&#10;(Totally optional - your solo review!)"
                   className="w-full h-36 px-4 py-3 bg-[#3d3d3d]/80 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-dark-cyan/50 resize-none font-josefin"
                 />
 
                 {/* Summary */}
-                <div className="p-4 rounded-xl bg-gradient-to-br from-magenta/10 to-neon-cyan/10 border border-white/10 space-y-3">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-magenta/20 to-neon-cyan/20 border border-magenta/30 space-y-3">
                   <h4 className="text-white font-semibold">Tonight's Setlist:</h4>
 
                   <div className="flex items-center gap-2 text-sm">
-                    <span className="text-dark-cyan">🎸</span>
+                    <span className="text-neon-cyan">🤘</span>
                     <span className="text-gray-300">
-                      {completedTasks.filter(t => t.checked).length} task{completedTasks.filter(t => t.checked).length !== 1 ? 's' : ''} rocked
+                      {completedTasks.filter(t => t.checked).length} action{completedTasks.filter(t => t.checked).length !== 1 ? 's' : ''} rocked
                     </span>
                   </div>
 
@@ -522,7 +567,7 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
 
                   {selectedMIT && (
                     <div className="flex items-center gap-2 text-sm">
-                      <span className="text-vivid-yellow-green">🎯</span>
+                      <span className="text-vivid-yellow-green">🎸</span>
                       <span className="text-gray-300 truncate">
                         Tomorrow: {existingTasks.find(t => t.id === selectedMIT)?.title}
                       </span>
@@ -558,10 +603,10 @@ export default function EndMyDayModal({ isOpen, onClose }: EndMyDayModalProps) {
               ) : (
                 <button
                   onClick={handleComplete}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-vivid-yellow-green to-neon-cyan text-black font-bold hover:opacity-90 transition-all"
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-magenta to-neon-cyan text-black font-bold hover:opacity-90 transition-all"
                 >
                   <Sparkles className="w-5 h-5" />
-                  Close the Gig
+                  Leave the Stage!
                 </button>
               )}
             </div>
