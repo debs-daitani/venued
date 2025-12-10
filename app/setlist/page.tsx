@@ -261,11 +261,11 @@ export default function Setlist() {
             )}
           </div>
 
-          {/* Energy Tracker */}
-          <div className="p-6 rounded-xl border-2 border-white/10 bg-white/5">
+          {/* Gig Vibe Tracker */}
+          <div id="energy-tracker" className="p-6 rounded-xl border-2 border-white/10 bg-white/5 scroll-mt-24">
             <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <Zap className="w-5 h-5 text-magenta" />
-              Energy Tracker
+              Gig Vibe Tracker
             </h2>
             <p className="text-gray-400 mb-4">How are you feeling right now?</p>
 
@@ -315,7 +315,7 @@ export default function Setlist() {
 
             {/* AI Action Suggestions */}
             <div className="mt-4 p-4 rounded-lg bg-gradient-to-r from-magenta/10 to-neon-cyan/10 border border-magenta/30">
-              <p className="text-magenta font-bold text-sm mb-3">🤖 AI SUGGESTS FOR YOUR {currentEnergy.toUpperCase()} ENERGY:</p>
+              <p className="text-magenta font-bold text-sm mb-3">🤖 AI SUGGESTS FOR YOUR {currentEnergy.toUpperCase()} GIG VIBE:</p>
               <div className="space-y-2">
                 {actionSuggestionsWithLinks[currentEnergy].map((suggestion, idx) => (
                   <div key={idx} className="flex items-center justify-between gap-2 p-2 rounded-lg bg-[#3d3d3d]/60 hover:bg-[#3d3d3d]/80 transition-all">
@@ -372,12 +372,12 @@ export default function Setlist() {
             )}
           </div>
 
-          {/* Today's Energy Log */}
+          {/* Today's Gig Vibe Log */}
           {todayLogs.length > 0 && (
             <div className="p-6 rounded-xl border-2 border-white/10 bg-white/5">
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-vivid-cyan" />
-                Today's Energy Log
+                Today's Gig Vibe Log
               </h3>
               <div className="flex flex-wrap gap-2">
                 {todayLogs.map((log) => {
@@ -402,7 +402,7 @@ export default function Setlist() {
               <p className="text-sm text-gray-500 mt-4">
                 <Link href="/tour" className="text-vivid-cyan hover:text-white transition-colors">
                   View Tour →
-                </Link> to schedule tasks based on your energy patterns
+                </Link> to schedule tasks based on your gig vibe patterns
               </p>
             </div>
           )}

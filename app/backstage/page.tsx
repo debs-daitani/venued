@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Star, Plus, CheckCircle2, Rocket, ListChecks, Clock, FileEdit, Music, Zap } from 'lucide-react';
+import { Star, Plus, CheckCircle2, Rocket, ListChecks, Clock, FileEdit, Music, Zap, Play, Moon } from 'lucide-react';
 import Link from 'next/link';
 import { Project, ProjectStatus, Tour, Action } from '@/lib/types';
 import { getProjects, calculateStats, initializeSampleData } from '@/lib/storage';
@@ -12,6 +12,8 @@ import ProjectCard from '@/components/backstage/ProjectCard';
 import EmptyState from '@/components/backstage/EmptyState';
 import BackstageInbox from '@/components/backstage/Inbox';
 import LFGChoiceModal from '@/components/LFGChoiceModal';
+import QuickCaptureButton from '@/components/QuickCaptureButton';
+import EndMyDayModal from '@/components/EndMyDayModal';
 
 export default function Backstage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -21,6 +23,8 @@ export default function Backstage() {
   const [isLoading, setIsLoading] = useState(true);
   const [upcomingTasks, setUpcomingTasks] = useState<any[]>([]);
   const [showLFGModal, setShowLFGModal] = useState(false);
+  const [showQuickCapture, setShowQuickCapture] = useState(false);
+  const [showEndMyDayModal, setShowEndMyDayModal] = useState(false);
 
   useEffect(() => {
     // Initialize sample data if no projects exist
@@ -197,6 +201,59 @@ export default function Backstage() {
         {/* Inbox Section - Quick Capture items */}
         <BackstageInbox onRefresh={loadData} />
 
+        {/* Quick Wins Section - 4 buttons */}
+        <div className="mb-8">
+          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <Zap className="w-5 h-5 text-magenta" />
+            Quick Wins
+          </h3>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {/* Button 1: LFG! */}
+            <Link
+              href="/crew"
+              className="group flex flex-col items-center justify-center gap-2 p-4 sm:p-6 rounded-xl border-2 border-neon-cyan/30 bg-neon-cyan/10 hover:border-neon-cyan hover:bg-neon-cyan/20 hover:shadow-[0_0_30px_rgba(0,240,233,0.4)] transition-all"
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-neon-cyan flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Play className="w-6 h-6 sm:w-7 sm:h-7 text-black ml-1" />
+              </div>
+              <span className="font-bold text-white text-sm sm:text-base">LFG!</span>
+            </Link>
+
+            {/* Button 2: Quick Capture */}
+            <button
+              onClick={() => setShowQuickCapture(true)}
+              className="group flex flex-col items-center justify-center gap-2 p-4 sm:p-6 rounded-xl border-2 border-magenta/30 bg-magenta/10 hover:border-magenta hover:bg-magenta/20 hover:shadow-[0_0_30px_rgba(255,0,142,0.4)] transition-all"
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-magenta flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Plus className="w-6 h-6 sm:w-7 sm:h-7 text-black" strokeWidth={3} />
+              </div>
+              <span className="font-bold text-white text-sm sm:text-base">Quick Capture</span>
+            </button>
+
+            {/* Button 3: Check Gig Vibe */}
+            <Link
+              href="/setlist#energy-tracker"
+              className="group flex flex-col items-center justify-center gap-2 p-4 sm:p-6 rounded-xl border-2 border-vivid-yellow-green/30 bg-vivid-yellow-green/10 hover:border-vivid-yellow-green hover:bg-vivid-yellow-green/20 hover:shadow-[0_0_30px_rgba(211,255,44,0.4)] transition-all"
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-vivid-yellow-green flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Zap className="w-6 h-6 sm:w-7 sm:h-7 text-black" />
+              </div>
+              <span className="font-bold text-white text-sm sm:text-base">Check Gig Vibe</span>
+            </Link>
+
+            {/* Button 4: End My Day */}
+            <button
+              onClick={() => setShowEndMyDayModal(true)}
+              className="group flex flex-col items-center justify-center gap-2 p-4 sm:p-6 rounded-xl border-2 border-dark-cyan/30 bg-dark-cyan/10 hover:border-dark-cyan hover:bg-dark-cyan/20 hover:shadow-[0_0_30px_rgba(54,111,126,0.4)] transition-all"
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-dark-cyan flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Moon className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+              </div>
+              <span className="font-bold text-white text-sm sm:text-base">End My Day</span>
+            </button>
+          </div>
+        </div>
+
         {/* Upcoming Actions Section */}
         {upcomingTasks.length > 0 && (
           <div className="mb-8 p-4 sm:p-6 rounded-xl border-2 border-vivid-cyan/30 bg-vivid-cyan/10">
@@ -345,6 +402,147 @@ export default function Backstage() {
             setShowLFGModal(false);
           }}
         />
+
+        {/* End My Day Modal */}
+        <EndMyDayModal
+          isOpen={showEndMyDayModal}
+          onClose={() => setShowEndMyDayModal(false)}
+        />
+      </div>
+
+      {/* Quick Capture Modal - using existing component */}
+      {showQuickCapture && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowQuickCapture(false);
+            }
+          }}
+        >
+          <QuickCaptureInlineModal
+            onClose={() => setShowQuickCapture(false)}
+            onSaved={() => {
+              setShowQuickCapture(false);
+              loadData();
+            }}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Inline Quick Capture Modal for the button (reuses logic from QuickCaptureButton)
+function QuickCaptureInlineModal({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
+  const [text, setText] = useState('');
+  const [selectedTag, setSelectedTag] = useState<'task' | 'idea' | 'note' | null>(null);
+
+  const handleSave = () => {
+    if (!text.trim()) return;
+
+    interface InboxItem {
+      id: number;
+      text: string;
+      tag: 'task' | 'idea' | 'note' | null;
+      timestamp: number;
+      processed: boolean;
+    }
+
+    const item: InboxItem = {
+      id: Date.now(),
+      text: text.trim(),
+      tag: selectedTag,
+      timestamp: Date.now(),
+      processed: false
+    };
+
+    const existingItems = JSON.parse(localStorage.getItem('venued_inbox') || '[]');
+    const updatedItems = [item, ...existingItems];
+    localStorage.setItem('venued_inbox', JSON.stringify(updatedItems));
+
+    setText('');
+    setSelectedTag(null);
+    onSaved();
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+      handleSave();
+    }
+  };
+
+  const tags = [
+    { value: 'task' as const, label: 'Task', color: 'bg-neon-cyan text-black' },
+    { value: 'idea' as const, label: 'Idea', color: 'bg-vivid-yellow-green text-black' },
+    { value: 'note' as const, label: 'Note', color: 'bg-vivid-pink text-black' },
+  ];
+
+  return (
+    <div className="w-full max-w-md bg-dark-grey-azure rounded-2xl border border-magenta/30 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <h2 className="text-lg font-supernova text-white">Quick Capture</h2>
+        <button
+          onClick={onClose}
+          className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+        >
+          <span className="text-2xl text-gray-400 hover:text-white">&times;</span>
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-4 space-y-4">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={handleKeyPress}
+          placeholder="Capture your thought..."
+          className="w-full h-32 p-4 bg-[#3d3d3d]/80 border border-white/10 rounded-xl text-white placeholder-gray-500 resize-none focus:outline-none focus:border-magenta/50 focus:ring-1 focus:ring-magenta/30 font-josefin"
+          autoFocus
+        />
+
+        {/* Tag Selector */}
+        <div className="space-y-2">
+          <p className="text-sm text-gray-400 font-josefin">Tag (optional)</p>
+          <div className="flex gap-2">
+            {tags.map((tag) => {
+              const isSelected = selectedTag === tag.value;
+              return (
+                <button
+                  key={tag.value}
+                  onClick={() => setSelectedTag(isSelected ? null : tag.value)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
+                    isSelected
+                      ? tag.color
+                      : 'bg-white/10 text-gray-300 hover:bg-white/20'
+                  }`}
+                >
+                  {tag.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <p className="text-xs text-gray-500 text-center font-josefin">
+          Press <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-gray-400">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-gray-400">Enter</kbd> to save
+        </p>
+      </div>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-white/10">
+        <button
+          onClick={handleSave}
+          disabled={!text.trim()}
+          className="w-full py-3 rounded-xl font-bold text-black transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            backgroundColor: text.trim() ? '#FF008E' : '#666',
+            boxShadow: text.trim() ? '0 0 20px rgba(255, 0, 142, 0.4)' : 'none'
+          }}
+        >
+          Capture It!
+        </button>
       </div>
     </div>
   );
