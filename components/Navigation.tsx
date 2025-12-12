@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
@@ -9,7 +10,9 @@ import {
   Calendar,
   Sparkles,
   Music,
+  HelpCircle,
 } from 'lucide-react';
+import UserGuideModal from './UserGuideModal';
 
 const navItems = [
   { name: 'Backstage', href: '/backstage', icon: Star, mobileLabel: 'Backstage' },
@@ -21,6 +24,7 @@ const navItems = [
 
 export default function Navigation() {
   const pathname = usePathname();
+  const [showUserGuide, setShowUserGuide] = useState(false);
 
   // Check if we're on home page
   const isHomePage = pathname === '/';
@@ -46,6 +50,15 @@ export default function Navigation() {
                 VENUED
               </span>
             </Link>
+
+            {/* Mobile Help Icon - visible only on mobile */}
+            <button
+              onClick={() => setShowUserGuide(true)}
+              className="md:hidden flex items-center justify-center w-8 h-8 rounded-full border border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/20 hover:border-neon-cyan transition-all duration-300"
+              title="User Guide"
+            >
+              <HelpCircle className="w-4 h-4" />
+            </button>
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-6">
@@ -79,6 +92,16 @@ export default function Navigation() {
                   </Link>
                 );
               })}
+
+              {/* Help Icon */}
+              <button
+                onClick={() => setShowUserGuide(true)}
+                className="relative flex items-center justify-center w-8 h-8 rounded-full border border-neon-cyan/50 text-neon-cyan hover:bg-neon-cyan/20 hover:border-neon-cyan transition-all duration-300 group"
+                title="User Guide"
+              >
+                <HelpCircle className="w-4 h-4" />
+                <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm bg-neon-cyan/20 rounded-full -z-10" />
+              </button>
             </div>
 
           </div>
@@ -121,6 +144,9 @@ export default function Navigation() {
 
       {/* Spacer for bottom nav on mobile (when not on home) */}
       {!isHomePage && <div className="md:hidden h-16" />}
+
+      {/* User Guide Modal */}
+      <UserGuideModal isOpen={showUserGuide} onClose={() => setShowUserGuide(false)} />
     </>
   );
 }

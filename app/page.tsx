@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Play, Book, Sparkles } from 'lucide-react';
+import UserGuideModal from '@/components/UserGuideModal';
 import { generateDemoData, isDemoDataLoaded } from '@/lib/demoData';
 import { useRouter } from 'next/navigation';
 
@@ -122,69 +123,7 @@ export default function Home() {
       </div>
 
       {/* User Guide Modal */}
-      {showUserGuide && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-dark-grey-azure rounded-2xl border border-magenta/30 max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 sm:p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-supernova text-white">User Guide</h2>
-              <button
-                onClick={() => setShowUserGuide(false)}
-                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
-              >
-                <span className="text-2xl text-gray-400 hover:text-white">&times;</span>
-              </button>
-            </div>
-
-            <div className="space-y-6 text-gray-300 font-josefin">
-              <section>
-                <h3 className="text-lg font-semibold text-magenta mb-2">What is VENUED?</h3>
-                <p>
-                  VENUED is a strategic project planning app designed specifically for VARIANT brains.
-                  We understand that your brain works differently - and that's not a flaw, it's an advantage!
-                </p>
-              </section>
-
-              <section>
-                <h3 className="text-lg font-semibold text-neon-cyan mb-2">The 5 Sections</h3>
-                <ul className="space-y-2">
-                  <li><strong className="text-white">Backstage</strong> - Your project command centre. See all your projects at a glance.</li>
-                  <li><strong className="text-white">Crew</strong> - Your daily task planning hub. Match tasks to your energy levels.</li>
-                  <li><strong className="text-white">Tour</strong> - Your strategic timeline. Plan your week with VARIANT reality buffers.</li>
-                  <li><strong className="text-white">Setlist</strong> - Your hype station. Music, energy tracking, and motivation boosts.</li>
-                  <li><strong className="text-white">Entourage</strong> - 9 support tools designed BY a VARIANT brain FOR VARIANT brains.</li>
-                </ul>
-              </section>
-
-              <section>
-                <h3 className="text-lg font-semibold text-vivid-yellow-green mb-2">Getting Started</h3>
-                <ol className="list-decimal list-inside space-y-2">
-                  <li><strong>Rehearsal Studio</strong> - Try the app with sample projects and tasks</li>
-                  <li><strong>Jam Session</strong> - Start fresh with your own projects</li>
-                  <li>Use the bottom navigation to move between sections</li>
-                  <li>Check out the Entourage for tools to help you stay focused and motivated</li>
-                </ol>
-              </section>
-
-              <section>
-                <h3 className="text-lg font-semibold text-vivid-pink mb-2">Pro Tips</h3>
-                <ul className="space-y-2">
-                  <li>Times shown include a 1.8x VARIANT reality buffer - trust them!</li>
-                  <li>Match tasks to your current energy level for better flow</li>
-                  <li>Use "FUCK IT - DO IT" mode when you're stuck in analysis paralysis</li>
-                  <li>Check the Entourage tools when you need support</li>
-                </ul>
-              </section>
-            </div>
-
-            <button
-              onClick={() => setShowUserGuide(false)}
-              className="mt-6 w-full py-4 bg-magenta text-black font-bold rounded-xl hover:bg-neon-cyan transition-all shadow-[0_0_20px_rgba(255,0,142,0.5)] hover:shadow-[0_0_30px_rgba(0,240,233,0.6)]"
-            >
-              Got it!
-            </button>
-          </div>
-        </div>
-      )}
+      <UserGuideModal isOpen={showUserGuide} onClose={() => setShowUserGuide(false)} />
 
       {/* Footer */}
       <div className="py-4 sm:py-6 text-center mt-8">
